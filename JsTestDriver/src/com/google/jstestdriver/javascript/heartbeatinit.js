@@ -25,8 +25,7 @@ jstestdriver.createHeartbeat = function(capturePath) {
   }
 
   function redirectToPath(path){
-    var location = top.location;
-    top.location = jstestdriver.createPath(location.toString(), path);
+    top.location = path
   }
 
   var id = jstestdriver.extractId(window.location.toString());
