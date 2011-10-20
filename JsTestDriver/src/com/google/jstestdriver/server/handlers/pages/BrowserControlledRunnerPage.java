@@ -50,5 +50,8 @@ public class BrowserControlledRunnerPage implements Page {
             "jstestdriver.runner = jstestdriver.config.createRunner(\n"+
             "    jstestdriver.config.createVisualExecutor);");
     util.writeTestFiles(writer, "default");
+    writer.writeScript("jstestdriver.jQuery(window).load(function(){jstestdriver.runner.listen(" +
+        "jstestdriver.manualResourceTracker.getResults());});");
+    writer.finishHead().startBody().finishBody().flush();
   }
 }

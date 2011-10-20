@@ -84,6 +84,7 @@ public class BrowserControlledRunnerHandler implements RequestHandler {
       request.writeDTD(writer);
       pages.get(request.getPageType()).render(writer, request);
       service(browser);
+      writer.flush();
     }
   }
 
