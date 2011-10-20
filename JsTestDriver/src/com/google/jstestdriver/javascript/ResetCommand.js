@@ -41,6 +41,7 @@ jstestdriver.ResetCommand = function(location, signal, now) {
   this.now_ = now;
 };
 
+
 /**
  * @param {string} loadType method of loading: "load" or "preload", default: "preload"
  * @param {string} testCaseId id of the test case to be run.
@@ -53,15 +54,30 @@ jstestdriver.ResetCommand.prototype.reset = function(args) {
     loadType = 'load'
   }
 
-  var now = this.now_()
-  var newUrl = this.location_.protocol + "//" +
-               this.location_.host +
-               this.location_.pathname +
-               '/refresh/' + now +
-               '/load_type/' + loadType;
-  if (testCaseId) {
-    newUrl += '/testcase_id/' + testCaseId;
+  var now = this.now_();
+  var hostPrefixPageAndPath = this.location_.href.match(/^(.*)\/(slave|runner|bcr)\/(.*)/);
+  var hostAndPrefix = hostPrefixPageAndPath[1];
+  var page = hostPrefixPageAndPath[2];
+  var urlParts = hostPrefixPageAndPath[3].split('/');
+  var newUrlParts = [hostAndPrefix, page];
+  for (var i = 0; urlParts[i]; i++) {
+    if (urlParts[i]=='testcase_id' ||
+            urlParts[i]=='refresh' ||
+            urlParts[i] == 'load_type') {
+      i++; //skip the value
+      continue;
+    }
+    newUrlParts.push(urlParts[i]);
   }
+  newUrlParts.push('refresh');
+  newUrlParts.push(now);
+  newUrlParts.push('load_type');
+  newUrlParts.push(loadType);
+  if (testCaseId) {
+    newUrlParts.push('testcase_id');
+    newUrlParts.push(testCaseId);
+  }
+  var newUrl = newUrlParts.join('/');
   jstestdriver.log('Replacing ' + newUrl);
   this.location_.replace(newUrl);
 };

@@ -66,9 +66,44 @@ jstestdriver.setInterval = function() {
 
 //TODO(corysmith): make this configurable.
 jstestdriver.log = function(message) {
-  /*if (window.console && window.console.log) {
-    window.console.log(message);
-  }*/
+  //if (jstestdriver.runConfig && jstestdriver.runConfig.debug) {}
+      var basePath = top.location.toString();
+      var id = parseInt(jstestdriver.extractId(basePath));
+      var browserInfo =  new jstestdriver.BrowserInfo(id);
+      var prefix = basePath.match(/^(.*)\/(slave|runner|bcr)\//)[1];
+      var url = prefix + '/log';
+
+      jstestdriver.log = function(message) {
+        try {
+          var stack = new Error().stack.split('\n');
+          var smallStack = [];
+          
+          for (var i = 0; stack[i]; i++) {
+            var end = stack[i].indexOf('(');
+            if (end > -1) {
+              smallStack.push(stack[i].substr(0,end).trim());
+            }
+          }
+          jstestdriver.jQuery.ajax({
+            'async' : true,
+            data : "logs=" + jstestdriver.utils.serializeObject([{
+              'source' : 'jstestdriver.browser_' + id,
+              'message' : jstestdriver.utils.serializeObject(message),
+              'stack' : jstestdriver.utils.serializeObject(encodeURI(smallStack.toString())),
+              'browser' : browserInfo,
+              'level' : 3
+            }]),
+            'type' : 'POST',
+            'url' : url
+          });
+        } catch (e) {
+          if (window.console && window.console.log) {
+            window.console.log(message);
+          }
+        }
+      }
+      jstestdriver.log(message);
+  //}
 };
 
 jstestdriver.globalClearInterval = clearInterval;

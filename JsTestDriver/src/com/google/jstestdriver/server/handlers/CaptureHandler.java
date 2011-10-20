@@ -48,6 +48,7 @@ public class CaptureHandler implements RequestHandler {
       .put(SlavePageRequest.MODE, 1)
       .put(SlavePageRequest.ID, 1)
       .put(SlavePageRequest.TIMEOUT, 1)
+      .put(SlavePageRequest.TESTCASE_ID, 1)
       .build();
 
   private static final Set<String> BLACKLIST = ImmutableSet.<String>builder().add("capture")
@@ -68,6 +69,7 @@ public class CaptureHandler implements RequestHandler {
     this.restParser = restParser;
   }
 
+  @Override
   public void handleIt() throws IOException {
     final Map<String, String> parameterMap = restParser.getParameterMap(PARAMETERS, BLACKLIST);
     String mode = parameterMap.get(STRICT) != null ? STRICT : QUIRKS;

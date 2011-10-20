@@ -24,6 +24,7 @@ import com.google.jstestdriver.config.ExecutionType;
 import com.google.jstestdriver.hooks.FileInfoScheme;
 import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.model.NullPathPrefix;
+import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.server.JstdTestCaseStore;
 import com.google.jstestdriver.util.NullStopWatch;
 
@@ -63,7 +64,8 @@ public class JsTestDriverServerTest extends TestCase {
         new NullPathPrefix(),
         Sets.newHashSet(listener),
         Collections.<FileInfoScheme>emptySet(),
-        ExecutionType.INTERACTIVE);
+        ExecutionType.INTERACTIVE,
+        false);
     return server;
   }
 

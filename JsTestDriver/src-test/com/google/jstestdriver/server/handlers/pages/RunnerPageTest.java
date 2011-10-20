@@ -39,7 +39,7 @@ import java.util.Set;
 public class RunnerPageTest extends TestCase {
   public void testRenderWithPrefix() throws Exception {
     new PrefixTester().testPrefixes(new RunnerPage(new TestFileUtil(new JstdTestCaseStore(),
-        new NullPathPrefix(), Collections.<FileInfoScheme>emptySet(), new Gson())));
+        new NullPathPrefix(), Collections.<FileInfoScheme>emptySet(), new Gson()), false));
   }
 
   public void testWriteResources() throws IOException {
@@ -51,7 +51,7 @@ public class RunnerPageTest extends TestCase {
     String id = "foo";
     store.addCase(new JstdTestCase(Collections.<FileInfo>emptyList(), Lists.newArrayList(fileInfo),
         Collections.<FileInfo>emptyList(), id));
-    RunnerPage page = new RunnerPage(new TestFileUtil(store, prefix, schemes, new Gson()));
+    RunnerPage page = new RunnerPage(new TestFileUtil(store, prefix, schemes, new Gson()), false);
     
     Map<String, String> properties = Maps.newHashMap();
     properties.put(SlavePageRequest.TESTCASE_ID, id);

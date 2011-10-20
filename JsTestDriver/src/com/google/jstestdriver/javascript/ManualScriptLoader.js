@@ -28,7 +28,7 @@ jstestdriver.ManualScriptLoader = function(win, testCaseManager, now) {
 
 jstestdriver.ManualScriptLoader.prototype.beginLoad = function(file, onFileLoaded) {
   this.testCaseManager_.removeTestCaseForFilename(file.fileSrc);
-  var handleError = this.createErrorHandler(file);
+  var handleError = this.createErrorHandler();
   this.win_.onerror = handleError;
   this.file_ = file;
   this.started_ = this.now_();
@@ -38,6 +38,10 @@ jstestdriver.ManualScriptLoader.prototype.beginLoad = function(file, onFileLoade
 
 jstestdriver.ManualScriptLoader.prototype.endLoad = function() {
   if (this.file_) {
+    var elapsed = this.now_() - this.started_;
+    if (elapsed > 50) {
+      jstestdriver.log("slow load " + this.file_.fileSrc + " in " + elapsed);
+    }
     var file = this.file_;
     this.file_ = null;
     this.testCaseManager_.updateLatestTestCase(file.fileSrc);
@@ -48,8 +52,10 @@ jstestdriver.ManualScriptLoader.prototype.endLoad = function() {
 };
 
 
-jstestdriver.ManualScriptLoader.prototype.createErrorHandler = function(file) {
-  return jstestdriver.bind(this, function(msg, url, line) {
+jstestdriver.ManualScriptLoader.prototype.createErrorHandler = function() {
+  function errorHandler(msg, url, line) {
+    var file = this.file_;
+    jstestdriver.log("failed load " + file.fileSrc + " in " + (this.now_() - this.started_));
     var started = this.started_;
     this.started_ = -1;
     var file = this.file_;
@@ -65,5 +71,6 @@ jstestdriver.ManualScriptLoader.prototype.createErrorHandler = function(file) {
     }
     this.win_.onerror = jstestdriver.EMPTY_FUNC;
     this.onFileLoaded_(new jstestdriver.FileResult(file, false, loadMsg, this.now_() - started));
-  });
+  }
+  return jstestdriver.bind(this, errorHandler);
 };

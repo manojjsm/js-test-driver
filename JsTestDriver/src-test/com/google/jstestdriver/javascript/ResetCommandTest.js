@@ -21,12 +21,13 @@ ResetCommandTest.prototype.testResetDefault = function() {
   var now = 1;
   
   var locationMock = {
+    href : "http://host/runner/path/name/",
     search : "",
     protocol : "http",
     host : "host",
     pathname : "/path/name",
-    reload : function(newUrl) {
-      this.newUrl = newUrl;
+    reload : function(href) {
+      this.href = href;
     }
   };
 
@@ -38,7 +39,7 @@ ResetCommandTest.prototype.testResetDefault = function() {
   
   command.reset([]);
   
-  assertEquals("http://host/path/name/refresh/" + now + "")
+  assertEquals("http://host/runner/path/name/refresh/" + now + "")
 };
 
 
@@ -47,12 +48,13 @@ ResetCommandTest.prototype.testResetDefault = function() {
   var now = 1;
   
   var locationMock = {
+      href : "http://host/runner/path/name/",
       search : "",
       protocol : "http:",
       host : "host",
       pathname : "/path/name",
-      replace : function(newUrl) {
-        this.newUrl = newUrl;
+      replace : function(href) {
+        this.href = href;
       }
   };
   
@@ -65,7 +67,7 @@ ResetCommandTest.prototype.testResetDefault = function() {
   
   command.reset([]);
   
-  assertEquals("http://host/path/name/refresh/" + now + "/load_type/load", locationMock.newUrl)
+  assertEquals("http://host/runner/path/name/refresh/" + now + "/load_type/load", locationMock.href)
 };
 
 
@@ -74,12 +76,13 @@ ResetCommandTest.prototype.testResetLoadType = function() {
   var now = 1;
   
   var locationMock = {
+      href : "http://host/runner/path/name/",
       search : "",
       protocol : "http:",
       host : "host",
       pathname : "/path/name",
-      replace : function(newUrl) {
-        this.newUrl = newUrl;
+      replace : function(href) {
+        this.href = href;
       }
   };
   
@@ -91,5 +94,34 @@ ResetCommandTest.prototype.testResetLoadType = function() {
   });
   
   command.reset(["load"]);
-  assertEquals("http://host/path/name/refresh/" + now + "/load_type/load", locationMock.newUrl)
+  assertEquals("http://host/runner/path/name/refresh/" + now + "/load_type/load", locationMock.href)
+};
+
+
+ResetCommandTest.prototype.testResetTwice = function() {
+  var signal = new jstestdriver.Signal(true);
+  var now = 1;
+  
+  var locationMock = {
+          href : "http://host/runner/path/name/",
+          search : "",
+          protocol : "http:",
+          host : "host",
+          pathname : "/path/name",
+          replace : function(href) {
+            this.href = href;
+          }
+  };
+
+  var command = new jstestdriver.ResetCommand(
+    locationMock,
+    signal,
+    function() {
+      return now;
+    });
+
+  command.reset(["load"]);
+  assertEquals("http://host/runner/path/name/refresh/" + now + "/load_type/load", locationMock.href)
+  command.reset(["load"]);
+  assertEquals("http://host/runner/path/name/refresh/" + now + "/load_type/load", locationMock.href)
 };

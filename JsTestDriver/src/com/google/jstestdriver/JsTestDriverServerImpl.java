@@ -25,6 +25,7 @@ import com.google.jstestdriver.config.ExecutionType;
 import com.google.jstestdriver.hooks.FileInfoScheme;
 import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.model.HandlerPathPrefix;
+import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.server.JettyModule;
 import com.google.jstestdriver.server.JstdTestCaseStore;
 import com.google.jstestdriver.server.handlers.JstdHandlersModule;
@@ -69,6 +70,8 @@ public class JsTestDriverServerImpl implements JsTestDriverServer, Observer {
 
   private final ExecutionType executionType;
 
+  private final Boolean debug;
+
   @Inject
   public JsTestDriverServerImpl(@Assisted("port") int port,
                                 @Assisted("sslPort") int sslPort,
@@ -78,7 +81,8 @@ public class JsTestDriverServerImpl implements JsTestDriverServer, Observer {
                                 @Named("serverHandlerPrefix") HandlerPathPrefix handlerPrefix,
                                 Set<ServerListener> listeners,
                                 Set<FileInfoScheme> schemes,
-                                @Named("executionType") ExecutionType executionType) {
+                                @Named("executionType") ExecutionType executionType,
+                                @Named("debug") Boolean debug) {
     this.port = port;
     this.sslPort = sslPort;
     this.capturedBrowsers = capturedBrowsers;
@@ -88,6 +92,7 @@ public class JsTestDriverServerImpl implements JsTestDriverServer, Observer {
     this.listeners = listeners;
     this.schemes = schemes;
     this.executionType = executionType;
+    this.debug = debug;
     initServer();
   }
 
@@ -105,7 +110,8 @@ public class JsTestDriverServerImpl implements JsTestDriverServer, Observer {
                                  browserTimeout,
                                  handlerPrefix,
                                  schemes,
-                                 executionType)).getInstance(Server.class);
+                                 executionType,
+                                 debug)).getInstance(Server.class);
       server.addLifeCycleListener(new JettyLifeCycleLogger());
     }
   }

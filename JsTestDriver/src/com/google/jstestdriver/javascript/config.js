@@ -88,7 +88,7 @@ jstestdriver.config = (function(module) {
     jstestdriver.testCaseManager.TestCase = jstestdriver.global.TestCase;
 
     var id = parseInt(jstestdriver.extractId(top.location.toString()));
-    console.debug("id " + id);
+
     function getBrowserInfo() {
       return new jstestdriver.BrowserInfo(id);
     }

@@ -36,6 +36,7 @@ public class BaseBrowserSessionManager implements BrowserSessionManager {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String startSession(String browserId) {
     String sessionId = server.startSession(baseUrl, browserId);
 
@@ -60,9 +61,9 @@ public class BaseBrowserSessionManager implements BrowserSessionManager {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void stopSession(String sessionId, String browserId) {
     heartBeatManager.cancelTimer();
-    // TODO(corysmith): Is the browserId necessary?
     server.stopSession(baseUrl, browserId, sessionId);
   }
 }

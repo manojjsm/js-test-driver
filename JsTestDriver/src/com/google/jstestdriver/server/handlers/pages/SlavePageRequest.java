@@ -15,6 +15,10 @@
  */
 package com.google.jstestdriver.server.handlers.pages;
 
+import static com.google.jstestdriver.server.handlers.CaptureHandler.RUNNER_TYPE;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.jstestdriver.CapturedBrowsers;
 import com.google.jstestdriver.SlaveBrowser;
 import com.google.jstestdriver.model.HandlerPathPrefix;
@@ -26,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +68,7 @@ public class SlavePageRequest {
     this.request = request;
     this.prefix = prefix;
     this.browsers = browsers;
+
   }
 
   public HtmlWriter writeDTD(HtmlWriter writer) throws IOException {
@@ -74,38 +81,51 @@ public class SlavePageRequest {
   }
   
   public String createCaptureUrl(RunnerType type) {
-    return prefix.prefixPath(String.format("/capture/%s/%s/%s/%s/%s/%s",
-        CaptureHandler.RUNNER_TYPE,
-        type,
-        MODE,
-        parameters.get(MODE),
-        UPLOAD_SIZE,
-        parameters.get(UPLOAD_SIZE)));
+    List<String> urlParts = Lists.newArrayList("/capture");
+    addParameterToUrlParts(MODE, urlParts);
+    addParameterToUrlParts(UPLOAD_SIZE, urlParts);
+    addParameterToUrlParts(RUNNER_TYPE, urlParts);
+    addParameterToUrlParts(TESTCASE_ID, urlParts);
+    final String url = Joiner.on("/").join(urlParts);
+    return prefix.prefixPath(Joiner.on("/").join(urlParts));
   }
 
   public String createCaptureUrl() {
-    return createCaptureUrl(
-        RunnerType.valueOf(
-            parameters.get(CaptureHandler.RUNNER_TYPE).toUpperCase()));
+    try {
+      return createCaptureUrl(
+          RunnerType.valueOf(
+              parameters.get(CaptureHandler.RUNNER_TYPE).toUpperCase()));
+    } catch (NullPointerException e) {
+      logger.error("Invalid/No runner type specified: {} falling back to BROWSER",
+          parameters.get(CaptureHandler.RUNNER_TYPE));
+    }
+    return createCaptureUrl(RunnerType.BROWSER);
   }
 
   public String createPageUrl(PageType page) {
-    String url = prefix.prefixPath(String.format("/%s/%s/%s/%s/%s/%s/%s/%s/%s/%s/%s",
-        "slave",
-        ID,
-        parameters.get(ID),
-        CaptureHandler.RUNNER_TYPE,
-        parameters.get(CaptureHandler.RUNNER_TYPE),
-        MODE,
-        parameters.get(MODE),
-        PAGE,
-        page,
-        UPLOAD_SIZE,
-        parameters.get(UPLOAD_SIZE)));
+    List<String> urlParts = Lists.<String>newArrayList("/slave");
+    addToUrlParts(PAGE, page.name(), urlParts);
+    addParameterToUrlParts(ID, urlParts);
+    addParameterToUrlParts(MODE, urlParts);
+    addParameterToUrlParts(UPLOAD_SIZE, urlParts);
+    addParameterToUrlParts(TESTCASE_ID, urlParts);
+    final String url = Joiner.on("/").join(urlParts);
     logger.trace("creating new url: {} for {}", url, page);
-    return url;
+    return prefix.prefixPath(url);
   }
   
+  private void addParameterToUrlParts(String key, List<String> urlParts) {
+    addToUrlParts(key, parameters.get(key), urlParts);
+  }
+
+  private void addToUrlParts(String key, String value, List<String> urlParts) {
+    if (value == null || value.isEmpty()) {
+      return;
+    }
+    urlParts.add(key);
+    urlParts.add(value);
+  }
+
   public SlaveBrowser getBrowser() {
     String id = parameters.get(ID);
     if (id == null) {
@@ -122,14 +142,15 @@ public class SlavePageRequest {
     return request.getHeader("User-Agent");
   }
 
+  public String getTestCaseId() {
+    return getParameter(TESTCASE_ID);
+  }
+
   @Override
   public String toString() {
     return "SlavePageRequest [parameters=" + parameters + "]";
   }
 
-  /**
-   * @param string
-   */
   public String getParameter(String key) {
     return parameters.get(key);
   }

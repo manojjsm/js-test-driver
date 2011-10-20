@@ -16,6 +16,7 @@
 package com.google.jstestdriver;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -26,6 +27,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.internal.Lists;
 import com.google.jstestdriver.browser.BrowserRunner;
 import com.google.jstestdriver.model.JstdTestCase;
+import com.google.jstestdriver.model.RunData;
 import com.google.jstestdriver.util.NullStopWatch;
 
 /**
@@ -143,8 +145,8 @@ public class BrowserStartupActionTest extends TestCase {
         new FakeJsTestDriverClient(capturedBrowsers, nextId),
         serverAddress,
         Executors.newSingleThreadExecutor());
-    
-    action.run(null);
+
+    action.run(new RunData(Collections.<ResponseStream>emptyList(), Collections.<JstdTestCase>emptyList(), null));
     assertEquals(serverAddress + "/capture/id/123/timeout/10/upload_size/0/", browserRunner.serverAddress);
   }
 }

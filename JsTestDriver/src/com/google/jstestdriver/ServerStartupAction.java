@@ -23,6 +23,7 @@ import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.model.NullPathPrefix;
 import com.google.jstestdriver.model.RunData;
+import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.server.JstdTestCaseStore;
 
 import org.slf4j.Logger;
@@ -135,7 +136,7 @@ public class ServerStartupAction implements ObservableAction {
     public JsTestDriverServer create(int port, int sslPort, JstdTestCaseStore testCaseStore) {
       return new JsTestDriverServerImpl(port, sslPort, testCaseStore, capturedBrowsers, timeout,
           nullPathPrefix, Sets.<ServerListener>newHashSet(), Collections.<FileInfoScheme>emptySet(),
-          ExecutionType.INTERACTIVE);
+          ExecutionType.INTERACTIVE, false);
     }
   }
 

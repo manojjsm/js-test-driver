@@ -142,14 +142,13 @@ public class BrowserActionExecutorAction implements Action {
       executor.shutdownNow();
     }
     logger.debug("Finished BrowserActions {}.", actions);
+    // TODO(corysmith): Move this to the ActionRunner?
+    runData.finish(); // finalizes the rundata collection.
+    stopWatch.stop("run %s", actions);
     if (!exceptions.isEmpty()) {
       throw new TestErrors("Failures during test run.", exceptions);
     }
 
-    // TODO(corysmith): Move this to the ActionRunner?
-    runData.finish(); // finalizes the rundata collection.
-
-    stopWatch.stop("run %s", actions);
     return runData;
   }
 
@@ -158,7 +157,7 @@ public class BrowserActionExecutorAction implements Action {
       String browserId, BrowserActionRunner actionRunner) {
     return new RetryingCallable<Collection<ResponseStream>>(runner.getNumStartupTries(),
         new BrowserCallable<Collection<ResponseStream>>(actionRunner, browserId,
-      new BrowserControl(runner, captureAddress, stopWatch, client)));
+      new BrowserControl(runner, captureAddress, stopWatch, client, runData.getTestCases())));
   }
 
   public List<BrowserAction> getActions() {

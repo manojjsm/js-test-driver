@@ -27,6 +27,7 @@ import com.google.jstestdriver.BrowserInfo;
 public class BrowserLog {
   String source = "";
   String message = "";
+  String stack = "";
   int level = 1;
   BrowserInfo browser = null;
 

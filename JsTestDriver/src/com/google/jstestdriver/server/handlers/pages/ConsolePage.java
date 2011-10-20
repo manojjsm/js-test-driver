@@ -20,6 +20,7 @@ import com.google.jstestdriver.util.HtmlWriter;
 import java.io.IOException;
 
 public class ConsolePage implements Page {
+  @Override
   public void render(HtmlWriter writer, SlavePageRequest request) throws IOException {
     writer.startHead()
       .writeTitle("Remote Console Runner")

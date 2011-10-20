@@ -44,6 +44,7 @@ public class PrefixTester {
     Map<String, String> parameters = ImmutableMap.<String, String>builder()
     .put(SlavePageRequest.ID, "1")
     .put(CaptureHandler.RUNNER_TYPE, RunnerType.CLIENT.toString())
+    
     .build();
     String jstd = "jstd";
     HandlerPathPrefix prefix = new ConcretePathPrefix(jstd);

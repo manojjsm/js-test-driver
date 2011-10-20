@@ -95,6 +95,7 @@ public class CommandTask {
 
   public void run(JstdTestCase testCase) {
     stopWatch.start("run %s", testCase.getId());
+    logger.info("run {}", testCase.getId());
     String browserId = params.get("id");
     try {
       stopWatch.start("checkBrowser %s", browserId);

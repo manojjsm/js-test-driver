@@ -32,7 +32,7 @@ ManualScriptLoaderTest.prototype.setUp = function() {
   };
 
   function now() {
-    return now.currentTime++;
+    return now.currentTime;
   }
   now.currentTime = 0;
   this.now_ = now;
@@ -53,6 +53,7 @@ ManualScriptLoaderTest.prototype.setUp = function() {
 
 ManualScriptLoaderTest.prototype.testBeginLoad = function() {
   this.loader_.beginLoad(this.src_, this.onFinish_);
+  this.now_.currentTime++;
 
   assertEquals(this.src_.fileSrc, this.testCaseManager_.removed);
   assertTrue(this.win_.onerror instanceof Function);
@@ -62,6 +63,7 @@ ManualScriptLoaderTest.prototype.testBeginLoad = function() {
 ManualScriptLoaderTest.prototype.testBeginLoadAndError = function() {
   this.loader_.beginLoad(this.src_, this.onFinish_);
   var msg = 'error';
+  this.now_.currentTime++;
   this.win_.onerror(msg, 'http://localhost/foo.js', 10);
   // because this will be in a separate script tag, it will always execute.
   this.loader_.endLoad();
@@ -84,6 +86,7 @@ ManualScriptLoaderTest.prototype.testBeginLoadAndError = function() {
 
 ManualScriptLoaderTest.prototype.testBeginLoadAndComplete = function() {
   this.loader_.beginLoad(this.src_, this.onFinish_);
+  this.now_.currentTime++;
   var msg = 'error';
   this.loader_.endLoad();
 

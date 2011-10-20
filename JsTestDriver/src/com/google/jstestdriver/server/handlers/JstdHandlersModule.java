@@ -37,6 +37,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
+import com.google.inject.name.Names;
 import com.google.inject.servlet.RequestScoped;
 import com.google.jstestdriver.CapturedBrowsers;
 import com.google.jstestdriver.FileInfo;
@@ -56,6 +57,7 @@ import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.requesthandlers.HttpMethod;
 import com.google.jstestdriver.requesthandlers.RequestHandler;
 import com.google.jstestdriver.requesthandlers.RequestHandlersModule;
+import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.server.JstdTestCaseStore;
 import com.google.jstestdriver.server.gateway.SimpleServletConfig;
 import com.google.jstestdriver.server.handlers.pages.BrowserControlledRunnerPage;
@@ -111,11 +113,14 @@ public class JstdHandlersModule extends RequestHandlersModule {
 
   private final ExecutionType executionType;
 
+  private final Boolean debug;
+
   /**
    * TODO(rdionne): Refactor so we don't depend upon manually instantiated
    * classes from other object graphs. 
    * @param handlerPrefix TODO
    * @param schemes 
+   * @param debug 
    */
   public JstdHandlersModule(
       CapturedBrowsers capturedBrowsers,
@@ -123,7 +128,8 @@ public class JstdHandlersModule extends RequestHandlersModule {
       long browserTimeout,
       HandlerPathPrefix handlerPrefix,
       Set<FileInfoScheme> schemes,
-      ExecutionType executionType) {
+      ExecutionType executionType,
+      Boolean debug) {
     super();
     this.capturedBrowsers = capturedBrowsers;
     this.testCaseStore = testCaseStore;
@@ -131,6 +137,7 @@ public class JstdHandlersModule extends RequestHandlersModule {
     this.handlerPrefix = handlerPrefix;
     this.schemes = schemes;
     this.executionType = executionType;
+    this.debug = debug;
   }
   
   @Override
@@ -191,6 +198,7 @@ public class JstdHandlersModule extends RequestHandlersModule {
     bind(StandaloneRunnerFilesFilter.class).to(StandaloneRunnerFilesFilterImpl.class);
     bind(HandlerPathPrefix.class).toInstance(handlerPrefix);
     bind(Time.class).to(TimeImpl.class);
+    bind(Boolean.class).annotatedWith(Names.named("debug")).toInstance(debug);
     bind(new TypeLiteral<Set<FileInfoScheme>>(){}).toInstance(schemes);
     
     bind(ExecutionType.class).toInstance(executionType);

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,22 +60,23 @@ class BrowserLoggingHandler implements RequestHandler {
         gson.fromJson(request.getParameter("logs"),
             new TypeToken<Collection<BrowserLog>>() {}.getType());
       for (BrowserLog log : logs) {
-        Logger logger = LoggerFactory.getLogger(log.getSource());
+        Logger browserLogger = LoggerFactory.getLogger(log.getSource());
+        String message = gson.fromJson(log.getMessage(), String.class);
         switch(log.getLevel()) {
           case 1:
-            logger.trace(log.getMessage());
+            browserLogger.trace(message);
             break;
           case 2:
-            logger.debug(log.getMessage());
+            browserLogger.debug(message);
             break;
           case 3:
-            logger.info(log.getMessage());
+            browserLogger.info(message);
             break;
           case 4:
-            logger.warn(log.getMessage());
+            browserLogger.warn(message);
             break;
           case 5:
-            logger.error(log.getMessage());
+            browserLogger.error(message);
             break;
           default:
             throw new RuntimeException("Unknown logging level:" + log.getLevel());
@@ -83,7 +85,7 @@ class BrowserLoggingHandler implements RequestHandler {
       response.setStatus(HttpStatus.ORDINAL_200_OK);
     } catch (RuntimeException e) {
       response.setStatus(HttpStatus.ORDINAL_500_Internal_Server_Error);
-      logger.error("Error during BrowserLog write.", e);
+      logger.error("Error during BrowserLog write: |" + Arrays.toString(request.getParameterValues("logs")) + "|", e);
     } finally {
       response.getOutputStream().flush();
     }

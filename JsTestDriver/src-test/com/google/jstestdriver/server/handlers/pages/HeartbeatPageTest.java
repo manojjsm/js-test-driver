@@ -19,6 +19,6 @@ import junit.framework.TestCase;
 
 public class HeartbeatPageTest extends TestCase {
   public void testRenderWithPrefix() throws Exception {
-    new PrefixTester().testPrefixes(new HeartbeatPage());
+    new PrefixTester().testPrefixes(new HeartbeatPage(false));
   }
 }

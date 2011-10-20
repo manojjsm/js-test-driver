@@ -15,14 +15,19 @@
  */
 package com.google.jstestdriver.browser;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.JsTestDriverClient;
+import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.server.handlers.pages.SlavePageRequest;
 import com.google.jstestdriver.util.StopWatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,9 +36,26 @@ import java.util.concurrent.TimeUnit;
  * @author Cory Smith (corbinrsmith@gmail.com) 
  */
 public class BrowserControl {
+  /**
+   * @author corysmith@google.com (Cory Smith)
+   *
+   */
+  private final Function<JstdTestCase, String> TESTCASE_TO_ID = new Function<JstdTestCase, String>() {
+    @Override
+    public String apply(JstdTestCase testCase) {
+      return testCase.getId();
+    }
+  };
+
   private static final String CAPTURE_URL =
     String.format("%%s/capture/%s/%%s/%s/%%s/%s/%%s/",
         SlavePageRequest.ID, SlavePageRequest.TIMEOUT, SlavePageRequest.UPLOAD_SIZE);
+  private static final String CAPTURE_URL_WITH_TESTCASE_IDS =
+    String.format("%%s/capture/%s/%%s/%s/%%s/%s/%%s/%s/%%s",
+        SlavePageRequest.ID,
+        SlavePageRequest.TIMEOUT,
+        SlavePageRequest.UPLOAD_SIZE,
+        SlavePageRequest.TESTCASE_ID);
 
   private static final Logger logger = LoggerFactory.getLogger(BrowserControl.class);
   private final BrowserRunner runner;
@@ -41,26 +63,46 @@ public class BrowserControl {
   private final StopWatch stopWatch;
   private final JsTestDriverClient client;
 
+  private final List<JstdTestCase> testCases;
+
   /**
    * @param runner
    * @param stopWatch 
    * @param serverAddress 
    * @param client 
+   * @param testCases 
    */
-  public BrowserControl(BrowserRunner runner, String serverAddress, StopWatch stopWatch, JsTestDriverClient client) {
+  public BrowserControl(BrowserRunner runner,
+      String serverAddress,
+      StopWatch stopWatch,
+      JsTestDriverClient client,
+      List<JstdTestCase> testCases) {
     this.runner = runner;
     this.serverAddress = serverAddress;
     this.stopWatch = stopWatch;
     this.client = client;
+    this.testCases = testCases;
   }
 
   /** Slaves a new browser window with the provided id. */
   public String captureBrowser(String browserId) throws InterruptedException {
     try {
       stopWatch.start("browser start %s", browserId);
-      final String url =
-          String.format(CAPTURE_URL, serverAddress, browserId, runner.getHeartbeatTimeout(),
-              runner.getUploadSize());
+      final String url;
+      if (testCases.isEmpty()) {
+        url = String.format(CAPTURE_URL,
+            serverAddress,
+            browserId,
+            runner.getHeartbeatTimeout(),
+            runner.getUploadSize());
+      } else {
+        url = String.format(CAPTURE_URL_WITH_TESTCASE_IDS,
+            serverAddress,
+            browserId,
+            runner.getHeartbeatTimeout(),
+            runner.getUploadSize(),
+            Joiner.on(",").join(Lists.transform(testCases, TESTCASE_TO_ID)));
+      }
       runner.startBrowser(url);
       long timeOut = TimeUnit.MILLISECONDS.convert(runner.getTimeout(), TimeUnit.SECONDS);
       long start = System.currentTimeMillis();

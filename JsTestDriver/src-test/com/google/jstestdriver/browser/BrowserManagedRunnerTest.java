@@ -16,17 +16,19 @@
 
 package com.google.jstestdriver.browser;
 
-import java.util.Collection;
-
-import junit.framework.TestCase;
-
 import com.google.common.collect.Lists;
 import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FakeJsTestDriverClient;
 import com.google.jstestdriver.FileUploader;
 import com.google.jstestdriver.ResponseStream;
 import com.google.jstestdriver.SlaveBrowser;
+import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.util.NullStopWatch;
+
+import junit.framework.TestCase;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author corbinrsmith@gmail.com (Cory Smith)
@@ -47,7 +49,8 @@ public class BrowserManagedRunnerTest extends TestCase {
     final FakeBrowserActionRunner browserActionRunner = new FakeBrowserActionRunner();
     final BrowserCallable<Collection<ResponseStream>> browserRunner =
         new BrowserCallable<Collection<ResponseStream>>(browserActionRunner, browserId,
-            new BrowserControl(runner, serverAddress, new NullStopWatch(), client));
+            new BrowserControl(runner, serverAddress, new NullStopWatch(), client,
+                Collections.<JstdTestCase>emptyList()));
     browserRunner.call();
   }
 

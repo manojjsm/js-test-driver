@@ -66,7 +66,6 @@ class FileSetGetHandler implements RequestHandler {
     String id = request.getParameter("id");
     String session = request.getParameter("session");
     String sessionId = request.getParameter("sessionId");
-    System.out.printf("\nid %s session %s sessionId %s", id, session, sessionId);
 
     if (session == null && sessionId != null) {
       sessionHeartBeat(id, sessionId);
@@ -100,24 +99,20 @@ class FileSetGetHandler implements RequestHandler {
 
   public void startSession(String id, PrintWriter writer) {
     logger.debug("trying to start session for {}", id);
-    System.out.printf("\ntrying to start session for %s", id);
     SlaveBrowser browser = capturedBrowsers.getBrowser(id);
     String sessionId = UUID.randomUUID().toString();
     SlaveBrowser slaveBrowser = capturedBrowsers.getBrowser(id);
 
     if (browser.tryLock(sessionId)) {
-      System.out.printf("\ngot session lock %s", sessionId);
       logger.debug("got session lock {} for {}", sessionId, id);
       writer.write(sessionId);
       slaveBrowser.resetCommandQueue();
       slaveBrowser.clearResponseQueue();
       browser.heartBeatLock(sessionId);
     } else {
-      System.out.printf("\nrequest forceUnlock for %s", sessionId);
       logger.debug("checking session status for {}", id);
       // session is probably stalled
       if (!browser.inUse()) {
-        System.out.printf("\nforcing unlock for %s", id);
         logger.debug("forcing unlock for {}", id);
         browser.forceUnlock();
 

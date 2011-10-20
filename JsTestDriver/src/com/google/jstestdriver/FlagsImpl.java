@@ -131,7 +131,6 @@ public class FlagsImpl implements Flags {
       String browserArgs = "";
       if (splitBrowser.length == 2) {
         browserArgs = splitBrowser[1].replace(";", " ");
-        System.out.println(browserArgs);
       }
       this.browser.add(
           new CommandLineBrowserRunner(splitBrowser[0], browserArgs, new SimpleProcessFactory()));

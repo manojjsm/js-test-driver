@@ -60,7 +60,7 @@ public class Initializer {
                      FlagsParser flagsParser,
                      Set<PluginInitializer> initializers,
                      @Named("outputStream") PrintStream outputStream,
-                     @Named("basePath") File basePath) {
+                     @Named("basePath") File basePath, RunnerMode runnerMode) {
     this.pluginLoader = pluginLoader;
     this.pathResolver = pathResolver;
     this.flagsParser = flagsParser;

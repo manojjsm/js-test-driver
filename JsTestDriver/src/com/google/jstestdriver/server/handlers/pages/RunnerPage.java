@@ -19,6 +19,7 @@ import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.LOA
 import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.TESTCASE_ID;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.google.jstestdriver.util.HtmlWriter;
 
 import java.io.IOException;
@@ -30,21 +31,25 @@ import java.io.IOException;
  */
 public class RunnerPage implements Page {
   private final TestFileUtil testFileUtil;
+  private final Boolean debug;
 
   @Inject
-  RunnerPage(TestFileUtil testFileUtil) {
+  RunnerPage(TestFileUtil testFileUtil, @Named("debug") Boolean debug) {
     this.testFileUtil = testFileUtil;
+    this.debug = debug;
   }
 
   @Override
   public void render(HtmlWriter writer, SlavePageRequest request) throws IOException {
     writer.startHead()
       .writeTitle("Console Runner")
+      .writeScript("var start = new Date().getTime();")
       .writeExternalScript("/static/lib/json2.js")
       .writeExternalScript("/static/lib/json_sans_eval.js")
       .writeExternalScript("/static/jstestdrivernamespace.js")
       .writeExternalScript("/static/lib/jquery-min.js")
       .writeExternalScript("/static/runner.js")
+      .writeScript("jstestdriver.runConfig = {'debug':" + debug + "};")
       .writeScript(
           "jstestdriver.console = new jstestdriver.Console();\n" +
           "jstestdriver.runner = jstestdriver.config.createRunner(\n" +
@@ -52,14 +57,16 @@ public class RunnerPage implements Page {
           "    jstestdriver.plugins.createPausingRunTestLoop(\n" +
           "        jstestdriver.TIMEOUT,\n" +
           "        jstestdriver.now,\n" +
-          "        jstestdriver.setTimeout));");
+          "        jstestdriver.setTimeout));")
+      .writeScript("jstestdriver.log('runner loaded in ' + (new Date().getTime() - start));start = new Date().getTime();");
 
     
     if (!"load".equals(request.getParameter(LOAD_TYPE))) {
       testFileUtil.writeTestFiles(writer, request.getParameter(TESTCASE_ID));
     }
 
-    writer.writeScript("jstestdriver.jQuery(window).load(function(){jstestdriver.runner.listen(" +
+    
+    writer.writeScript("jstestdriver.log('test loaded in ' + (new Date().getTime() - start));jstestdriver.jQuery(window).load(function(){jstestdriver.runner.listen(" +
         "jstestdriver.manualResourceTracker.getResults());});");
     writer.finishHead()
       .startBody()

@@ -46,7 +46,7 @@ public class CachingTestResourceHandler implements RequestHandler {
   public void handleIt() throws IOException {
     logger.info("handinling {} with headers {}", request.getPathInfo().substring(1), Collections.list(request.getHeaderNames()));
     // tests requesting the file in short succession
-    response.setHeader("Cache-Control", "max-age=600");
+    response.setHeader("Cache-Control", "max-age=1800");
     response.setHeader("Last-Modified",
         RFC1123_PATTERN.format(new DateTime().minusMinutes(1).toDate()));
     handler.handleIt();
