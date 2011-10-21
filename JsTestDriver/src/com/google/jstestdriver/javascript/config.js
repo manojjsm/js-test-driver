@@ -24,9 +24,8 @@ jstestdriver.config = (function(module) {
    * Create a new runner.
    */
   config.createRunner = function(createCommandExecutor, opt_runTestLoop) {
-    
+
     var runTestLoop = opt_runTestLoop || jstestdriver.plugins.defaultRunTestLoop;
-    jstestdriver.log("using runTestLoop:" + runTestLoop);
 
     jstestdriver.pluginRegistrar = new jstestdriver.PluginRegistrar();
     jstestdriver.testCaseManager =
