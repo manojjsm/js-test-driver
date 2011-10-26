@@ -62,6 +62,23 @@ public class TestFileUtilTest extends TestCase {
     }, TESTCASE_ID);
     assertEquals(Lists.newArrayList("/test/foo.js","/test/bar.js", "http://somehost/bar.js"), paths);
   }
+  
+  public void testWriteFileInfosWindowsPath() throws Exception {
+    Set<FileInfoScheme> defaultSchemes = Sets.<FileInfoScheme>newHashSet(new HttpFileInfoScheme());
+
+    TestFileUtil testFileUtil = new TestFileUtil(createFileCache(
+      new FileInfo("C:\\Sagitta\\Main\\Source\\Web\\Sagitta.Web.JavaScriptTests\\lib\\jasmine\\jasmine.js",
+        0, 0, false, false, null, "/test/lib/jasmine/jasmine.js")),
+      new NullPathPrefix(), defaultSchemes, new Gson());
+
+    StringWriter writer = new StringWriter();
+    HtmlWriter htmlWriter = new HtmlWriter(writer, new NullPathPrefix());
+    testFileUtil.writeTestFiles(htmlWriter, TESTCASE_ID);
+    htmlWriter.flush();
+    assertTrue(writer.toString().contains("C:\\\\\\\\Sagitta\\\\\\\\Main\\\\\\\\" +
+        "Source\\\\\\\\Web\\\\\\\\Sagitta.Web.JavaScriptTests\\\\\\\\lib\\\\\\\\" +
+        "jasmine\\\\\\\\jasmine.js"));
+  }
 
   /**
    * If there is a FileInfo in the FileCache that cannot be loaded by script of link tag, the loading

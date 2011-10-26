@@ -95,7 +95,7 @@ public class TestFileUtil {
       logger.debug("Writing " + fileSource.getFileSrc());
       writer.writeScript(String.format(
           "jstestdriver.manualResourceTracker.startResourceLoad('%s')",
-          gson.toJson(fileSource).replace(Pattern.quote("\\"), "\\\\")));
+          gson.toJson(fileSource).replace("\\", "\\\\")));
       if (fileSource.getFileSrc().endsWith(".css")) {
         writer.writeStyleSheet(fileSource.getFileSrc());
       } else {
