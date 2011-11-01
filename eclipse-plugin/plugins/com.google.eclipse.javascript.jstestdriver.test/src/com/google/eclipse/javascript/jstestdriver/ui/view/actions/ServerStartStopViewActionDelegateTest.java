@@ -1,12 +1,12 @@
 /*
  * Copyright 2009 Google Inc.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,12 +15,14 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view.actions;
 
+import com.google.eclipse.javascript.jstestdriver.core.JstdLaunchListener;
+import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
 import com.google.eclipse.javascript.jstestdriver.ui.Icons;
-import com.google.eclipse.javascript.jstestdriver.ui.view.PortSupplier;
 import com.google.eclipse.javascript.jstestdriver.ui.view.ServerController;
 
 import junit.framework.TestCase;
 
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 
@@ -46,17 +48,18 @@ public class ServerStartStopViewActionDelegateTest extends TestCase {
         return null;
       }
     };
-    
-    
-    ServerStartStopViewActionDelegate delegate = new ServerStartStopViewActionDelegate(
-        icons, ServerController.getInstanceForTest(new PortSupplier() {
+
+
+    ServerController serverController = new ServerController(new JstdServerListener(),
+        new com.google.eclipse.javascript.jstestdriver.core.PortSupplier() {
+
           @Override
           public int getPort() {
             return 42242;
           }
-        }));
-    Action action = new Action() {
-    };
+        });
+    ServerStartStopViewActionDelegate delegate = new ServerStartStopViewActionDelegate(icons, serverController);
+    Action action = new Action() {};
 
     delegate.run(action);
 

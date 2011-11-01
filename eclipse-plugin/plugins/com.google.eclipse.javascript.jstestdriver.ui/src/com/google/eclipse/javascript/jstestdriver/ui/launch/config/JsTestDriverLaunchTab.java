@@ -18,12 +18,16 @@ package com.google.eclipse.javascript.jstestdriver.ui.launch.config;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.eclipse.javascript.jstestdriver.core.ProjectHelper;
+import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
-import com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchConfigurationConstants;
+import com.google.inject.internal.Maps;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -44,6 +48,8 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,7 +68,9 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   private Button runOnEverySaveCheckbox;
   private JavascriptLaunchConfigurationHelper configurationHelper =
       new JavascriptLaunchConfigurationHelper();
+  private final Map<String, String> projectPathToAbsolutePath = Maps.newHashMap();
 
+  @Override
   public void createControl(Composite parent) {
     Composite control = new Composite(parent, SWT.NONE);
     control.setLayout(new GridLayout(1, false));
@@ -77,17 +85,30 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     createJstdPropreties(jstdPropertiesControl);
     setUpProjectCombo();
   }
-  
-  private String[] getConfigurationFiles(IProject project) {
+
+  private String[] getConfigurationFiles(final IProject project) {
     try {
-      List<String> resources = Lists.newLinkedList();
-      for (IResource resource : project.members()) {
-        if (resource.getName().endsWith(".conf")) {
-          resources.add(resource.getName());
-        }
+      synchronized (projectPathToAbsolutePath) {
+        projectPathToAbsolutePath.clear();
+        final Map<String, String> configurationPaths = Maps.newHashMap();
+        project.accept(new IResourceVisitor() {
+          @Override
+          public boolean visit(IResource resource) throws CoreException {
+            if (resource.getName().endsWith(".conf")) {
+              configurationPaths.put(resource.getFullPath().toFile().getAbsolutePath(), resource.getLocation().toOSString());
+              return false;
+            }
+            return true;
+          }
+        });
+        projectPathToAbsolutePath.putAll(configurationPaths);
+        System.out.println(projectPathToAbsolutePath);
       }
-      Collections.sort(resources);
-      return resources.toArray(new String[resources.size()]);
+
+      Set<String> displayPaths = projectPathToAbsolutePath.keySet();
+      String[] paths = displayPaths.toArray(new String[displayPaths.size()]);
+      Arrays.sort(paths);
+      return paths;
     } catch (CoreException e) {
       logger.log(Level.SEVERE, "", e);
       return new String[] {};
@@ -270,6 +291,8 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
           getSelectedComboString(projectCombo));
       configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME,
           getSelectedComboString(confFileCombo));
+      configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH,
+        projectPathToAbsolutePath.get(getSelectedComboString(confFileCombo)));
       configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE,
           runOnEverySaveCheckbox.getSelection());
     }
@@ -278,6 +301,7 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(LaunchConfigurationConstants.PROJECT_NAME, "");
     configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME, "");
+    configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH, "");
     configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, false);
   }
 }

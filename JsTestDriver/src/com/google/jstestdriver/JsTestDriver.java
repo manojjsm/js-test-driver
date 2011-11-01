@@ -16,6 +16,15 @@
 package com.google.jstestdriver;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.LogManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -41,18 +50,9 @@ import com.google.jstestdriver.model.ConcretePathPrefix;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.model.NullPathPrefix;
 import com.google.jstestdriver.output.TestResultListener;
-import com.google.jstestdriver.plugins.testisolation.TestIsolationInitializer;
 import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.util.NullStopWatch;
 import com.google.jstestdriver.util.RetryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.LogManager;
 
 public class JsTestDriver {
 
@@ -181,6 +181,14 @@ public class JsTestDriver {
    */
   private String[] createFlagsArray(String...coreflags) {
     List<String> flags = Lists.newArrayList(coreflags);
+    if (serverAddress != null && !serverAddress.isEmpty()) {
+      flags.add("--server");
+      flags.add(serverAddress);
+    }
+    if (port > 0) {
+      flags.add("--port");
+      flags.add(String.valueOf(port));
+    }
     CmdLineFlag handlerPrefixFlag = findServerHandlerPrefixFlag();
     if (handlerPrefixFlag != null) {
       handlerPrefixFlag.addToArgs(flags);
@@ -220,6 +228,18 @@ public class JsTestDriver {
     // TODO(corysmith): Refactor to avoid passing string flags.
     runConfigurationWithFlags(config, createFlagsArray("--tests", "all"));
     return null;
+  }
+
+  public List<TestCase> runTests(Configuration config, List<String> tests) {
+    // TODO(corysmith): Refactor to avoid passing string flags.
+    runConfigurationWithFlags(config,
+      createFlagsArray("--tests", Joiner.on(",").join(tests)));
+    return null;
+  }
+
+  public void reset() {
+    // TODO(corysmith): Refactor to avoid passing string flags.
+    runConfigurationWithFlags(defaultConfiguration, createFlagsArray("--reset"));
   }
 
   public List<TestCase> getTestCasesFor(String path) {

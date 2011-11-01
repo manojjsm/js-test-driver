@@ -30,8 +30,8 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
-import com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchConfigurationConstants;
 
 /**
  * @author shyamseshadri@gmail.com (Shyam Seshadri)

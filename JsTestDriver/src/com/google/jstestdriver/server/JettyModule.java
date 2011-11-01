@@ -15,26 +15,25 @@
  */
 package com.google.jstestdriver.server;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.jstestdriver.annotations.MaxFormContentSize;
-import com.google.jstestdriver.annotations.Port;
-import com.google.jstestdriver.model.HandlerPathPrefix;
+import java.net.URL;
+import java.util.Random;
 
-import org.mortbay.jetty.Handler;
+import javax.servlet.Servlet;
+
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.HashSessionIdManager;
 import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.servlet.GzipFilter;
 
-import java.net.URL;
-import java.util.Random;
-
-import javax.servlet.Servlet;
+import com.google.common.base.Preconditions;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.jstestdriver.annotations.MaxFormContentSize;
+import com.google.jstestdriver.annotations.Port;
+import com.google.jstestdriver.model.HandlerPathPrefix;
 
 /**
  * Sippin' on Jetty and Guice.
@@ -69,6 +68,8 @@ public class JettyModule extends AbstractModule {
     SslSocketConnector connector = new SslSocketConnector();
     connector.setKeystore(KEYSTORE.toString());
     connector.setKeyPassword(KEY_PASSWORD);
+    Preconditions.checkNotNull(port, "Port should not be null.");
+    Preconditions.checkNotNull(sslPort, "sslPort should not be null.");
     connector.setPort(sslPort == -1 ? port + 1 : sslPort);
     return connector;
   }

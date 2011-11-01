@@ -23,13 +23,11 @@ import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 
 
 /**
- * TODO: This should not use CaptureBrowsers and ServerStartupAction directly but go through the
- * IDEPluginActionBuilder
- *
  * Server responsible for starting a singleton instance of the JSTestDriver Server. Also has a
  * handle on the captured slave browsers.
  *
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
+ * @author corbinrsmith@gmail.com (Cory Smith)
  */
 public class Server {
   
@@ -63,18 +61,17 @@ public class Server {
    * @return an initialized server.
    */
   public static Server getInstance(int port, JstdServerListener jstdServerListener) {
-    if (instance == null || instance.getPort() != port) {
-      synchronized (Server.class) {
-        if (instance != null && instance.getPort() != port) {
-          instance.stop();
-        }
-        if (instance == null) {
-          JsTestDriver jstd = new JsTestDriverBuilder()
-              .setDefaultConfiguration(new EclipseServerConfiguration())
-              .addServerListener(jstdServerListener)
-              .setPort(port).build();
-          instance = new Server(jstd, port);
-        }
+    synchronized (Server.class) {
+      if (instance != null && instance.getPort() != port) {
+        instance.stop();
+        instance = null;
+      }
+      if (instance == null) {
+        JsTestDriver jstd = new JsTestDriverBuilder()
+            .setDefaultConfiguration(new EclipseServerConfiguration())
+            .addServerListener(jstdServerListener)
+            .setPort(port).build();
+        instance = new Server(jstd, port);
       }
     }
     return instance;

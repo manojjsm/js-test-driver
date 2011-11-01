@@ -126,13 +126,25 @@
       </page>
    </extension>
    <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+   </extension>
+   <extension
          point="com.google.eclipse.javascript.jstestdriver.core.jstdLaunchListener">
       <jstdLaunchListener
             class="com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsLaunchListener">
       </jstdLaunchListener>
    </extension>
    <extension
-         point="org.eclipse.debug.ui.launchShortcuts">
+         point="com.google.eclipse.javascript.jstestdriver.core.PortSupplier">
+     <portSupplier
+        class="com.google.eclipse.javascript.jstestdriver.ui.view.PreferenceStorePortSupplier">
+     </portSupplier>
+   </extension>
+   <extension
+         point="com.google.jstestdriver.output.TestResultListener">
+     <testResultListener
+        class="com.google.eclipse.javascript.jstestdriver.ui.runner.EclipseTestResultListener">
+     </testResultListener>
    </extension>
 
 </plugin>

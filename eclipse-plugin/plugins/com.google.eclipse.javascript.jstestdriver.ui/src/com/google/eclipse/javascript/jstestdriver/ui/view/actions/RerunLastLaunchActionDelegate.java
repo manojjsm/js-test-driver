@@ -19,20 +19,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import com.google.eclipse.javascript.jstestdriver.core.Server;
-import com.google.eclipse.javascript.jstestdriver.ui.Activator;
+import com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchValidator;
 import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
-import com.google.eclipse.javascript.jstestdriver.ui.view.ServerController;
 import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
 
 /**
@@ -44,28 +39,22 @@ public class RerunLastLaunchActionDelegate implements IViewActionDelegate {
   private TestResultsPanel view;
   private final Logger logger = Logger.getLogger(RerunLastLaunchActionDelegate.class.getCanonicalName());
 
+  private final LaunchValidator validator = new LaunchValidator();
+  @Override
   public void init(IViewPart view) {
     if (view instanceof JsTestDriverView) {
       this.view = ((JsTestDriverView) view).getTestResultsPanel();
     }
   }
 
+  @Override
   public void run(IAction action) {
-    if (Server.getInstance() == null || !Server.getInstance().isStarted()) {
-      IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-          "Cannot run tests if server is not running");
-      ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-          "JS Test Driver", "JS Test Driver Error", status);
-      return;
-    } else if (!ServerController.getInstance().isServerReady()) {
-          IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-          "Cannot run tests if no browsers captured");
-      ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-          "JS Test Driver", "JS Test Driver Error", status);
+    if(!validator.preLaunchCheck()) {
       return;
     }
     if (view.getLastLaunchConfiguration() != null) {
       Display.getDefault().asyncExec(new Runnable() {
+        @Override
         public void run() {
           view.setupForNextTestRun(view.getLastLaunchConfiguration());
           try {
@@ -78,6 +67,7 @@ public class RerunLastLaunchActionDelegate implements IViewActionDelegate {
     }
   }
 
+  @Override
   public void selectionChanged(IAction action, ISelection selection) {
   }
 

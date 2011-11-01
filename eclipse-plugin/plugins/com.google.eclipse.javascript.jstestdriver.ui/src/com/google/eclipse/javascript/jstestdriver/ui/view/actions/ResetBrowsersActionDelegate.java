@@ -15,18 +15,18 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view.actions;
 
-import com.google.eclipse.javascript.jstestdriver.ui.runner.ActionRunnerFactory;
-import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
-import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
+import java.util.logging.Logger;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.eclipse.javascript.jstestdriver.core.JstdTestRunner;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
+import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
+import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
 
 /**
  * Resets captured browsers so that they all return to a clean state.
@@ -34,20 +34,19 @@ import java.util.logging.Logger;
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
  */
 public class ResetBrowsersActionDelegate implements IViewActionDelegate {
-
   private static final Logger logger =
-      Logger.getLogger(ResetBrowsersActionDelegate.class.getCanonicalName());
+      Logger.getLogger(ResetBrowsersActionDelegate.class.getName());
 
-  private final ActionRunnerFactory actionRunnerFactory;
+  private final JstdTestRunner jstdTestRunner;
 
   private TestResultsPanel view;
 
   public ResetBrowsersActionDelegate() {
-    this(new ActionRunnerFactory());
+    this(ServiceLocator.getService(JstdTestRunner.class));
   }
 
-  public ResetBrowsersActionDelegate(ActionRunnerFactory actionRunnerFactory) {
-    this.actionRunnerFactory = actionRunnerFactory;
+  public ResetBrowsersActionDelegate(JstdTestRunner jstdTestRunner) {
+    this.jstdTestRunner = jstdTestRunner;
   }
 
   @Override
@@ -63,14 +62,13 @@ public class ResetBrowsersActionDelegate implements IViewActionDelegate {
       return;
     }
     try {
-      actionRunnerFactory.getResetBrowsersActionRunner(view.getLastLaunchConfiguration());
-    } catch (FileNotFoundException e) {
-      logger.log(Level.SEVERE, "Conf file for JSTestDriver not found while resetting browsers", e);
+      jstdTestRunner.resetTest(view.getLastLaunchConfiguration());
+    } catch (CoreException e) {
+      logger.severe(e.toString());
     }
   }
 
   @Override
   public void selectionChanged(IAction action, ISelection selection) {
   }
-
 }

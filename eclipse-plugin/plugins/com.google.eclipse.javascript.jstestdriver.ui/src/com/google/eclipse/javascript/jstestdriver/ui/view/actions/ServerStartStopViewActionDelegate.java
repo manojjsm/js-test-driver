@@ -15,13 +15,6 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view.actions;
 
-import com.google.eclipse.javascript.jstestdriver.core.Server;
-import com.google.eclipse.javascript.jstestdriver.ui.Activator;
-import com.google.eclipse.javascript.jstestdriver.ui.Icons;
-import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
-import com.google.eclipse.javascript.jstestdriver.ui.view.ServerController;
-import com.google.eclipse.javascript.jstestdriver.ui.view.ServerInfoPanel;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
@@ -30,6 +23,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
+
+import com.google.eclipse.javascript.jstestdriver.core.ServerController;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
+import com.google.eclipse.javascript.jstestdriver.ui.Activator;
+import com.google.eclipse.javascript.jstestdriver.ui.Icons;
+import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
+import com.google.eclipse.javascript.jstestdriver.ui.view.ServerInfoPanel;
 
 /**
  * ViewActionDelegate which responds to whenever the start or stop server button is pressed.
@@ -42,7 +42,7 @@ public class ServerStartStopViewActionDelegate implements IViewActionDelegate {
   private ServerInfoPanel view;
   private final ServerController serverController;
   public ServerStartStopViewActionDelegate() {
-    this(Activator.getDefault().getIcons(), ServerController.getInstance());
+    this(Activator.getDefault().getIcons(), ServiceLocator.getService(ServerController.class));
   }
   
   public ServerStartStopViewActionDelegate(Icons icons, ServerController serverController) {
@@ -59,11 +59,10 @@ public class ServerStartStopViewActionDelegate implements IViewActionDelegate {
 
   @Override
   public void run(IAction action) {
-    // TODO(corysmith): replace Server with ServerController?
     if (!serverController.isServerStarted()) {
       try {
         serverController.startServer();
-        setStartServerState(action);
+        setStopServerState(action);
       } catch (RuntimeException e) {
         e.printStackTrace();
         IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
@@ -72,8 +71,8 @@ public class ServerStartStopViewActionDelegate implements IViewActionDelegate {
             "JS Test Driver", "JS Test Driver Error", status);
       }
     } else {
-      ServerController.getInstance().stopServer();
-      setStopServerState(action);
+      serverController.stopServer();
+      setStartServerState(action);
     }
   }
 
@@ -86,7 +85,7 @@ public class ServerStartStopViewActionDelegate implements IViewActionDelegate {
     action.setToolTipText("Stop Server");
     action.setImageDescriptor(icons.stopServerIcon());
     if (view != null) {
-      view.setServerStartedAndWaitingForBrowsers(Server.getInstance().getCaptureUrl());
+      view.setServerStartedAndWaitingForBrowsers(serverController.getCaptureUrl());
     }
   }
 
