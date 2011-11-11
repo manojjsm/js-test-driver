@@ -251,6 +251,7 @@ jstestdriver.log = function(message) {
           });
         } catch (e) {
           if (window.console && window.console.log) {
+            window.console.log(e);
             window.console.log(message);
           }
         }

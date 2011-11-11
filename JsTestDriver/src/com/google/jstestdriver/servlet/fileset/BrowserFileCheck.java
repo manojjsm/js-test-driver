@@ -40,7 +40,8 @@ public class BrowserFileCheck implements FileSetRequestHandler<BrowserFileSet> {
     }
 
     if (browser.hasFileLoadErrors()) {
-      return new BrowserFileSet(Lists.newLinkedList(browser.getFileSet()),
+      logger.debug("errors in the previous load, requesting refresh.");
+      return new BrowserFileSet(Lists.<FileInfo>newLinkedList(),
           Lists.<FileInfo>newLinkedList(), true);
     }
 

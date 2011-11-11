@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.joda.time.Instant;
 
+import com.google.common.collect.Lists;
 import com.google.jstestdriver.SlaveBrowser.BrowserState;
 import com.google.jstestdriver.model.NullPathPrefix;
 import com.google.jstestdriver.runner.RunnerType;
@@ -132,5 +133,35 @@ public class SlaveBrowserTest extends TestCase {
     String sessionId = "foo";
     assertTrue(browser.tryLock(sessionId));
     assertTrue(browser.inUse());
+  }
+
+  public void testAddFileResults() throws Exception {
+    MockTime mockTime = new MockTime(System.currentTimeMillis());
+    SlaveBrowser browser = new SlaveBrowser(mockTime,
+        "1",
+        new BrowserInfo(),
+        SlaveBrowser.TIMEOUT,
+        null,
+        CaptureHandler.QUIRKS,
+        RunnerType.CLIENT, BrowserState.CAPTURED);
+    FileSource fileSource = new FileSource("/foo.js", "/foo/bar.js", 10, 100);
+    browser.addFileResults(Lists.newArrayList(new FileResult(fileSource, true, "")));
+    assertTrue(browser.getFileSet().contains(fileSource.toFileInfo(null)));
+    assertFalse(browser.hasFileLoadErrors());
+  }
+
+  public void testAddFileResultsWithError() throws Exception {
+    MockTime mockTime = new MockTime(System.currentTimeMillis());
+    SlaveBrowser browser = new SlaveBrowser(mockTime,
+        "1",
+        new BrowserInfo(),
+        SlaveBrowser.TIMEOUT,
+        null,
+        CaptureHandler.QUIRKS,
+        RunnerType.CLIENT, BrowserState.CAPTURED);
+    FileSource fileSource = new FileSource("/foo.js", "/foo/bar.js", 10, 100);
+    browser.addFileResults(Lists.newArrayList(new FileResult(fileSource, false, "")));
+    assertTrue(browser.getFileSet().contains(fileSource.toFileInfo(null)));
+    assertTrue(browser.hasFileLoadErrors());
   }
 }

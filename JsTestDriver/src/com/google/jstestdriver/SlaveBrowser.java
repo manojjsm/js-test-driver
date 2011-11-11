@@ -37,6 +37,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -98,7 +100,7 @@ public class SlaveBrowser {
 
   private AtomicReference<BrowserState> state;
 
-  private Set<FileResult> fileResults;
+  private ConcurrentMap<FileResult, Boolean> fileResults = new ConcurrentHashMap<FileResult, Boolean>();
 
   public SlaveBrowser(Time time, String id, BrowserInfo browserInfo, long timeout,
       HandlerPathPrefix prefix, String mode, RunnerType type, BrowserState state) {
@@ -226,6 +228,7 @@ public class SlaveBrowser {
     LOGGER.debug("Resetting fileSet for {}", this);
     synchronized (this) {
       fileSet.clear();
+      fileResults.clear();
     }
   }
 
@@ -333,15 +336,15 @@ public class SlaveBrowser {
     for (FileResult fileResult : allLoadedFiles) {
       FileSource fileSource = fileResult.getFileSource();
       fileSet.add(fileSource.toFileInfo(null));
-      fileResults.add(fileResult);
+      fileResults.put(fileResult, true);
     }
   }
 
   /**
-   * Checks to see if any of hte files loaded contained errors.
+   * Checks to see if any of the files loaded contain errors.
    */
   public boolean hasFileLoadErrors() {
-    for (FileResult result : fileResults) {
+    for (FileResult result : fileResults.keySet()) {
       if (!result.isSuccess()) {
         return true;
       }
