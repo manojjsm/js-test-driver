@@ -53,8 +53,6 @@ public class SlaveBrowser {
     CAPTURED, READY, HEARTBEAT, DEAD
   }
 
-  private static final LoadedFiles EMPTY_LOADED_FILES = new LoadedFiles();
-
   private static final String CLIENT_CONSOLE_RUNNER = "/slave/id/%s/page/CONSOLE/mode/%s/"
       + SlavePageRequest.TIMEOUT + "/%s/"
       + SlavePageRequest.UPLOAD_SIZE + "/%s/"
@@ -98,10 +96,9 @@ public class SlaveBrowser {
 
   private final RunnerType type;
 
-  private AtomicReference<LoadedFiles> lastloadedFiles =
-    new AtomicReference<LoadedFiles>(EMPTY_LOADED_FILES);
-
   private AtomicReference<BrowserState> state;
+
+  private Set<FileResult> fileResults;
 
   public SlaveBrowser(Time time, String id, BrowserInfo browserInfo, long timeout,
       HandlerPathPrefix prefix, String mode, RunnerType type, BrowserState state) {
@@ -219,7 +216,6 @@ public class SlaveBrowser {
   public synchronized void addFiles(Collection<FileInfo> fileSet, LoadedFiles loadedFiles) {
     this.fileSet.removeAll(fileSet);
     this.fileSet.addAll(fileSet);
-    this.lastloadedFiles.set(loadedFiles);
   }
 
   public Set<FileInfo> getFileSet() {
@@ -230,7 +226,6 @@ public class SlaveBrowser {
     LOGGER.debug("Resetting fileSet for {}", this);
     synchronized (this) {
       fileSet.clear();
-      lastloadedFiles.set(EMPTY_LOADED_FILES);
     }
   }
 
@@ -311,10 +306,6 @@ public class SlaveBrowser {
         browserInfo, id, getSecondsSinceLastHeartbeat(), timeout);
   }
 
-  public LoadedFiles getLastLoadedFiles() {
-    return lastloadedFiles.get();
-  }
-
   /**
    * Indicates if the Browser is being used, or has been used recently.
    */
@@ -333,6 +324,29 @@ public class SlaveBrowser {
     LOGGER.debug("resetCommandQueue: queued[{}]\n running:[{}]", commandsToRun, commandRunning);
     clearCommandRunning();
     commandsToRun.clear();
+  }
+
+  /**
+   * @param allLoadedFiles
+   */
+  public void addFileResults(Collection<FileResult> allLoadedFiles) {
+    for (FileResult fileResult : allLoadedFiles) {
+      FileSource fileSource = fileResult.getFileSource();
+      fileSet.add(fileSource.toFileInfo(null));
+      fileResults.add(fileResult);
+    }
+  }
+
+  /**
+   * Checks to see if any of hte files loaded contained errors.
+   */
+  public boolean hasFileLoadErrors() {
+    for (FileResult result : fileResults) {
+      if (!result.isSuccess()) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

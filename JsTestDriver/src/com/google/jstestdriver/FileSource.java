@@ -85,4 +85,38 @@ public class FileSource {
     return new FileInfo(this.getBasePath(), this.getTimestamp(),
       this.getLength(), false, false, contents, this.getFileSrc());
   }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((basePath == null) ? 0 : basePath.hashCode());
+    result = prime * result + ((fileSrc == null) ? 0 : fileSrc.hashCode());
+    result = prime * result + (int) (length ^ (length >>> 32));
+    result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    FileSource other = (FileSource) obj;
+    if (basePath == null) {
+      if (other.basePath != null) return false;
+    } else if (!basePath.equals(other.basePath)) return false;
+    if (fileSrc == null) {
+      if (other.fileSrc != null) return false;
+    } else if (!fileSrc.equals(other.fileSrc)) return false;
+    if (length != other.length) return false;
+    if (timestamp != other.timestamp) return false;
+    return true;
+  }
 }

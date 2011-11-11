@@ -17,16 +17,13 @@ package com.google.jstestdriver.server.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.jstestdriver.CapturedBrowsers;
 import com.google.jstestdriver.SlaveBrowser;
-import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.requesthandlers.RequestHandler;
 import com.google.jstestdriver.servlet.fileset.FileSetRequestHandler;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;

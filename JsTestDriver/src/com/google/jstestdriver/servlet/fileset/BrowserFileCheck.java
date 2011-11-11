@@ -38,6 +38,12 @@ public class BrowserFileCheck implements FileSetRequestHandler<BrowserFileSet> {
       return new BrowserFileSet(Collections.<FileInfo>emptyList(),
           Collections.<FileInfo>emptyList(), false);
     }
+
+    if (browser.hasFileLoadErrors()) {
+      return new BrowserFileSet(Lists.newLinkedList(browser.getFileSet()),
+          Lists.<FileInfo>newLinkedList(), true);
+    }
+
     final List<FileInfo> filesToUpdate = Lists.newLinkedList();
     final List<FileInfo> extraFiles = Lists.newLinkedList();
     boolean reset = false;

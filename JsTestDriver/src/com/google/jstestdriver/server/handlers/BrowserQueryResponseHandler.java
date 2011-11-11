@@ -204,7 +204,7 @@ class BrowserQueryResponseHandler implements RequestHandler {
      command = browser.dequeueCommand();
      browser.heartBeat();
     }
-    
+
     logger.trace("sending command {}", command == null ? "null" : command.getCommand());
     writer.print(command.getCommand());
   }
@@ -217,25 +217,7 @@ class BrowserQueryResponseHandler implements RequestHandler {
     LoadedFiles loadedFiles = gson.fromJson(res.getResponse(), res.getGsonType());
     Collection<FileResult> allLoadedFiles = loadedFiles.getLoadedFiles();
     logger.info("loaded {} files", allLoadedFiles.size());
-    if (!allLoadedFiles.isEmpty()) {
-      LinkedHashSet<FileInfo> fileInfos = new LinkedHashSet<FileInfo>();
-      Collection<FileSource> errorFiles = new LinkedHashSet<FileSource>();
-
-      for (FileResult fileResult : allLoadedFiles) {
-        FileSource fileSource = fileResult.getFileSource();
-
-        if (fileResult.isSuccess()) {
-          fileInfos.add(fileSource.toFileInfo(null));
-        } else {
-          errorFiles.add(fileSource);
-        }
-      }
-      browser.addFiles(fileInfos, loadedFiles);
-      if (errorFiles.size() > 0) {
-        logger.info("clearing fileset on browser errors:" + errorFiles);
-        browser.resetFileSet();
-      }
-    }
+    browser.addFileResults(allLoadedFiles);
   }
 
   private boolean isResponseValid(String response) {
