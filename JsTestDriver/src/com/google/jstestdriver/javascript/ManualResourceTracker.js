@@ -27,6 +27,7 @@ jstestdriver.ManualResourceTracker = function(
   this.manualScriptLoader_ = manualScriptLoader;
   this.boundOnComplete_ = jstestdriver.bind(this, this.onComplete_);
   this.results_ = [];
+  this.resultsIndexMap_ = {};
 };
 
 /**
@@ -36,7 +37,7 @@ jstestdriver.ManualResourceTracker = function(
 jstestdriver.ManualResourceTracker.prototype.startResourceLoad =
     function(jsonFile) {
   var file = this.parse_(jsonFile);
-  this.manualScriptLoader_.beginLoad(file, jstestdriver.bind(this, this.onComplete_));
+  this.manualScriptLoader_.beginLoad(file, this.boundOnComplete_);
 };
 
 /**
@@ -44,14 +45,22 @@ jstestdriver.ManualResourceTracker.prototype.startResourceLoad =
  * @param {jstestdriver.FileLoadResult} result
  */
 jstestdriver.ManualResourceTracker.prototype.onComplete_ = function(result) {
-  this.results_.push(result);
+  var idx = this.resultsIndexMap_[result.fileSrc];
+  if (idx != null) {
+    // errors can arrive after the load is reported as complete. Apparently,
+    // onError is not tied to the script resolution.
+    this.results_[idx] = result;
+  } else {
+    this.resultsIndexMap_[result.fileSrc] = this.results_.push(result) - 1;
+  }
 };
 
 /**
  * Called after the resource has loaded (maybe, other times it will called immediately).
  */
-jstestdriver.ManualResourceTracker.prototype.finishResourceLoad = function() {
-  this.manualScriptLoader_.endLoad();
+jstestdriver.ManualResourceTracker.prototype.finishResourceLoad = function(jsonFile) {
+  var file = this.parse_(jsonFile);
+  this.manualScriptLoader_.endLoad(file);
 };
 
 /**

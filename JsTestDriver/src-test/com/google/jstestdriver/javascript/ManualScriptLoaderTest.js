@@ -19,6 +19,7 @@ var ManualScriptLoaderTest = TestCase("ManualScriptLoaderTest");
 
 
 ManualScriptLoaderTest.prototype.setUp = function() {
+  this.src_ = new jstestdriver.FileSource("/test/foo.js", -1, "/test/foo.js");
   this.win_ = {};
   this.testCaseManager_ = {
     removed : null,
@@ -47,9 +48,7 @@ ManualScriptLoaderTest.prototype.setUp = function() {
       this.testCaseManager_,
       now);
   
-  this.src_ = new jstestdriver.FileSource("foo.js", -1, "foo.js");
 };
-
 
 ManualScriptLoaderTest.prototype.testBeginLoad = function() {
   this.loader_.beginLoad(this.src_, this.onFinish_);
@@ -64,9 +63,9 @@ ManualScriptLoaderTest.prototype.testBeginLoadAndError = function() {
   this.loader_.beginLoad(this.src_, this.onFinish_);
   var msg = 'error';
   this.now_.currentTime++;
-  this.win_.onerror(msg, 'http://localhost/foo.js', 10);
-  // because this will be in a separate script tag, it will always execute.
-  this.loader_.endLoad();
+  this.loader_.endLoad(this.src_);
+  // executes after the script loads
+  this.win_.onerror(msg, 'http://localhost/test/foo.js', 10);
   
   assertEquals(jstestdriver.EMPTY_FUNC, this.win_.onerror);
   var result = new jstestdriver.FileResult(
@@ -87,10 +86,8 @@ ManualScriptLoaderTest.prototype.testBeginLoadAndError = function() {
 ManualScriptLoaderTest.prototype.testBeginLoadAndComplete = function() {
   this.loader_.beginLoad(this.src_, this.onFinish_);
   this.now_.currentTime++;
-  var msg = 'error';
-  this.loader_.endLoad();
+  this.loader_.endLoad(this.src_);
 
-  assertEquals(jstestdriver.EMPTY_FUNC, this.win_.onerror);
   var result = new jstestdriver.FileResult(
       this.src_,
       true,

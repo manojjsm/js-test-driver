@@ -15,6 +15,8 @@
  */
 package com.google.jstestdriver.server.handlers.pages;
 
+import static java.lang.String.format;
+
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.jstestdriver.FileInfo;
@@ -87,21 +89,23 @@ public class TestFileUtil {
       // If a client connects with unknown schemes and causes a reset, this will mess up miserably.
       // Must fix.
       FileSource fileSource = file.toFileSource(prefix, schemes);
-      if (!(fileSource.getFileSrc().startsWith("http") || fileSource.getFileSrc().startsWith("/test"))) {
+      if (!(fileSource.getFileSrc().startsWith("http") || fileSource.getFileSrc().startsWith(
+          "/test"))) {
         logger.debug("Unknown FileSource [{}], bail out on writing", fileSource.getFileSrc());
         // better safe than sorry.
         break;
       }
       logger.debug("Writing " + fileSource.getFileSrc());
-      writer.writeScript(String.format(
-          "jstestdriver.manualResourceTracker.startResourceLoad('%s')",
-          gson.toJson(fileSource).replace("\\", "\\\\")));
+      String fileJson = gson.toJson(fileSource).replace("\\", "\\\\");
+      writer.writeScript(format("jstestdriver.manualResourceTracker.startResourceLoad('%s')",
+          fileJson));
       if (fileSource.getFileSrc().endsWith(".css")) {
         writer.writeStyleSheet(fileSource.getFileSrc());
       } else {
         writer.writeExternalScript(fileSource.getFileSrc());
       }
-      writer.writeScript("jstestdriver.manualResourceTracker.finishResourceLoad()");
+      writer.writeScript(format("jstestdriver.manualResourceTracker.finishResourceLoad('%s')",
+          fileJson));
     }
   }
 }

@@ -230,12 +230,12 @@ jstestdriver.log = function(message) {
         try {
           var stack = new Error().stack.split('\n');
           var smallStack = [];
-          
+
           for (var i = 0; stack[i]; i++) {
             var end = stack[i].indexOf('(');
             if (end > -1) {
               smallStack.push(stack[i].substr(0,end).trim());
-            }R
+            }
           }
           jstestdriver.jQuery.ajax({
             'async' : true,
@@ -254,6 +254,7 @@ jstestdriver.log = function(message) {
             window.console.log(e);
             window.console.log(message);
           }
+          throw e;
         }
       }
       jstestdriver.log(message);

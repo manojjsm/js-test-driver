@@ -31,6 +31,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
+import com.google.jstestdriver.browser.BrowserPanicException;
 import com.google.jstestdriver.config.CmdFlags;
 import com.google.jstestdriver.config.CmdLineFlag;
 import com.google.jstestdriver.config.CmdLineFlagsFactory;
@@ -157,6 +158,9 @@ public class JsTestDriver {
       System.exit(1);
     } catch (FailureException e) {
       System.out.println("Tests failed: " + e.getMessage());
+      System.exit(1);
+    } catch (BrowserPanicException e) {
+      System.out.println("Test run failed due to unresponsive browser: " + e);
       System.exit(1);
     } catch (Exception e) {
       logger.debug("Error {}", e);

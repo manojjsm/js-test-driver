@@ -26,7 +26,6 @@ FileLoaderPluginCallbackTests.prototype.createScriptLoader = function(win, dom) 
   }, jstestdriver.now);
 };
 
-
 FileLoaderPluginCallbackTests.prototype.testFileOnLoadJs = function() {
   var mockDOM = new jstestdriver.MockDOM();
   var head = mockDOM.createElement('head');
