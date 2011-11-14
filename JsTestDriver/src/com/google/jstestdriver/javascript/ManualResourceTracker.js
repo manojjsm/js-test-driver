@@ -45,13 +45,14 @@ jstestdriver.ManualResourceTracker.prototype.startResourceLoad =
  * @param {jstestdriver.FileLoadResult} result
  */
 jstestdriver.ManualResourceTracker.prototype.onComplete_ = function(result) {
-  var idx = this.resultsIndexMap_[result.fileSrc];
+  var fileSrc = result.file.fileSrc;
+  var idx = this.resultsIndexMap_[fileSrc];
   if (idx != null) {
     // errors can arrive after the load is reported as complete. Apparently,
     // onError is not tied to the script resolution.
     this.results_[idx] = result;
   } else {
-    this.resultsIndexMap_[result.fileSrc] = this.results_.push(result) - 1;
+    this.resultsIndexMap_[fileSrc] = this.results_.push(result) - 1;
   }
 };
 
