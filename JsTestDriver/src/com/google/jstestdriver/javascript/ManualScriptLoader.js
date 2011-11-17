@@ -24,6 +24,7 @@ jstestdriver.ManualScriptLoader = function(win, testCaseManager, now) {
   this.started_ = -1;
   this.file_ = null;
   this.fileMap_ = {};
+  this.errorHandler_ = this.createErrorHandler();
 };
 
 
@@ -31,8 +32,7 @@ jstestdriver.ManualScriptLoader.prototype.beginLoad = function(file, onFileLoade
   this.fileMap_[file.fileSrc] = file;
   this.testCaseManager_.removeTestCaseForFilename(file.fileSrc);
   this.file_ = file;
-  var handleError = this.createErrorHandler(file);
-  this.win_.onerror = handleError;
+  this.win_.onerror = this.errorHandler_;
   this.started_ = this.now_();
   this.onFileLoaded_ = onFileLoaded;
 };

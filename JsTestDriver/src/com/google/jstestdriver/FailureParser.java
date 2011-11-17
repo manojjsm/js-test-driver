@@ -68,7 +68,7 @@ public class FailureParser {
         failures.add(new Failure(message, stack));
       }
     } catch (Exception e) {
-      logger.error("Error converting JsExceptions.", e);
+      logger.error("Error converting JsExceptions[{}]", failure, e);
       failures = Lists.newArrayList(new Failure(failure, Lists.<String>newArrayList()));
     }
     return failures;

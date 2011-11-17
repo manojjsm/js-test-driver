@@ -50,7 +50,9 @@ jstestdriver.ManualResourceTracker.prototype.onComplete_ = function(result) {
   if (idx != null) {
     // errors can arrive after the load is reported as complete. Apparently,
     // onError is not tied to the script resolution.
-    this.results_[idx] = result;
+    if (!result.success) { // if it's successful, don't replace, as it could overwrite an error.
+      this.results_[idx] = result;
+    }
   } else {
     this.resultsIndexMap_[fileSrc] = this.results_.push(result) - 1;
   }
