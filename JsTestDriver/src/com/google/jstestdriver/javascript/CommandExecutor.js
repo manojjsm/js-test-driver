@@ -180,9 +180,10 @@ jstestdriver.CommandExecutor.prototype.registerTracedCommand =
 
 
 jstestdriver.CommandExecutor.prototype.dryRun = function() {
+  
   var response =
       new jstestdriver.Response(jstestdriver.RESPONSE_TYPES.TEST_QUERY_RESULT,
-          JSON.stringify(this.__testCaseManager.getCurrentlyLoadedTest()),
+          JSON.stringify(this.__testCaseManager.getCurrentlyLoadedTestCases()),
           this.getBrowserInfo());
   
   this.streamingService_.close(response, this.__boundExecuteCommand);

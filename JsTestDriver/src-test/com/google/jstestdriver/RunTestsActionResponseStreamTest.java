@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 
 import com.google.gson.Gson;
 import com.google.jstestdriver.Response.ResponseType;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 /**
  * @author corysmith@google.com (Cory Smith)
@@ -40,7 +40,13 @@ public class RunTestsActionResponseStreamTest extends TestCase {
       this.testResult = testResult;
     }
 
-    public void onFileLoad(String browser, FileResult fileResult) {
+    public void onFileLoad(BrowserInfo browser, FileResult fileResult) {
+      
+    }
+
+    @Override
+    public void onTestRegistered(BrowserInfo browser, com.google.jstestdriver.TestCase testCase) {
+      // TODO Auto-generated method stub
       
     }
   }

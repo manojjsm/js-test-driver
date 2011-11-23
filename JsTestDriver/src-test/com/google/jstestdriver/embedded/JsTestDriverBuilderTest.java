@@ -13,7 +13,7 @@ import com.google.jstestdriver.config.CmdFlags;
 import com.google.jstestdriver.config.CmdLineFlag;
 import com.google.jstestdriver.config.Configuration;
 import com.google.jstestdriver.hooks.PluginInitializer;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.hooks.ServerListener;
 
@@ -58,7 +58,7 @@ public class JsTestDriverBuilderTest extends TestCase {
 
     }
 
-    public void onFileLoad(String browser, FileResult fileResult) {
+    public void onFileLoad(BrowserInfo browser, FileResult fileResult) {
       // TODO Auto-generated method stub
 
     }
@@ -66,6 +66,15 @@ public class JsTestDriverBuilderTest extends TestCase {
     public void finish() {
       // TODO Auto-generated method stub
 
+    }
+
+    /* (non-Javadoc)
+     * @see com.google.jstestdriver.hooks.TestResultListener#onTestRegistered(com.google.jstestdriver.BrowserInfo, com.google.jstestdriver.TestCase)
+     */
+    @Override
+    public void onTestRegistered(BrowserInfo browser, com.google.jstestdriver.TestCase testCase) {
+      // TODO Auto-generated method stub
+      
     }
 
   }

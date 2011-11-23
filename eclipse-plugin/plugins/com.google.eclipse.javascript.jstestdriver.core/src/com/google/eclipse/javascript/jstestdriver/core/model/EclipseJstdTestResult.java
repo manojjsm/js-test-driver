@@ -83,4 +83,22 @@ public class EclipseJstdTestResult extends BaseResultModel {
       return TEST_FAIL_ICON;
     }
   }
+
+  /**
+   * @param details
+   */
+  public void writeDetails(StringBuilder details) {
+    boolean hasMessage = result.getParsedMessage() != null &&
+        !result.getParsedMessage().isEmpty();
+    boolean hasStack = result.getStack() != null && !result.getStack().isEmpty();
+    if (hasMessage) {
+      details.append(result.getMessage());
+    }
+    if (hasStack && hasMessage) {
+      details.append("\n\n");
+    }
+    if (hasStack)  {
+      details.append(result.getStack());
+    }
+  }
 }

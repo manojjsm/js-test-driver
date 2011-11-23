@@ -103,6 +103,26 @@ jstestdriver.TestCaseManager.prototype.getTestCasesInfo = function() {
 };
 
 
+jstestdriver.TestCaseManager.prototype.getCurrentlyLoadedTestCases = function() {
+  var testCases = [];
+  var size = this.testCasesInfo_.length;
+
+  for (var i = 0; i < size; i++) {
+    var testCaseInfo = this.testCasesInfo_[i];
+    var testsSize = tests.length;
+    testCases.push({
+      'name' : testCaseInfo.getTestCaseName(),
+      'tests' : testCaseInfo.getTestNames()
+    })
+  }
+  return {
+    numTests: testCases.length,
+    testCases: testCases
+  };
+};
+
+
+/** @deprecated */
 jstestdriver.TestCaseManager.prototype.getCurrentlyLoadedTest = function() {
   var testNames = [];
   var size = this.testCasesInfo_.length;

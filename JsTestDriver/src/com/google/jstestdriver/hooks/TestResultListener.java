@@ -13,9 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.jstestdriver.output;
+package com.google.jstestdriver.hooks;
 
+import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FileResult;
+import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.TestResult;
 
 /**
@@ -31,7 +33,13 @@ public interface TestResultListener {
   /**
    * Called on the browser thread.
    */
-  public void onFileLoad(String browser, FileResult fileResult);
+  public void onFileLoad(BrowserInfo browserInfo, FileResult fileResult);
+  
+  
+  /**
+   * Called on the browser thread.
+   */
+  public void onTestRegistered(BrowserInfo browser, TestCase testCase);
 
   /**
    * To be called from the main thread, after all the browser threads have completed running.

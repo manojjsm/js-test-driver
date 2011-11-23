@@ -18,6 +18,8 @@ package com.google.eclipse.javascript.jstestdriver.ui;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.google.eclipse.javascript.jstestdriver.core.ServerController;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
 import com.google.eclipse.javascript.jstestdriver.ui.prefs.WorkbenchPreferencePage;
 
 /**
@@ -45,6 +47,7 @@ public class Activator extends AbstractUIPlugin {
     getPreferenceStore().setDefault(WorkbenchPreferencePage.PREFERRED_SERVER_PORT,
                                     42442);
     plugin = this;
+    ServiceLocator.getService(ServerController.class).startServer();
   }
 
   @Override

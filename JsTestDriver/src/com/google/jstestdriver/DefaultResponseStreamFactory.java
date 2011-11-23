@@ -21,7 +21,7 @@ import com.google.inject.name.Named;
 import com.google.jstestdriver.DryRunAction.DryRunActionResponseStream;
 import com.google.jstestdriver.EvalAction.EvalActionResponseStream;
 import com.google.jstestdriver.ResetAction.ResetActionResponseStream;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 import java.io.PrintStream;
 
@@ -46,6 +46,7 @@ public class DefaultResponseStreamFactory implements ResponseStreamFactory {
 
   public ResponseStream getRunTestsActionResponseStream(String browserId) {
     TestResultListener listener = resultListener.get();
+    System.out.println(listener);
 
     RunTestsActionResponseStream responseStream = new RunTestsActionResponseStream(
         new TestResultGenerator(), listener, accumulator);
@@ -54,7 +55,7 @@ public class DefaultResponseStreamFactory implements ResponseStreamFactory {
   }
 
   public ResponseStream getDryRunActionResponseStream() {
-    return new DryRunActionResponseStream(out);
+    return new DryRunActionResponseStream(out, resultListener.get());
   }
 
   public ResponseStream getEvalActionResponseStream() {

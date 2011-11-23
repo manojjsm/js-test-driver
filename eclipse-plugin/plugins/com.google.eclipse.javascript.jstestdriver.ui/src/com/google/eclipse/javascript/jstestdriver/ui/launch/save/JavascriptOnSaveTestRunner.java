@@ -28,6 +28,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
@@ -74,11 +75,13 @@ public class JavascriptOnSaveTestRunner implements IResourceChangeListener {
         Display.getDefault().asyncExec(new Runnable() {
 
           public void run() {
-            PlatformUI.getWorkbench()
+            IEditorPart activeEditor = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow()
                 .getActivePage()
-                .getActiveEditor()
-                .setFocus();
+                .getActiveEditor();
+            if (activeEditor != null) {
+              activeEditor.setFocus();
+            }
           }
         });
       }
@@ -86,5 +89,4 @@ public class JavascriptOnSaveTestRunner implements IResourceChangeListener {
       logger.log(Level.SEVERE, "", e);
     }
   }
-
 }

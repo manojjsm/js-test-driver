@@ -18,9 +18,12 @@ package com.google.jstestdriver.output;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FileResult;
+import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.TestResult;
 import com.google.jstestdriver.TestRunResult;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +73,10 @@ public class DefaultListener implements TestResultListener {
     // right now it can be called multiple times. :P
     if (!finished.getAndSet(true)) {
       printSummary(out);
+      boolean noTestsFound = false;
       for (Map.Entry<String, TestRunResult> entry : browsersRunData.entrySet()) {
         TestRunResult data = entry.getValue();
+        
   
         printBrowserSummary(out, entry.getKey(), data);
   
@@ -79,6 +84,7 @@ public class DefaultListener implements TestResultListener {
           problem.print(out, verbose);
         }
       }
+      
     }
   }
 
@@ -184,7 +190,7 @@ public class DefaultListener implements TestResultListener {
     return runData;
   }
 
-  public void onFileLoad(String browser, FileResult fileResult) {
+  public void onFileLoad(BrowserInfo browser, FileResult fileResult) {
     logger.trace("loaded {}", fileResult.toString());
     if (fileResult.isSuccess()) {
       if (verbose) {
@@ -192,11 +198,16 @@ public class DefaultListener implements TestResultListener {
       }
       return;
     }
-    TestRunResult runData = currentRunData(browser);
+    TestRunResult runData = currentRunData(browser.toString());
     runData.addError();
     runData.addProblem(new FileLoadProblem(fileResult));
     if (verbose) {
       out.println("[ERROR] " + fileResult.getMessage());
     }
+  }
+
+  @Override
+  public void onTestRegistered(BrowserInfo browser, TestCase testCase) {
+    
   }
 }

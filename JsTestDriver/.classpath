@@ -38,6 +38,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/google-gson-1.6/gson-1.6-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/google-gson-1.6/gson-1.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guice/guice-assistedinject-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/selenium-2.11.0/selenium-java-2.11.0.jar" sourcepath="lib/selenium-2.11.0/selenium-java-2.11.0-srcs.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/args4j-2.0.12/args4j-2.0.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guice/aopalliance.jar"/>

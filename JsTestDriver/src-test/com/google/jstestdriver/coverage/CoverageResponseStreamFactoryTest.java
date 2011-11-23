@@ -17,11 +17,12 @@ package com.google.jstestdriver.coverage;
 
 import junit.framework.TestCase;
 
+import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FileResult;
 import com.google.jstestdriver.ResponseStream;
 import com.google.jstestdriver.TestResult;
 import com.google.jstestdriver.TestResultGenerator;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 
 /**
@@ -40,7 +41,16 @@ public class CoverageResponseStreamFactoryTest extends TestCase {
       this.testResult = testResult;
     }
 
-    public void onFileLoad(String browser, FileResult fileResult) {
+    public void onFileLoad(BrowserInfo browser, FileResult fileResult) {
+      
+    }
+
+    /* (non-Javadoc)
+     * @see com.google.jstestdriver.hooks.TestResultListener#onTestRegistered(com.google.jstestdriver.BrowserInfo, com.google.jstestdriver.TestCase)
+     */
+    @Override
+    public void onTestRegistered(BrowserInfo browser, com.google.jstestdriver.TestCase testCase) {
+      // TODO Auto-generated method stub
       
     }
   }

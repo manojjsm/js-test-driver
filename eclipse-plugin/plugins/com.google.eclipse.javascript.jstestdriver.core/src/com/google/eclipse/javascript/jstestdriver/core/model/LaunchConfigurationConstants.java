@@ -30,4 +30,5 @@ public class LaunchConfigurationConstants {
       "com.google.jstestdriver.eclipse.ui.runOnEverySave";
   public static final String JSTD_LAUNCH_CONFIGURATION_TYPE =
     "com.google.eclipse.javascript.jstestdriver.ui.JstdTestDriverLaunchConfiguration";
+  public static final String BASEPATH = "basePath";
 }

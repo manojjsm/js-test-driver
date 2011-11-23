@@ -69,4 +69,8 @@ public class TestRunResult {
   public float getTotalTime() {
     return totalTime;
   }
+  
+  public int getTotalTestsRun() {
+    return passes + fails + errors;
+  }
 }

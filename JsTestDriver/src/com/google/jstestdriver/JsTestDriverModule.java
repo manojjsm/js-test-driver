@@ -15,6 +15,8 @@
  */
 package com.google.jstestdriver;
 
+import static com.google.inject.multibindings.Multibinder.newSetBinder;
+
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.inject.AbstractModule;
@@ -32,6 +34,8 @@ import com.google.jstestdriver.config.DefaultConfiguration;
 import com.google.jstestdriver.guice.BrowserActionProvider;
 import com.google.jstestdriver.guice.FlagsModule;
 import com.google.jstestdriver.hooks.ServerListener;
+import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.output.MultiTestResultListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,6 +191,10 @@ public class JsTestDriverModule extends AbstractModule {
 
     bind(JsTestDriverServer.Factory.class).toProvider(
         FactoryProvider.newFactory(JsTestDriverServer.Factory.class, JsTestDriverServerImpl.class));
+
+    bind(TestResultListener.class).to(MultiTestResultListener.class);
+    newSetBinder(binder(),
+        ResponseStreamFactory.class).addBinding().to(DefaultResponseStreamFactory.class);
   }
 
   /**

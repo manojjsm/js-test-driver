@@ -2,6 +2,9 @@
 
 package com.google.jstestdriver.embedded;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.google.inject.Binder;
 import com.google.inject.Module;
@@ -14,11 +17,8 @@ import com.google.jstestdriver.config.UserConfigurationSource;
 import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.hooks.PluginInitializer;
 import com.google.jstestdriver.hooks.ServerListener;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.runner.RunnerMode;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * @author corbinrsmith@gmail.com (Cory Smith)
@@ -84,15 +84,14 @@ public class JsTestDriverBuilder {
     // TODO(corysmith): add check to resolve the serverAddress and port issues.
     List<Module> plugins = Lists.newArrayList(pluginModules);
     plugins.add(new ListenerBindingModule(serverListeners, testListeners));
+    List<Module> initializers = Lists.<Module>newArrayList(new PluginInitializerModule(pluginInitializers));
     return new JsTestDriver(configuration,
         pluginLoader,
-        pluginInitializers,
         runnerMode,
         flags,
         port,
         plugins,
-        serverListeners,
-        testListeners,
+        initializers,
         baseDir,
         serverAddress);
   }
@@ -172,6 +171,22 @@ public class JsTestDriverBuilder {
   public JsTestDriverBuilder setFlags(String[] flags) {
     this.flags = flags;
     return this;
+  }
+
+  private static final class PluginInitializerModule implements Module {
+    private final List<Class<? extends PluginInitializer>> initializers;
+
+    public PluginInitializerModule(List<Class<? extends PluginInitializer>> initializers) {
+      this.initializers = initializers;
+    }
+
+    public void configure(Binder binder) {
+      Multibinder<PluginInitializer> setBinder =
+          Multibinder.newSetBinder(binder, PluginInitializer.class);
+      for (Class<? extends PluginInitializer> initializer : initializers) {
+        setBinder.addBinding().to(initializer);
+      }
+    }
   }
 
   private static class ListenerBindingModule implements Module {

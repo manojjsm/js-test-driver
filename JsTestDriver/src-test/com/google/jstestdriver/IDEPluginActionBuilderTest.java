@@ -25,8 +25,8 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.google.jstestdriver.action.ConfigureGatewayAction;
 import com.google.jstestdriver.hooks.FileInfoScheme;
+import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.output.MultiTestResultListener;
-import com.google.jstestdriver.output.TestResultListener;
 import com.google.jstestdriver.output.XmlPrinter;
 import com.google.jstestdriver.output.XmlPrinterImpl;
 

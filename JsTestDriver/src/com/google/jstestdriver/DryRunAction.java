@@ -15,12 +15,14 @@
  */
 package com.google.jstestdriver;
 
-import com.google.gson.Gson;
-import com.google.jstestdriver.model.JstdTestCase;
-import com.google.jstestdriver.model.RunData;
-
 import java.io.PrintStream;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.jstestdriver.browser.BrowserPanicException;
+import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.model.JstdTestCase;
+import com.google.jstestdriver.model.RunData;
 
 /**
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
@@ -30,13 +32,17 @@ public class DryRunAction implements BrowserAction {
   private final List<String> expressions;
   private final ResponseStreamFactory responseStreamFactory;
 
+  // TODO(corysmith): Solve/remove the response stream issue. Currently,
+  //    they make little sense, as custom built listeners provide more useful stability.
   public static class DryRunActionResponseStream implements ResponseStream {
 
     private final Gson gson = new Gson();
     private final PrintStream out;
+    private final TestResultListener listener;
 
-    public DryRunActionResponseStream(PrintStream out) {
+    public DryRunActionResponseStream(PrintStream out, TestResultListener testResultListener) {
       this.out = out;
+      this.listener = testResultListener;
     }
 
     public void finish() {
@@ -44,10 +50,28 @@ public class DryRunAction implements BrowserAction {
 
     public void stream(Response response) {
       BrowserInfo browser = response.getBrowser();
-      DryRunInfo dryRunInfo = gson.fromJson(response.getResponse(), DryRunInfo.class);
+      switch(response.getResponseType()) {
+        case TEST_QUERY_RESULT:
+          DryRunInfo dryRunInfo = gson.fromJson(response.getResponse(), DryRunInfo.class);
 
-      out.println(String.format("%s %s: %s tests %s", browser.getName(), browser
-          .getVersion(), dryRunInfo.getNumTests(), dryRunInfo.getTestNames()));
+          for (TestCase testCase : dryRunInfo.getTestCases()) {
+            listener.onTestRegistered(browser, testCase);
+          }
+
+          out.println(String.format("%s %s: %s tests %s", browser.getName(), browser
+              .getVersion(), dryRunInfo.getNumTests(), dryRunInfo.getTestNames()));
+          break;
+        case FILE_LOAD_RESULT:
+          LoadedFiles files = gson.fromJson(response.getResponse(),
+                                            response.getGsonType());
+          for (FileResult result : files.getLoadedFiles()) {
+            listener.onFileLoad(response.getBrowser(), result);
+          }
+          break;
+        case BROWSER_PANIC:
+          BrowserPanic panic = gson.fromJson(response.getResponse(), response.getGsonType());
+          throw new BrowserPanicException(panic.getBrowserInfo(), panic.getCause());
+      }
     }
   }
 

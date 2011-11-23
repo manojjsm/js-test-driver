@@ -125,17 +125,10 @@ public class TestResultsPanel extends Composite {
         testDetailsText.setText("");
         TreeSelection selection = (TreeSelection) event.getSelection();
         if (selection.getFirstElement() instanceof EclipseJstdTestResult) {
-          EclipseJstdTestResult result = (EclipseJstdTestResult) selection
-          .getFirstElement();
+          EclipseJstdTestResult result =
+              (EclipseJstdTestResult) selection.getFirstElement();
           StringBuilder details = new StringBuilder();
-          if (!result.getResult().getParsedMessage().trim().equals("")) {
-            details.append(result.getResult().getParsedMessage())
-                .append("\n\n");
-          }
-          if (!result.getResult().getStack().trim().equals("")) {
-            details.append(result.getResult().getStack())
-                .append("\n\n");
-          }
+          result.writeDetails(details);
           testDetailsText.setText(details.toString());
         }
       }

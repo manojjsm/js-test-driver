@@ -68,7 +68,7 @@ class FileSetGetHandler implements RequestHandler {
     String sessionId = request.getParameter("sessionId");
 
     if (session == null && sessionId != null) {
-      sessionHeartBeat(id, sessionId);
+      sessionHeartBeat(id, sessionId, writer);
     } else {
       if (session.equals("start")) {
         startSession(id, writer);
@@ -78,10 +78,11 @@ class FileSetGetHandler implements RequestHandler {
     }
   }
 
-  private void sessionHeartBeat(String id, String sessionId) {
+  private void sessionHeartBeat(String id, String sessionId, PrintWriter writer) {
     SlaveBrowser browser = capturedBrowsers.getBrowser(id);
     if (browser == null) {
-      logger.error("heartbeat to a dead session");
+      logger.error("heartbeat to a dead session:" + id + "browsers:" + capturedBrowsers.getBrowsers());
+      writer.write("LOST");
       return;
     }
     browser.heartBeatLock(sessionId);

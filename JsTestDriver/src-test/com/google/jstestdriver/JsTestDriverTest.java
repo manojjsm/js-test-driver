@@ -2,14 +2,25 @@
 
 package com.google.jstestdriver;
 
+import com.google.gson.JsonArray;
+import com.google.jstestdriver.browser.DocType;
+import com.google.jstestdriver.config.Configuration;
+import com.google.jstestdriver.config.ConfigurationException;
+import com.google.jstestdriver.config.ConfigurationParser;
+import com.google.jstestdriver.config.ConfigurationSource;
 import com.google.jstestdriver.config.DefaultConfiguration;
+import com.google.jstestdriver.config.UserConfigurationSource;
+import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.hooks.ServerListener;
+import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.runner.RunnerMode;
 
 import junit.framework.TestCase;
 
 import java.io.File;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -82,6 +93,26 @@ public class JsTestDriverTest extends TestCase {
     jstd.startServer();
     startLatch.await(10, TimeUnit.SECONDS);
     assertTrue(testServerListener.serverStarted);
+    jstd.stopServer();
+    stopLatch.await(10, TimeUnit.SECONDS);
+    assertTrue(testServerListener.serverStopped);
+  }
+  
+  public void a_testDryRun() throws Exception {
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch stopLatch = new CountDownLatch(1);
+    TestListener testServerListener = new TestListener(startLatch, stopLatch);
+    JsTestDriver jstd = new JsTestDriverBuilder()
+        .setDefaultConfiguration(new TestConfiguration(new File(".")))
+        .setRunnerMode(RunnerMode.DEBUG)
+        .addServerListener(testServerListener)
+        .setPort(8080)
+        .build();
+    jstd.startServer();
+    startLatch.await(10, TimeUnit.SECONDS);
+    assertTrue(testServerListener.serverStarted);
+    Configuration configuration = new UserConfigurationSource(new File("./jsTestDriver.conf")).parse(new File("."), new YamlParser());
+    jstd.getTestCasesFor(configuration);
     jstd.stopServer();
     stopLatch.await(10, TimeUnit.SECONDS);
     assertTrue(testServerListener.serverStopped);

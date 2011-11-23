@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,7 +69,7 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   private Button runOnEverySaveCheckbox;
   private JavascriptLaunchConfigurationHelper configurationHelper =
       new JavascriptLaunchConfigurationHelper();
-  private final Map<String, String> projectPathToAbsolutePath = Maps.newHashMap();
+  private final Map<String, ConfigurationData> projectPathToAbsolutePath = Maps.newHashMap();
 
   @Override
   public void createControl(Composite parent) {
@@ -86,17 +87,35 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     setUpProjectCombo();
   }
 
+  private final static class ConfigurationData {
+    final String configurationPath;
+    final String basePath;
+
+    /**
+     * @param configurationPath 
+     * @param basePath 
+     * 
+     */
+    public ConfigurationData(String configurationPath, String basePath) {
+      this.configurationPath = configurationPath;
+      this.basePath = basePath;
+    }
+  }
+  
   private String[] getConfigurationFiles(final IProject project) {
     try {
       synchronized (projectPathToAbsolutePath) {
         projectPathToAbsolutePath.clear();
-        final Map<String, String> configurationPaths = Maps.newHashMap();
+        final Map<String, ConfigurationData> configurationPaths = Maps.newHashMap();
         project.accept(new IResourceVisitor() {
           @Override
           public boolean visit(IResource resource) throws CoreException {
             if (resource.getName().endsWith(".conf")) {
-              configurationPaths.put(resource.getFullPath().toFile().getAbsolutePath(), resource.getLocation().toOSString());
-              return false;
+                configurationPaths.put(
+                  resource.getFullPath().toFile().getAbsolutePath(),
+                  new ConfigurationData(
+                    resource.getLocation().toOSString(),
+                    project.getLocation().toOSString()));
             }
             return true;
           }
@@ -291,8 +310,11 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
           getSelectedComboString(projectCombo));
       configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME,
           getSelectedComboString(confFileCombo));
+      ConfigurationData data = projectPathToAbsolutePath.get(getSelectedComboString(confFileCombo));
       configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH,
-        projectPathToAbsolutePath.get(getSelectedComboString(confFileCombo)));
+        data.configurationPath);
+      configuration.setAttribute(LaunchConfigurationConstants.BASEPATH,
+        data.basePath);
       configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE,
           runOnEverySaveCheckbox.getSelection());
     }

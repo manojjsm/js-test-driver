@@ -21,15 +21,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import com.google.jstestdriver.DefaultResponseStreamFactory;
 import com.google.jstestdriver.Flags;
-import com.google.jstestdriver.ResponseStreamFactory;
 import com.google.jstestdriver.config.Configuration;
 import com.google.jstestdriver.hooks.PluginInitializer;
+import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.output.DefaultListener;
-import com.google.jstestdriver.output.MultiTestResultListener;
 import com.google.jstestdriver.output.TestResultHolder;
-import com.google.jstestdriver.output.TestResultListener;
 
 
 /**
@@ -61,9 +58,5 @@ public class TestResultPrintingModule extends AbstractModule {
 
     testResultListeners.addBinding().to(TestResultHolder.class);
     testResultListeners.addBinding().to(DefaultListener.class).in(Singleton.class);
-
-    bind(TestResultListener.class).to(MultiTestResultListener.class);
-    newSetBinder(binder(),
-        ResponseStreamFactory.class).addBinding().to(DefaultResponseStreamFactory.class);
   }
 }

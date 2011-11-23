@@ -45,12 +45,10 @@ import com.google.jstestdriver.config.UserConfigurationSource;
 import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.guice.TestResultPrintingModule.TestResultPrintingInitializer;
-import com.google.jstestdriver.hooks.PluginInitializer;
-import com.google.jstestdriver.hooks.ServerListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.model.ConcretePathPrefix;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.model.NullPathPrefix;
-import com.google.jstestdriver.output.TestResultListener;
 import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.util.NullStopWatch;
 import com.google.jstestdriver.util.RetryException;
@@ -58,61 +56,83 @@ import com.google.jstestdriver.util.RetryException;
 public class JsTestDriver {
 
   /**
-   * @author corysmith@google.com (Cory Smith)
-   * 
+   * Used to bind a {@link TestResultListener} into the JsTestDriver framework.
+   *
+   * @author Cory Smith (corbinrsmith@gmail.com)
    */
-  private final class PluginInitializerModule implements Module {
+  private static final class TestListenerModule implements Module {
+    private final TestResultListener listener;
+
+    /**
+     * @param listener An instance of a {@link TestResultListener} to collect
+     *    results druing a run.
+     */
+    private TestListenerModule(TestResultListener listener) {
+      this.listener = listener;
+    }
+
+    @Override
     public void configure(Binder binder) {
-      Multibinder<PluginInitializer> setBinder =
-          Multibinder.newSetBinder(binder, PluginInitializer.class);
-      for (Class<? extends PluginInitializer> initializer : initializers) {
-        setBinder.addBinding().to(initializer);
-      }
+      Multibinder.newSetBinder(binder, TestResultListener.class).addBinding()
+          .toInstance(listener);
     }
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(JsTestDriver.class);
-  private final Configuration defaultConfiguration;
-  private final PluginLoader pluginLoader;
-  private final List<Class<? extends PluginInitializer>> initializers;
-  private final String[] defaultFlags;
-  private final RunnerMode runnerMode;
-  private final int port;
-  private final List<Module> pluginModules;
-  private final List<ServerListener> serverListeners;
-  private final List<TestResultListener> testListeners;
-  private final File baseDir;
-  private final String serverAddress;
+  private static final class TestCaseCollector implements TestResultListener {
+    private final List<TestCase> testCases = Lists.newLinkedList();
+    
+    @Override
+    public void onTestRegistered(BrowserInfo browser, TestCase testCase) {
+      testCases.add(testCase);
+    }
 
-  /**
-   * @param strings
-   * @param runnerMode
-   * @param initializers
-   * @param pluginLoader
-   * @param configuration
-   * @param testListeners
-   * @param serverListeners
-   * @param pluginModules
-   * @param port
-   * @param baseDir
-   * @param serverAddress
-   * @param injector
-   */
-  public JsTestDriver(Configuration configuration, PluginLoader pluginLoader,
-      List<Class<? extends PluginInitializer>> initializers, RunnerMode runnerMode, String[] flags,
-      int port, List<Module> pluginModules, List<ServerListener> serverListeners,
-      List<TestResultListener> testListeners, File baseDir, String serverAddress) {
-    this.defaultConfiguration = configuration;
-    this.pluginLoader = pluginLoader;
-    this.initializers = initializers;
-    this.runnerMode = runnerMode;
-    this.defaultFlags = flags;
-    this.port = port;
-    this.pluginModules = pluginModules;
-    this.serverListeners = serverListeners;
-    this.testListeners = testListeners;
-    this.baseDir = baseDir;
-    this.serverAddress = serverAddress;
+    @Override
+    public void onTestComplete(TestResult testResult) {
+    }
+
+    @Override
+    public void onFileLoad(BrowserInfo browserInfo, FileResult fileResult) {
+    }
+
+    @Override
+    public void finish() {
+    }
+    
+    /**
+     * Returns a list of collected testcases from a run.
+     */
+    public List<TestCase> getTestCases() {
+      return testCases;
+    }
+  }
+
+  private static final class TestResultCollector implements TestResultListener {
+
+    private final List<TestResult> results = Lists.newLinkedList();
+
+    @Override
+    public void onTestRegistered(BrowserInfo browser, TestCase testCase) {
+    }
+
+    @Override
+    public void onTestComplete(TestResult testResult) {
+      results.add(testResult);
+    }
+
+    @Override
+    public void onFileLoad(BrowserInfo browserInfo, FileResult fileResult) {
+    }
+
+    @Override
+    public void finish() {
+    }
+
+    /**
+     * @return the results
+     */
+    public List<TestResult> getResults() {
+      return results;
+    }
   }
 
   public static void main(String[] args) {
@@ -122,18 +142,17 @@ public class JsTestDriver {
       // that must be dealt with before we parse the flags.
       CmdFlags cmdLineFlags = new CmdLineFlagsFactory().create(args);
       List<Plugin> cmdLinePlugins = cmdLineFlags.getPlugins();
-
+  
       // configure logging before we start seriously processing.
       LogManager.getLogManager().readConfiguration(cmdLineFlags.getRunnerMode().getLogConfig());
-
-
+  
+  
       final PluginLoader pluginLoader = new PluginLoader();
-
+  
       // load all the command line plugins.
       final List<Module> pluginModules = pluginLoader.load(cmdLinePlugins);
       logger.debug("loaded plugins %s", pluginModules);
-      List<Module> initializeModules = Lists.newLinkedList(pluginModules);
-
+  
       JsTestDriverBuilder builder = new JsTestDriverBuilder();
       builder.setBaseDir(cmdLineFlags.getBasePath().getCanonicalFile());
       builder.setConfigurationSource(cmdLineFlags.getConfigurationSource());
@@ -143,7 +162,7 @@ public class JsTestDriver {
       builder.setFlags(cmdLineFlags.getUnusedFlagsAsArgs());
       JsTestDriver jstd = builder.build();
       jstd.runConfiguration();
-
+  
       logger.info("Finished action run.");
     } catch (InvalidFlagException e) {
       e.printErrorMessages(System.out);
@@ -171,6 +190,44 @@ public class JsTestDriver {
     }
   }
 
+  private static final Logger logger = LoggerFactory.getLogger(JsTestDriver.class);
+  private final Configuration defaultConfiguration;
+  private final PluginLoader pluginLoader;
+  private final List<Module> initializerModules;
+  private final String[] defaultFlags;
+  private final RunnerMode runnerMode;
+  private final int port;
+  private final List<Module> pluginModules;
+  private final File baseDir;
+  private final String serverAddress;
+
+  /**
+   * @param strings
+   * @param flags
+   * @param runnerMode
+   * @param pluginLoader
+   * @param configuration
+   * @param pluginModules
+   * @param plugins
+   * @param baseDir
+   * @param serverAddress
+   * @param injector
+   */
+  public JsTestDriver(Configuration configuration,
+                      PluginLoader pluginLoader,
+      RunnerMode runnerMode, String[] flags, int port,
+      List<Module> pluginModules, List<Module> initializerModules, File baseDir, String serverAddress) {
+    this.defaultConfiguration = configuration;
+    this.pluginLoader = pluginLoader;
+    this.initializerModules = initializerModules;
+    this.runnerMode = runnerMode;
+    this.defaultFlags = flags;
+    this.port = port;
+    this.pluginModules = pluginModules;
+    this.baseDir = baseDir;
+    this.serverAddress = serverAddress;
+  }
+
   public void startServer() {
     // TODO(corysmith): refactor these to do less hacking.
     if (port == -1) {
@@ -178,27 +235,6 @@ public class JsTestDriver {
     }
     runConfigurationWithFlags(defaultConfiguration,
         createFlagsArray("--port", String.valueOf(port)));
-  }
-
-  /**
-   * @return
-   */
-  private String[] createFlagsArray(String...coreflags) {
-    List<String> flags = Lists.newArrayList(coreflags);
-    if (serverAddress != null && !serverAddress.isEmpty()) {
-      flags.add("--server");
-      flags.add(serverAddress);
-    }
-    if (port > 0) {
-      flags.add("--port");
-      flags.add(String.valueOf(port));
-    }
-    CmdLineFlag handlerPrefixFlag = findServerHandlerPrefixFlag();
-    if (handlerPrefixFlag != null) {
-      handlerPrefixFlag.addToArgs(flags);
-    }
-    String[] flagsArray = flags.toArray(new String[flags.size()]);
-    return flagsArray;
   }
 
   public void stopServer() {
@@ -219,26 +255,32 @@ public class JsTestDriver {
   /**
    * Runs the default configuration with the default flags.
    */
-  public List<TestCase> runConfiguration() {
+  public List<TestResult> runConfiguration() {
+    final List<TestResult> results = Lists.newArrayList();
     runConfigurationWithFlags(defaultConfiguration, defaultFlags);
-    return null;
+    return results;
   }
 
-  public List<TestCase> runAllTests(String path) {
+  public List<TestResult> runAllTests(String path) {
     return runAllTests(parseConfiguration(path));
   }
 
-  public List<TestCase> runAllTests(Configuration config) {
-    // TODO(corysmith): Refactor to avoid passing string flags.
-    runConfigurationWithFlags(config, createFlagsArray("--tests", "all"));
-    return null;
+  public List<TestResult> runAllTests(Configuration config) {
+    // TODO(corysmith): resolve how this should interact. It seems odd to resolve the server address twice, but we want to respect the configuration values.
+    TestResultCollector testResultCollector = new TestResultCollector();
+    String server = config.getServer(serverAddress, port, new NullPathPrefix());
+    runConfigurationWithFlags(config, createFlagsArray("--tests", "all", "--server", server),
+      new TestListenerModule(testResultCollector));
+    return testResultCollector.getResults();
   }
 
-  public List<TestCase> runTests(Configuration config, List<String> tests) {
+  public List<TestResult> runTests(Configuration config, List<String> tests) {
     // TODO(corysmith): Refactor to avoid passing string flags.
+    TestResultCollector testResultCollector = new TestResultCollector();
     runConfigurationWithFlags(config,
-      createFlagsArray("--tests", Joiner.on(",").join(tests)));
-    return null;
+      createFlagsArray("--tests", Joiner.on(",").join(tests)),
+      new TestListenerModule(testResultCollector));
+    return testResultCollector.getResults();
   }
 
   public void reset() {
@@ -251,9 +293,31 @@ public class JsTestDriver {
   }
 
   public List<TestCase> getTestCasesFor(Configuration config) {
+    TestCaseCollector testCaseCollector = new TestCaseCollector();
+    String server = config.getServer(serverAddress, port, new NullPathPrefix());
     // TODO(corysmith): Refactor to avoid passing string flags.
-    runConfigurationWithFlags(config, createFlagsArray("--dryRunFor", "all"));
-    return null;
+    runConfigurationWithFlags(config, createFlagsArray("--dryRunFor", "all", "--server", server), new TestListenerModule(testCaseCollector));
+    return testCaseCollector.getTestCases();
+  }
+
+  /**
+   * @param string
+   */
+  public void captureBrowser(String browserPath) {
+    throw new RuntimeException("not implemented");
+  }
+
+  /**
+   * @return
+   */
+  private String[] createFlagsArray(String...coreflags) {
+    List<String> flags = Lists.newArrayList(coreflags);
+    CmdLineFlag handlerPrefixFlag = findServerHandlerPrefixFlag();
+    if (handlerPrefixFlag != null) {
+      handlerPrefixFlag.addToArgs(flags);
+    }
+    String[] flagsArray = flags.toArray(new String[flags.size()]);
+    return flagsArray;
   }
 
   private Configuration parseConfiguration(String path) {
@@ -261,19 +325,24 @@ public class JsTestDriver {
     if (!configFile.exists()) {
       throw new ConfigurationException("Could not find " + configFile);
     }
-    return new UserConfigurationSource(configFile).parse(baseDir, new YamlParser());
+    UserConfigurationSource userConfigurationSource = new UserConfigurationSource(configFile);
+    return userConfigurationSource.parse(userConfigurationSource.getParentFile(), new YamlParser());
   }
 
-  private void runConfigurationWithFlags(Configuration config, String[] flags) {
-    List<Module> initializeModules = Lists.newArrayList();
+  private void runConfigurationWithFlags(Configuration config,
+                                         String[] flags,
+                                         Module... additionalRunTimeModules) {
+    if (config == null) {
+      throw new ConfigurationException("Configuration cannot be null.");
+    }
+    List<Module> initializeModules = Lists.newArrayList(initializerModules);
     File basePath;
     try {
       // configure logging before we start seriously processing.
       LogManager.getLogManager().readConfiguration(runnerMode.getLogConfig());
-      basePath = config.getBasePath().getCanonicalFile();
+      basePath = getBasePath(config);
       initializeModules.add(new InitializeModule(pluginLoader, basePath, new Args4jFlagsParser(),
           runnerMode));
-      initializeModules.add(new PluginInitializerModule());
     } catch (IOException e) {
       throw new ConfigurationException("Could not find " + config.getBasePath(), e);
     }
@@ -282,7 +351,8 @@ public class JsTestDriver {
     List<Module> actionRunnerModules;
     actionRunnerModules =
         initializeInjector.getInstance(Initializer.class).initialize(pluginModules,
-            defaultConfiguration, runnerMode, flags);
+            config, runnerMode, flags);
+    actionRunnerModules.addAll(Lists.newArrayList(additionalRunTimeModules));
     Injector injector = Guice.createInjector(actionRunnerModules);
     injector.getInstance(ActionRunner.class).runActions();
   }
@@ -300,5 +370,24 @@ public class JsTestDriver {
       }
     }
     return null;
+  }
+
+  /**
+   * @param config
+   */
+  // TODO(corysmith): make this go away by resolving the multiple basePath issue.
+  private File getBasePath(Configuration config) {
+    for (int i = 0; i < defaultFlags.length; i++) {
+      if ("--basePath".equals(defaultFlags[i])) {
+        if (i < defaultFlags.length) {
+          return new File(defaultFlags[i + 1]);
+        }
+        break;
+      }
+    }
+    if (baseDir != null) {
+      return baseDir;
+    }
+    return config.getBasePath();
   }
 }

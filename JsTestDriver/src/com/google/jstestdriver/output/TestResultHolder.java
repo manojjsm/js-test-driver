@@ -2,18 +2,21 @@ package com.google.jstestdriver.output;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-import static com.google.common.collect.Multimaps.newMultimap;
 import static com.google.common.collect.Multimaps.synchronizedMultimap;
-
-import com.google.common.base.Supplier;
-import com.google.common.collect.Multimap;
-import com.google.inject.Singleton;
-import com.google.jstestdriver.BrowserInfo;
-import com.google.jstestdriver.FileResult;
-import com.google.jstestdriver.TestResult;
 
 import java.util.Collection;
 import java.util.Map;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.inject.Singleton;
+import com.google.jstestdriver.BrowserInfo;
+import com.google.jstestdriver.FileResult;
+import com.google.jstestdriver.TestCase;
+import com.google.jstestdriver.TestResult;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 /**
  * A data storage for test results. It listens on each browser for incoming test results,
@@ -24,25 +27,28 @@ import java.util.Map;
  */
 @Singleton
 public class TestResultHolder implements TestResultListener {
-  private static final class LinkListSupplier implements
-      Supplier<Collection<TestResult>> {
-    public Collection<TestResult> get() {
+  private static final class LinkListSupplier<T> implements
+      Supplier<Collection<T>> {
+    public Collection<T> get() {
           return newLinkedList();
         }
   }
 
   private final Multimap<BrowserInfo, TestResult> results;
+  private final Multimap<BrowserInfo, TestCase> testCases;
+  private Multimap<BrowserInfo, FileResult> fileResults;
 
   public TestResultHolder() {
-    Map<BrowserInfo, Collection<TestResult>> map = newLinkedHashMap();
-    results = synchronizedMultimap(createMultiMap(map));
+    results = synchronizedMultimap(createMultiMap(Maps.<BrowserInfo, Collection<TestResult>>newLinkedHashMap()));
+    testCases = synchronizedMultimap(createMultiMap(Maps.<BrowserInfo, Collection<TestCase>>newLinkedHashMap()));
+    fileResults = synchronizedMultimap(createMultiMap(Maps.<BrowserInfo, Collection<FileResult>>newLinkedHashMap()));
   }
 
-  private Multimap<BrowserInfo, TestResult> createMultiMap(
-      Map<BrowserInfo, Collection<TestResult>> map) {
-    Supplier<Collection<TestResult>> collectionSupplier = new LinkListSupplier();
-    Multimap<BrowserInfo, TestResult> resultMultimap =
-        newMultimap(map, collectionSupplier);
+  private <T> Multimap<BrowserInfo, T> createMultiMap(
+      Map<BrowserInfo, Collection<T>> map) {
+    Supplier<Collection<T>> collectionSupplier = new LinkListSupplier<T>();
+    Multimap<BrowserInfo, T> resultMultimap =
+        Multimaps.<BrowserInfo, T>newMultimap(map, collectionSupplier);
     return resultMultimap;
   }
 
@@ -53,6 +59,20 @@ public class TestResultHolder implements TestResultListener {
     return results;
   }
 
+  /**
+   * @return a map of browser name to test results from that browser
+   */
+  public Multimap<BrowserInfo, TestCase> getCases() {
+    return testCases;
+  }
+
+  /**
+   * @return a map of browser name to test results from that browser
+   */
+  public Multimap<BrowserInfo, FileResult> getFileResults() {
+    return fileResults;
+  }
+
   public void onTestComplete(TestResult testResult) {
     results.put(testResult.getBrowserInfo(), testResult);
   }
@@ -60,7 +80,13 @@ public class TestResultHolder implements TestResultListener {
   public void finish() {
   }
 
-  public void onFileLoad(String browser, FileResult fileResult) {
-    // TODO(corysmith): Add load error to the xml results
+  public void onFileLoad(BrowserInfo browser, FileResult fileResult) {
+    
+  }
+
+  @Override
+  public void onTestRegistered(BrowserInfo browser, TestCase testCase) {
+    // TODO Auto-generated method stub
+    
   }
 }

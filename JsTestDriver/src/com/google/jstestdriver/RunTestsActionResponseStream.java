@@ -17,14 +17,18 @@ package com.google.jstestdriver;
 
 import com.google.gson.Gson;
 import com.google.jstestdriver.browser.BrowserPanicException;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 import java.util.Collection;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
  */
 public class RunTestsActionResponseStream implements ResponseStream {
+  private static final Logger logger = LoggerFactory.getLogger(RunTestsActionResponseStream.class);
 
   private final TestResultGenerator testResultGenerator;
   private final TestResultListener listener;
@@ -36,6 +40,7 @@ public class RunTestsActionResponseStream implements ResponseStream {
     this.testResultGenerator = testResultGenerator;
     this.listener = listener;
     this.accumulator = accumulator;
+    logger.debug("listener for tests " + listener);
   }
 
   public void stream(Response response) {
@@ -58,7 +63,7 @@ public class RunTestsActionResponseStream implements ResponseStream {
           if (!result.isSuccess()) {
             accumulator.add();
           }
-          listener.onFileLoad(response.getBrowser().toString(), result);
+          listener.onFileLoad(response.getBrowser(), result);
         }
         break;
       case BROWSER_PANIC:

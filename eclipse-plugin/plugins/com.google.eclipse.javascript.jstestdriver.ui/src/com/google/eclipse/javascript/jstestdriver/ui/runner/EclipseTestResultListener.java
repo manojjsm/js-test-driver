@@ -26,9 +26,11 @@ import org.eclipse.ui.PlatformUI;
 import com.google.common.collect.Lists;
 import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
 import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
+import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FileResult;
+import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.TestResult;
-import com.google.jstestdriver.output.TestResultListener;
+import com.google.jstestdriver.hooks.TestResultListener;
 
 /**
  *
@@ -40,6 +42,7 @@ public class EclipseTestResultListener implements TestResultListener {
 
   @Override
   public void onTestComplete(final TestResult testResult) {
+    System.out.println(testResult.toString());
     Display.getDefault().asyncExec(new Runnable() {
 
       public void run() {
@@ -58,21 +61,28 @@ public class EclipseTestResultListener implements TestResultListener {
   }
 
   /* (non-Javadoc)
-   * @see com.google.jstestdriver.output.TestResultListener#onFileLoad(java.lang.String, com.google.jstestdriver.FileResult)
-   */
-  @Override
-  public void onFileLoad(String browser, FileResult fileResult) {
-    // TODO Auto-generated method stub
-
-  }
-
-  /* (non-Javadoc)
    * @see com.google.jstestdriver.output.TestResultListener#finish()
    */
   @Override
   public void finish() {
     // TODO Auto-generated method stub
 
+  }
+
+  /* (non-Javadoc)
+   * @see com.google.jstestdriver.hooks.TestResultListener#onFileLoad(com.google.jstestdriver.BrowserInfo, com.google.jstestdriver.FileResult)
+   */
+  @Override
+  public void onFileLoad(BrowserInfo browserInfo, FileResult fileResult) {
+    logger.info(fileResult.toString());
+  }
+
+  /* (non-Javadoc)
+   * @see com.google.jstestdriver.hooks.TestResultListener#onTestRegistered(com.google.jstestdriver.BrowserInfo, com.google.jstestdriver.TestCase)
+   */
+  @Override
+  public void onTestRegistered(BrowserInfo browser, TestCase testCase) {
+    logger.info(testCase.toString());
   }
 
 }

@@ -16,9 +16,12 @@
 
 package com.google.jstestdriver;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,7 +31,7 @@ import java.util.List;
  */
 public class DryRunInfo {
   private int numTests;
-  private List<String> testNames;
+  private List<TestCase> testCases;
   private static Gson gson = new Gson();
 
   /**
@@ -41,8 +44,18 @@ public class DryRunInfo {
   /**
    * @return the testNames
    */
+  public List<TestCase> getTestCases() {
+    return testCases;
+  }
+  /**
+   * @return the testNames
+   */
   public List<String> getTestNames() {
-    return testNames;
+    return Lists.transform(testCases, new Function<TestCase, String>() {
+      @Override
+      public String apply(TestCase tc) {
+        return tc.toString();
+      }});
   }
 
   public static DryRunInfo fromJson(Response response) {
