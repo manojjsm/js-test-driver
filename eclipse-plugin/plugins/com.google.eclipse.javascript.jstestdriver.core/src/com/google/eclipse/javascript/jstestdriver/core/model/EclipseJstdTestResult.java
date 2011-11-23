@@ -92,7 +92,7 @@ public class EclipseJstdTestResult extends BaseResultModel {
         !result.getParsedMessage().isEmpty();
     boolean hasStack = result.getStack() != null && !result.getStack().isEmpty();
     if (hasMessage) {
-      details.append(result.getMessage());
+      details.append(result.getParsedMessage());
     }
     if (hasStack && hasMessage) {
       details.append("\n\n");

@@ -194,6 +194,7 @@ public class TestResultsPanel extends Composite {
       for (TestResult result : testResults) {
         ResultModel addedResult = testRunResult.addTestResult(result);
         messageConsoleStream.println(result.getLog());
+        System.out.println(result.getStack());
         if (!addedResult.passed()) {
           failedTests.add(addedResult);
         }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider" name="com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider" schema="schema/com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -146,5 +147,4 @@
         class="com.google.eclipse.javascript.jstestdriver.ui.runner.EclipseTestResultListener">
      </testResultListener>
    </extension>
-
 </plugin>

@@ -15,22 +15,21 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.launch.config;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.eclipse.javascript.jstestdriver.core.ProjectHelper;
-import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
-import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
-import com.google.inject.internal.Maps;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -41,18 +40,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.eclipse.javascript.jstestdriver.core.ConfigurationData;
+import com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider;
+import com.google.eclipse.javascript.jstestdriver.core.ProjectHelper;
+import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
+import com.google.eclipse.javascript.jstestdriver.ui.Activator;
+import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
+import com.google.inject.internal.Maps;
 
 /**
  * UI elements for the Js Test Driver Launch Configuration Tab, along with information on what 
@@ -70,6 +70,14 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   private JavascriptLaunchConfigurationHelper configurationHelper =
       new JavascriptLaunchConfigurationHelper();
   private final Map<String, ConfigurationData> projectPathToAbsolutePath = Maps.newHashMap();
+  private final JsTestDriverConfigurationProvider configurationProvider;
+
+  /**
+   * 
+   */
+  public JsTestDriverLaunchTab(JsTestDriverConfigurationProvider configurationProvider) {
+    this.configurationProvider = configurationProvider;
+  }
 
   @Override
   public void createControl(Composite parent) {
@@ -87,51 +95,22 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     setUpProjectCombo();
   }
 
-  private final static class ConfigurationData {
-    final String configurationPath;
-    final String basePath;
-
-    /**
-     * @param configurationPath 
-     * @param basePath 
-     * 
-     */
-    public ConfigurationData(String configurationPath, String basePath) {
-      this.configurationPath = configurationPath;
-      this.basePath = basePath;
-    }
-  }
-  
   private String[] getConfigurationFiles(final IProject project) {
-    try {
-      synchronized (projectPathToAbsolutePath) {
-        projectPathToAbsolutePath.clear();
-        final Map<String, ConfigurationData> configurationPaths = Maps.newHashMap();
-        project.accept(new IResourceVisitor() {
-          @Override
-          public boolean visit(IResource resource) throws CoreException {
-            if (resource.getName().endsWith(".conf")) {
-                configurationPaths.put(
-                  resource.getFullPath().toFile().getAbsolutePath(),
-                  new ConfigurationData(
-                    resource.getLocation().toOSString(),
-                    project.getLocation().toOSString()));
-            }
-            return true;
-          }
-        });
-        projectPathToAbsolutePath.putAll(configurationPaths);
-        System.out.println(projectPathToAbsolutePath);
+    synchronized (projectPathToAbsolutePath) {
+      projectPathToAbsolutePath.clear();
+      try {
+        projectPathToAbsolutePath.putAll(configurationProvider.getConfigurations(project));
+      } catch (CoreException e) {
+        IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString());
+        ErrorDialog.openError(Display.getCurrent().getActiveShell(), "JS Test Driver",
+            "JsTestDriver Error", status);
       }
-
-      Set<String> displayPaths = projectPathToAbsolutePath.keySet();
-      String[] paths = displayPaths.toArray(new String[displayPaths.size()]);
-      Arrays.sort(paths);
-      return paths;
-    } catch (CoreException e) {
-      logger.log(Level.SEVERE, "", e);
-      return new String[] {};
     }
+
+    Set<String> displayPaths = projectPathToAbsolutePath.keySet();
+    String[] paths = displayPaths.toArray(new String[displayPaths.size()]);
+    Arrays.sort(paths);
+    return paths;
   }
 
   private void createJstdPropreties(Composite control) {

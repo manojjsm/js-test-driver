@@ -284,8 +284,9 @@ public class JsTestDriver {
   }
 
   public void reset() {
+    String server = defaultConfiguration.getServer(serverAddress, port, new NullPathPrefix());
     // TODO(corysmith): Refactor to avoid passing string flags.
-    runConfigurationWithFlags(defaultConfiguration, createFlagsArray("--reset"));
+    runConfigurationWithFlags(defaultConfiguration, createFlagsArray("--reset",  "--server", server));
   }
 
   public List<TestCase> getTestCasesFor(String path) {

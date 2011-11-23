@@ -17,15 +17,6 @@ package com.google.eclipse.javascript.jstestdriver.ui.launch;
 
 import static com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants.JSTD_LAUNCH_CONFIGURATION_TYPE;
 
-import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
-import com.google.eclipse.javascript.jstestdriver.ui.Activator;
-import com.google.jstestdriver.ConfigurationParser;
-import com.google.jstestdriver.DefaultPathRewriter;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,9 +27,8 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
+import com.google.eclipse.javascript.jstestdriver.ui.Activator;
 
 /**
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
@@ -105,20 +95,5 @@ public class JavascriptLaunchConfigurationHelper {
       return true;
     }
     return false;
-  }
-
-  public ConfigurationParser getConfigurationParser(String projectName, String confFileName) {
-    IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-    IProject project = workspaceRoot.getProject(projectName);
-    IResource confFileResource = project.findMember(confFileName);
-    File configFile = confFileResource.getLocation().toFile();
-    File parentDir = configFile.getParentFile();
-    try {
-      return new ConfigurationParser(parentDir, new FileReader(configFile),
-          new DefaultPathRewriter());
-    } catch (FileNotFoundException e) {
-      // logger.logException(e);
-      return null;
-    }
   }
 }

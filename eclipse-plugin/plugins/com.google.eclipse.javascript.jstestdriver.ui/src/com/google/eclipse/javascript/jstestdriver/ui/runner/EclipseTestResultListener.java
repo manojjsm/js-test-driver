@@ -42,7 +42,6 @@ public class EclipseTestResultListener implements TestResultListener {
 
   @Override
   public void onTestComplete(final TestResult testResult) {
-    System.out.println(testResult.toString());
     Display.getDefault().asyncExec(new Runnable() {
 
       public void run() {
