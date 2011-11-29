@@ -36,6 +36,7 @@ public class JsTestDriverBuilder {
   private final List<TestResultListener> testListeners = Lists.newArrayList();
   private RunnerMode runnerMode = RunnerMode.QUIET;
   private String serverAddress;
+  private boolean raiseOnFailure = false;
   final private List<Class<? extends PluginInitializer>> pluginInitializers =  Lists.newArrayList();
 
 
@@ -44,7 +45,6 @@ public class JsTestDriverBuilder {
    * @return The builder.
    */
   public JsTestDriverBuilder setDefaultConfiguration(String configPath) {
-
     setConfigurationSource(new UserConfigurationSource(new File(configPath)));
     return this;
   }
@@ -76,6 +76,11 @@ public class JsTestDriverBuilder {
     return this;
   }
 
+  public JsTestDriverBuilder raiseExceptionOnTestFailure(boolean raiseOnFailure) {
+    this.raiseOnFailure = raiseOnFailure;
+    return this;
+  }
+  
 
   /**
    * 
@@ -93,7 +98,7 @@ public class JsTestDriverBuilder {
         plugins,
         initializers,
         baseDir,
-        serverAddress);
+        serverAddress, true);
   }
 
   /**

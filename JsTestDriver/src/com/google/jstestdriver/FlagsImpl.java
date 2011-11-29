@@ -67,6 +67,7 @@ public class FlagsImpl implements Flags {
   private RunnerMode runnerMode = RunnerMode.QUIET;
   private HashSet<String> requiredBrowsers;
   private HandlerPathPrefix serverHandlerPrefix = new NullPathPrefix();
+  private boolean raiseOnFailure = false;
 
   @Option(name="--port", usage="The port on which to start the JsTestDriver server")
   public void setPort(Integer port) {
@@ -260,8 +261,22 @@ public class FlagsImpl implements Flags {
   public HandlerPathPrefix getServerHandlerPrefix() {
     return serverHandlerPrefix;
   }
-  
-  
+
+  @Override
+  public ExecutionType getExecutionType() {
+    return ExecutionType.INTERACTIVE;
+  }
+
+  @Option(name="--raiseOnFailure",
+    usage="Whether jstd will throw an exception when a test failure.")
+  public void setRaiseOnFailure(boolean raiseOnFailure) {
+    this.raiseOnFailure = raiseOnFailure;
+  }
+
+  @Override
+  public boolean getRaiseOnFailure() {
+    return raiseOnFailure;
+  }
 
   @Override
   public String toString() {
@@ -271,11 +286,6 @@ public class FlagsImpl implements Flags {
         + ",\n displayHelp=" + displayHelp + ",\n verbose=" + verbose + ",\n captureConsole="
         + captureConsole + ",\n preloadFiles=" + preloadFiles + ",\n dryRunFor=" + dryRunFor
         + ",\n arguments=" + arguments + ",\n runnerMode=" + runnerMode + ",\n requiredBrowsers="
-        + requiredBrowsers + ",\n serverHandlerPrefix=" + serverHandlerPrefix +  "]";
-  }
-
-  @Override
-  public ExecutionType getExecutionType() {
-    return ExecutionType.INTERACTIVE;
+        + requiredBrowsers + ",\n serverHandlerPrefix=" + serverHandlerPrefix + "\n raiseOnFailure-" + "]";
   }
 }

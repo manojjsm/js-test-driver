@@ -84,5 +84,8 @@ public interface Flags {
   @GuiceBinding(name="executionType")
   public ExecutionType getExecutionType();
 
+  @GuiceBinding(name="raiseOnFailure")
+  public boolean getRaiseOnFailure();
+
   public boolean getDisplayHelp();
 }

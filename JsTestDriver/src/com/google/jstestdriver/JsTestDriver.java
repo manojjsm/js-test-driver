@@ -200,23 +200,32 @@ public class JsTestDriver {
   private final List<Module> pluginModules;
   private final File baseDir;
   private final String serverAddress;
+  private final boolean raiseOnFailure;
 
   /**
-   * @param strings
-   * @param flags
-   * @param runnerMode
-   * @param pluginLoader
    * @param configuration
+   * @param pluginLoader
+   * @param runnerMode
+   * @param flags
    * @param pluginModules
-   * @param plugins
    * @param baseDir
    * @param serverAddress
+   * @param raiseOnFailure TODO
+   * @param strings
+   * @param plugins
    * @param injector
    */
-  public JsTestDriver(Configuration configuration,
-                      PluginLoader pluginLoader,
-      RunnerMode runnerMode, String[] flags, int port,
-      List<Module> pluginModules, List<Module> initializerModules, File baseDir, String serverAddress) {
+  public JsTestDriver(
+      Configuration configuration,
+      PluginLoader pluginLoader,
+      RunnerMode runnerMode,
+      String[] flags,
+      int port,
+      List<Module> pluginModules,
+      List<Module> initializerModules,
+      File baseDir,
+      String serverAddress,
+      boolean raiseOnFailure) {
     this.defaultConfiguration = configuration;
     this.pluginLoader = pluginLoader;
     this.initializerModules = initializerModules;
@@ -226,6 +235,7 @@ public class JsTestDriver {
     this.pluginModules = pluginModules;
     this.baseDir = baseDir;
     this.serverAddress = serverAddress;
+    this.raiseOnFailure = raiseOnFailure;
   }
 
   public void startServer() {
@@ -317,6 +327,8 @@ public class JsTestDriver {
     if (handlerPrefixFlag != null) {
       handlerPrefixFlag.addToArgs(flags);
     }
+    flags.add("--raiseOnFailure");
+    flags.add("false");
     String[] flagsArray = flags.toArray(new String[flags.size()]);
     return flagsArray;
   }

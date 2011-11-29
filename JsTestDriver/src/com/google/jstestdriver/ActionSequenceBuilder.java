@@ -136,9 +136,9 @@ public class ActionSequenceBuilder {
     if (needToStartServer()) {
       addServerActions(actions, leaveServerRunning());
     }
-    /*if (!tests.isEmpty() && raiseOnFailure) {
+    if (!tests.isEmpty() && raiseOnFailure) {
       actions.add(failureCheckerAction);
-    }*/
+    }
     return actions;
   }
 
