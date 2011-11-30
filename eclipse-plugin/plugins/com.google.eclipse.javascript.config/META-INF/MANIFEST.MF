@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Config
 Bundle-SymbolicName: com.google.eclipse.javascript.jstestdriver.config;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.a
 Bundle-Vendor: GOOGLE
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

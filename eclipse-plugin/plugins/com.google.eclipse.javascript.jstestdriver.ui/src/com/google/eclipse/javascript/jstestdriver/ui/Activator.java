@@ -47,7 +47,6 @@ public class Activator extends AbstractUIPlugin {
     getPreferenceStore().setDefault(WorkbenchPreferencePage.PREFERRED_SERVER_PORT,
                                     42442);
     plugin = this;
-    ServiceLocator.getService(ServerController.class).startServer();
   }
 
   @Override

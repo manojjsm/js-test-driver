@@ -73,9 +73,9 @@
     <fileset dir="plugins/com.google.eclipse.javascript.jstestdriver.core/temp.folder" id="coreTmpFolder"/>
     <fileset dir="plugins/com.google.eclipse.javascript.jstestdriver.ui/@dot" id="uiDotFolder"/>
     <fileset dir="plugins/com.google.eclipse.javascript.jstestdriver.ui/bin" id="uiBinFolder"/>
-    <fileset dir="plugins/com.google.eclipse.javascript.jstestdriver.test/bin" id="testBinFolder"/>
     <fileset file="plugins/com.google.eclipse.javascript.jstestdriver.ui/@dot.log" id="uiDotLogFile"/>
     <fileset dir="plugins/com.google.eclipse.javascript.jstestdriver.ui/temp.folder" id="uiTmpFolder"/>
+    <fileset dir="plugins/com.google.eclipse.javascript.jstestdriver.test/bin" id="testBinFolder"/>
     <fileset dir="." id="compilerArgs" includes="**/javaCompiler...args"/>
     <fileset dir="plugins" id="genPluginsBuildXml" includes="**/build.xml"/>
     <fileset dir="features" id="genFeaturesBuildXml" includes="**/build.xml"/>

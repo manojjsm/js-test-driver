@@ -13,18 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.eclipse.javascript.jstestdriver.ui.view.actions;
-
-import com.google.eclipse.javascript.jstestdriver.core.JstdLaunchListener;
-import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
-import com.google.eclipse.javascript.jstestdriver.ui.Icons;
-import com.google.eclipse.javascript.jstestdriver.ui.view.ServerController;
+package com.google.eclipse.javascript.core;
 
 import junit.framework.TestCase;
 
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
+
+import com.google.eclipse.javascript.jstestdriver.core.ServerController;
+import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
+import com.google.eclipse.javascript.jstestdriver.ui.Icons;
+import com.google.eclipse.javascript.jstestdriver.ui.view.actions.ServerStartStopViewActionDelegate;
 
 public class ServerStartStopViewActionDelegateTest extends TestCase {
 

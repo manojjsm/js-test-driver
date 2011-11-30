@@ -29,7 +29,7 @@ public class ServerController {
   private final JstdServerListener listener;
   private final PortSupplier portSupplier;
 
-  ServerController(JstdServerListener listener, PortSupplier portSupplier) {
+  public ServerController(JstdServerListener listener, PortSupplier portSupplier) {
     this.listener = listener;
     this.portSupplier = portSupplier;
   }
@@ -41,11 +41,11 @@ public class ServerController {
   public void stopServer() {
     Server.getInstance().stop();
   }
-  
+
   public boolean isServerReady() {
     return listener.hasSlaves();
   }
-  
+
   public boolean isServerStarted() {
     return listener.getServerState() == Server.State.STARTED;
   }
