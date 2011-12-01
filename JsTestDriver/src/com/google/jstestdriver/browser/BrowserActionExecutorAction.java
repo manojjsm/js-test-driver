@@ -86,7 +86,7 @@ public class BrowserActionExecutorAction implements Action {
     logger.trace("Starting BrowserActions {}.", actions);
     Collection<BrowserInfo> browsers = client.listBrowsers();
     if (browsers.size() == 0 && browserRunners.size() == 0 && actions.size() > 0) {
-      throw new RuntimeException("No browsers available, yet actions requested. " +
+      throw new RuntimeException("No browsers available, yet actions " + actions + " requested. " +
           "If running against a persistent server please capture browsers. "+
           "Otherwise, ensure that browsers are defined.");
     }

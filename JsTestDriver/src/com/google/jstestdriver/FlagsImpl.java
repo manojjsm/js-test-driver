@@ -268,9 +268,10 @@ public class FlagsImpl implements Flags {
   }
 
   @Option(name="--raiseOnFailure",
-    usage="Whether jstd will throw an exception when a test failure.")
-  public void setRaiseOnFailure(boolean raiseOnFailure) {
-    this.raiseOnFailure = raiseOnFailure;
+      usage="Whether jstd will throw an exception when a test failure.")
+  public void setRaiseOnFailure(String raiseOnFailure) {
+    // args4j automatically assumes that booleans only trigger when present.
+    this.raiseOnFailure = Boolean.parseBoolean(raiseOnFailure);
   }
 
   @Override
@@ -286,6 +287,6 @@ public class FlagsImpl implements Flags {
         + ",\n displayHelp=" + displayHelp + ",\n verbose=" + verbose + ",\n captureConsole="
         + captureConsole + ",\n preloadFiles=" + preloadFiles + ",\n dryRunFor=" + dryRunFor
         + ",\n arguments=" + arguments + ",\n runnerMode=" + runnerMode + ",\n requiredBrowsers="
-        + requiredBrowsers + ",\n serverHandlerPrefix=" + serverHandlerPrefix + "\n raiseOnFailure-" + "]";
+        + requiredBrowsers + ",\n serverHandlerPrefix=" + serverHandlerPrefix + "\n raiseOnFailure=" + raiseOnFailure + "]";
   }
 }

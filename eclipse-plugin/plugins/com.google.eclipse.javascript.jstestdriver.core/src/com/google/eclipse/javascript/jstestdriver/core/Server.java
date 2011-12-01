@@ -20,6 +20,7 @@ import static java.lang.String.format;
 import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
+import com.google.jstestdriver.runner.RunnerMode;
 
 
 /**

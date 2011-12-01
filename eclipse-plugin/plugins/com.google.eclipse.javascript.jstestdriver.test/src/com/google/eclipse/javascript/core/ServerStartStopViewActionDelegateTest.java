@@ -62,15 +62,15 @@ public class ServerStartStopViewActionDelegateTest extends TestCase {
 
     delegate.run(action);
 
-    assertFalse("Stop icon not called", stopServerIconCalled);
-    assertTrue("Start icon called", startServerIconCalled);
-    assertEquals("Start Server", action.getText());
-
-    delegate.run(action);
-
     assertEquals("Stop Server", action.getText());
     assertFalse("Start icon not called", startServerIconCalled);
     assertTrue("Stop icon called", stopServerIconCalled);
+
+    delegate.run(action);
+
+    assertTrue("Start icon called", startServerIconCalled);
+    assertFalse("Stop icon not called", stopServerIconCalled);
+    assertEquals("Start Server", action.getText());
   }
 
 }
