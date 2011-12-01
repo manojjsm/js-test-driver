@@ -113,13 +113,11 @@ public class JstdServerListener extends Observable implements ServerListener {
 
   @Override
   public void serverStarted() {
-    System.out.println("server started");
     serverState = State.STARTED;
   }
 
   @Override
   public void serverStopped() {
-    System.out.println("server stopped");
     slaves.clear();
     serverState = State.STOPPED;
   }

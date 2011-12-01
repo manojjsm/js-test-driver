@@ -15,18 +15,22 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view;
 
-import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
-
 import java.util.Observable;
 import java.util.Observer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+
+import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
 
 /**
  * Panel which displays info about the server, including status, capture url and
@@ -35,6 +39,7 @@ import org.eclipse.swt.widgets.Text;
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
  */
 public class ServerInfoPanel extends Composite implements Observer {
+
 
   private static final Color NOT_RUNNING = new Color(Display.getCurrent(), 255, 102, 102);
   private static final Color NO_BROWSERS = new Color(Display.getCurrent(), 255, 255, 102);
@@ -56,12 +61,35 @@ public class ServerInfoPanel extends Composite implements Observer {
     textGridData.grabExcessHorizontalSpace = true;
     textGridData.horizontalAlignment = SWT.FILL;
     serverUrlText = new Text(this, SWT.CENTER);
-    serverUrlText.setText(SERVER_DOWN);
     serverUrlText.setBackground(NOT_RUNNING);
+    serverUrlText.setText(SERVER_DOWN);
     serverUrlText.setLayoutData(textGridData);
     serverUrlText.setEditable(false);
-    serverUrlText.setOrientation(SWT.HORIZONTAL);
+    // select all on click and focus
+    serverUrlText.addMouseListener(new MouseListener() {
+      @Override
+      public void mouseUp(MouseEvent e) {
+        ((Text) e.getSource()).selectAll();
+      }
 
+      @Override
+      public void mouseDown(MouseEvent e) {
+      }
+
+      @Override
+      public void mouseDoubleClick(MouseEvent e) {
+      }
+    });
+    serverUrlText.addFocusListener(new FocusListener() {
+      @Override
+      public void focusLost(FocusEvent e) {
+      }
+      @Override
+      public void focusGained(FocusEvent e) {
+        ((Text) e.getSource()).setFocus();
+      }
+    });
+    serverUrlText.setOrientation(SWT.HORIZONTAL);
     browserButtonPanel = new BrowserButtonPanel(this, SWT.NONE);
   }
 
@@ -71,15 +99,14 @@ public class ServerInfoPanel extends Composite implements Observer {
    * the same and is not to be changed.
    */
   @Override
-  public void update(Observable o, final Object arg) {
+  public void update(Observable o, Object arg) {
     final JstdServerListener data = (JstdServerListener) arg;
-    Display.getDefault().asyncExec(new Runnable() {
-      public void run() {
-        if (data.hasSlaves()) {
-          serverUrlText.setBackground(READY);
-        }
-      }
-    });
+    if (data.hasSlaves()) {
+      setServerUrl(null, READY);
+    } else {
+      setServerUrl(null, NO_BROWSERS);
+    }
+    browserButtonPanel.update(o, data);
   }
 
   /**
@@ -97,15 +124,34 @@ public class ServerInfoPanel extends Composite implements Observer {
    * @param serverUrl the url to be used to capture a browser
    */
   public void setServerStartedAndWaitingForBrowsers(String serverUrl) {
-    serverUrlText.setText(serverUrl);
-    serverUrlText.setBackground(NO_BROWSERS);
+    setServerUrl(serverUrl, NO_BROWSERS);
+  }
+
+  /**
+   * @param serverUrl
+   * @param color 
+   */
+  private void setServerUrl(final String serverUrl, final Color color) {
+    Display.getDefault().asyncExec(new Runnable() {
+      public void run() {
+        serverUrlText.setRedraw(true);
+        if (serverUrl != null) {
+          serverUrlText.setText(serverUrl);
+        }
+        serverUrlText.setBackground(color);
+        // workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=294318
+        if (serverUrlText.isFocusControl()) {
+          browserButtonPanel.setFocus(); // unfocus
+          serverUrlText.setFocus(); // refocus
+        }
+      }
+    });
   }
 
   /**
    * Sets the state of the server info panel to stopped.
    */
   public void setServerStopped() {
-    serverUrlText.setText(SERVER_DOWN);
-    serverUrlText.setBackground(NOT_RUNNING);
+    setServerUrl(SERVER_DOWN, NOT_RUNNING);
   }
 }
