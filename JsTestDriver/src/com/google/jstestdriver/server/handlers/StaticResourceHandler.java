@@ -35,6 +35,9 @@ public class StaticResourceHandler implements RequestHandler {
   public static final Map<String, String> MIME_TYPE_MAP = ImmutableMap.<String, String>builder()
     .put("css", "text/css")
     .put("js", "text/javascript")
+    .put("xml", "text/xml")
+    .put("html", "text/html")
+    .put("rdf", "application/rdf+xml")
     .build();
 
   private final SlaveResourceService service;
