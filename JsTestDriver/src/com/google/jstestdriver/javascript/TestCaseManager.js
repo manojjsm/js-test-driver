@@ -109,7 +109,26 @@ jstestdriver.TestCaseManager.prototype.getCurrentlyLoadedTestCases = function() 
 
   for (var i = 0; i < size; i++) {
     var testCaseInfo = this.testCasesInfo_[i];
-    var testsSize = tests.length;
+    testCases.push({
+      'name' : testCaseInfo.getTestCaseName(),
+      'tests' : testCaseInfo.getTestNames()
+    })
+  }
+  return {
+    numTests: testCases.length,
+    testCases: testCases
+  };
+};
+
+jstestdriver.TestCaseManager.prototype.getCurrentlyLoadedTestCasesFor = function(expressions) {
+  var testRunsConfiguration = this.getTestRunsConfigurationFor(expressions);
+  var size = testRunsConfiguration.length;
+  var testCases = [];
+
+  for (var i = 0; i < size; i++) {
+    var testRunConfiguration = testRunsConfiguration[i];
+    var testCaseInfo = testRunConfiguration.getTestCaseInfo();
+    var tests = testRunConfiguration.getTests();
     testCases.push({
       'name' : testCaseInfo.getTestCaseName(),
       'tests' : testCaseInfo.getTestNames()

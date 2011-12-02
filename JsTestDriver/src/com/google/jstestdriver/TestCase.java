@@ -17,6 +17,8 @@ package com.google.jstestdriver;
 
 import java.util.List;
 
+import com.google.common.base.Joiner;
+
 /**
  * Model for reporting tests.
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
@@ -24,8 +26,11 @@ import java.util.List;
 // TODO(corysmith): Rename so it quits coming up in auto complete.
 public class TestCase {
 
-  private final String name;
-  private final List<String> tests;
+  private String name;
+  private List<String> tests;
+
+  public TestCase() {
+  }
 
   public TestCase(String name, List<String> tests) {
     this.name = name;
@@ -38,5 +43,10 @@ public class TestCase {
 
   public List<String> getTests() {
     return tests;
+  }
+
+  @Override
+  public String toString() {
+    return "\n" + name + "\n\t" + Joiner.on("\n\t").join(tests) + "\n";
   }
 }

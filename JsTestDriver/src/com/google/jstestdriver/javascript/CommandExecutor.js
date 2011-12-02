@@ -180,7 +180,6 @@ jstestdriver.CommandExecutor.prototype.registerTracedCommand =
 
 
 jstestdriver.CommandExecutor.prototype.dryRun = function() {
-  
   var response =
       new jstestdriver.Response(jstestdriver.RESPONSE_TYPES.TEST_QUERY_RESULT,
           JSON.stringify(this.__testCaseManager.getCurrentlyLoadedTestCases()),
@@ -193,7 +192,7 @@ jstestdriver.CommandExecutor.prototype.dryRun = function() {
 jstestdriver.CommandExecutor.prototype.dryRunFor = function(args) {
   var expressions = jsonParse('{"expressions":' + args[0] + '}').expressions;
   var tests = JSON.stringify(
-      this.__testCaseManager.getCurrentlyLoadedTestFor(expressions))
+      this.__testCaseManager.getCurrentlyLoadedTestCasesFor(expressions))
   var response = new jstestdriver.Response(
           jstestdriver.RESPONSE_TYPES.TEST_QUERY_RESULT,
           tests,

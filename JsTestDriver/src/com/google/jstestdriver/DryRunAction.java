@@ -18,11 +18,14 @@ package com.google.jstestdriver;
 import java.io.PrintStream;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.jstestdriver.browser.BrowserPanicException;
 import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.model.RunData;
+import com.google.jstestdriver.protocol.BrowserLog;
 
 /**
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
@@ -71,6 +74,10 @@ public class DryRunAction implements BrowserAction {
         case BROWSER_PANIC:
           BrowserPanic panic = gson.fromJson(response.getResponse(), response.getGsonType());
           throw new BrowserPanicException(panic.getBrowserInfo(), panic.getCause());
+        case LOG:
+          BrowserLog log = gson.fromJson(response.getResponse(), response.getGsonType());
+          LoggerFactory.getLogger(log.getSource()).debug(log.getMessage());
+          break;
       }
     }
   }
@@ -82,11 +89,7 @@ public class DryRunAction implements BrowserAction {
 
   public ResponseStream run(String id, JsTestDriverClient client, RunData runData, JstdTestCase testCase) {
     final ResponseStream responseStream = responseStreamFactory.getDryRunActionResponseStream();
-    if (expressions.size() == 1 && expressions.get(0).equals("all")) {
-      client.dryRun(id, responseStream, testCase);
-    } else {
-      client.dryRunFor(id, responseStream, expressions, testCase);
-    }
+    client.dryRunFor(id, responseStream, expressions, testCase);
     return responseStream;
   }
 }
