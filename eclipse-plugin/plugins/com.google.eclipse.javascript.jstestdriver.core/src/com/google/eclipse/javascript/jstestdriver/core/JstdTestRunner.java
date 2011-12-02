@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
@@ -18,8 +16,9 @@ import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.runner.RunnerMode;
 
 /**
+ * Layer for integration with the JsTestDriver object.
+ * 
  * @author corysmith@google.com (Cory Smith)
- *
  */
 public class JstdTestRunner {
 
@@ -41,7 +40,7 @@ public class JstdTestRunner {
   }
 
   public void runTests(List<String> tests, ILaunchConfiguration configuration) throws CoreException {
-    throw new CoreException(new Status(IStatus.ERROR, JstdCoreActivator.PLUGIN_ID, "not implemented"));
+    getJstd().runTests(getConfigurationPath(configuration), tests);
   }
 
   public Collection<TestCase> getTestCases(ILaunchConfiguration configuration) throws CoreException {

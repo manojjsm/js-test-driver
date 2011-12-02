@@ -37,7 +37,7 @@ public class TestCaseNameFinder {
    * 
    */
   private static final Pattern TESTMETHOD_DECLARATION_PATTERN =
-      Pattern.compile("\\s*([a-zA-Z_]*\\.prototype\\.test.*?)[\\s=].*");
+      Pattern.compile("\\s*([a-zA-Z_]*)\\.prototype(\\.test.*?)[\\s=].*");
 
   public List<String> getTestCases(File jsFile) throws IOException {
     return getTestCases(new FileInputStream(jsFile));
@@ -57,9 +57,10 @@ public class TestCaseNameFinder {
   public List<String> getTestCases(String source) {
     List<String> testMethods = new ArrayList<String>();
     for (String line : source.split("\n")) {
+      //tu som skoncila
       Matcher matcher = TESTMETHOD_DECLARATION_PATTERN.matcher(line);
       if (matcher.matches()) {
-        testMethods.add(matcher.group(1));
+        testMethods.add(matcher.group(1)+matcher.group(2));
       }
     }
     return testMethods;

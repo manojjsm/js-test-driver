@@ -284,11 +284,16 @@ public class JsTestDriver {
     return testResultCollector.getResults();
   }
 
+  public List<TestResult> runTests(String path, List<String> tests) {
+	    return runTests(parseConfiguration(path), tests);
+  }
+
   public List<TestResult> runTests(Configuration config, List<String> tests) {
     // TODO(corysmith): Refactor to avoid passing string flags.
     TestResultCollector testResultCollector = new TestResultCollector();
+    String server = config.getServer(serverAddress, port, new NullPathPrefix());
     runConfigurationWithFlags(config,
-      createFlagsArray("--tests", Joiner.on(",").join(tests)),
+      createFlagsArray("--server", server, "--tests", Joiner.on(",").join(tests)),
       new TestListenerModule(testResultCollector));
     return testResultCollector.getResults();
   }
