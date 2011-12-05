@@ -60,10 +60,10 @@ public class RunTestsActionResponseStream implements ResponseStream {
         LoadedFiles files = gson.fromJson(response.getResponse(),
                                           response.getGsonType());
         for (FileResult result : files.getLoadedFiles()) {
+          listener.onFileLoad(response.getBrowser(), result);
           if (!result.isSuccess()) {
             accumulator.add();
           }
-          listener.onFileLoad(response.getBrowser(), result);
         }
         break;
       case BROWSER_PANIC:

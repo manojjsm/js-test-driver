@@ -19,16 +19,18 @@ import static com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfig
 import static com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants.PROJECT_NAME;
 import static com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants.TESTS_TO_RUN;
 
-import com.google.eclipse.javascript.jstestdriver.core.JstdTestRunner;
-import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
-import com.google.eclipse.javascript.jstestdriver.ui.Activator;
-import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
-import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -45,17 +47,9 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.eclipse.javascript.jstestdriver.ui.Activator;
 
 /**
  * Launcher which knows how to run from a specific editor window.
@@ -68,21 +62,12 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
   private final Logger logger = Logger.getLogger(JsTestDriverLaunchShortcut.class.getName());
   public static final String LAUNCH_CONFIG_CREATORS =
       "com.google.jstestdrvier.eclipse.ui.launchConfigCreator";
-  private final JstdTestRunner runner;
   
   
   /**
    * 
    */
   public JsTestDriverLaunchShortcut() {
-    this(ServiceLocator.getService(JstdTestRunner.class));
-  }
-
-  /**
-   * @param service
-   */
-  public JsTestDriverLaunchShortcut(JstdTestRunner runner) {
-    this.runner = runner;
   }
 
   @Override
@@ -210,23 +195,9 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
         launchConfiguration.copy("new run").getWorkingCopy();
     workingCopy.setAttribute(TESTS_TO_RUN, testCases);
     final ILaunchConfiguration configuration = workingCopy.doSave();
-    Display.getDefault().asyncExec(new Runnable() {
-
-      @Override
-      public void run() {
-        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        try {
-          JsTestDriverView view = (JsTestDriverView) page.showView(JsTestDriverView.ID);
-          TestResultsPanel panel = view.getTestResultsPanel();
-          panel.setupForNextTestRun(configuration);
-          runner.runTests(testCases, configuration);
-        } catch (PartInitException e) {
-          e.printStackTrace();
-        } catch (CoreException e) {
-          e.printStackTrace();
-        }
-      }
-    });
+    
+    Job job = new EclipseTestRunnerJob(configuration, testCases);
+    job.schedule();
   }
 
   private ILaunchConfiguration getJstdLaunchConfigurations(String projectName) throws CoreException {
