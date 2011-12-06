@@ -20,15 +20,20 @@ goog.require('jstestdriver');
 goog.require('jstestdriver.TestRunFilter');
 
 /**
- * @param testCaseName
- * @param template
- * @param opt_type
+ * @param {string} testCaseName
+ * @param {string} template
+ * @param {string} opt_type
+ * @param {string} opt_fileName
  * @constructor
  */
-jstestdriver.TestCaseInfo = function(testCaseName, template, opt_type) {
+jstestdriver.TestCaseInfo = function(testCaseName,
+                                     template,
+                                     opt_type,
+                                     opt_fileName) {
   this.testCaseName_ = testCaseName;
   this.template_ = template;
   this.type_ = opt_type || jstestdriver.TestCaseInfo.DEFAULT_TYPE;
+  this.fileName_ = opt_fileName;
 };
 
 
@@ -43,16 +48,41 @@ jstestdriver.TestCaseInfo.prototype.getType = function() {
 };
 
 
+/**
+ * @returns {string}
+ */
+jstestdriver.TestCaseInfo.prototype.getFileName = function() {
+  return this.fileName_;
+};
+
+
+/**
+ * @param {string} fileName
+ */
+jstestdriver.TestCaseInfo.prototype.setFileName = function(fileName) {
+  this.fileName_ = fileName;
+};
+
+
+/**
+ * @returns {string}
+ */
 jstestdriver.TestCaseInfo.prototype.getTestCaseName = function() {
   return this.testCaseName_;
 };
 
 
+/**
+ * @returns {string}
+ */
 jstestdriver.TestCaseInfo.prototype.getTemplate = function() {
   return this.template_;
 };
 
 
+/**
+ * @returns {Array.<string>}
+ */
 jstestdriver.TestCaseInfo.prototype.getTestNames = function() {
   var testNames = [];
 
@@ -65,6 +95,9 @@ jstestdriver.TestCaseInfo.prototype.getTestNames = function() {
 };
 
 
+/**
+ * @returns {jstestdriver.TestRunConfiguration}
+ */
 jstestdriver.TestCaseInfo.prototype.getDefaultTestRunConfiguration = function() {
   return new jstestdriver.TestRunFilter(this).getDefaultTestRunConfiguration();
 };

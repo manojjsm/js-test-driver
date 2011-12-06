@@ -41,6 +41,7 @@ TestCaseManagerTest.prototype.testAddAndReplace = function() {
   testCaseManager.add(testCaseInfo1);
   testCaseManager.add(testCaseInfo2);
   testCaseManager.add(testCaseInfo3);
+  testCaseManager.updateLatestTestCase("/test/home/foo/file.js");
   var exception = null;
   try {
     testCaseManager.add(testCaseInfo2Replacement);
@@ -48,6 +49,9 @@ TestCaseManagerTest.prototype.testAddAndReplace = function() {
     exception = e;
   }
   assertNotNull('Expected are error to be thrown on duplicate test name.', exception);
+  assertTrue('testcase name not displayed',
+      exception.message.indexOf('testCase2') != -1);
+  assertTrue('filename not set', exception.message.indexOf('/home/foo/file.js') != -1);
 };
 
 

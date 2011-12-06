@@ -21,17 +21,23 @@
 jstestdriver.TestCaseManager = function(pluginRegistrar) {
   this.testCasesInfo_ = [];
   this.fileToTestCaseMap_ = {};
+  this.testCaseToFileMap_ = {};
   this.latestTestCaseInfo_ = null;
   this.pluginRegistrar_ = pluginRegistrar;
   this.recentCases_ = [];
 };
 
 
+/**
+ * @param {jstestdriver.TestCaseInfo} testCaseInfo The testcase for the manager
+ *   to track.
+ */
 jstestdriver.TestCaseManager.prototype.add = function(testCaseInfo) {
   var index = this.indexOf_(testCaseInfo);
   if (index != -1) {
     throw new Error('duplicate test case names! On ' +
-        testCaseInfo + ' and ' + this.testCasesInfo_[index] );
+        testCaseInfo + ' and ' + this.testCasesInfo_[index] +
+        ' in ' + this.testCasesInfo_[index].getFileName());
   } else {
     this.testCasesInfo_.push(testCaseInfo);
     this.recentCases_.push(testCaseInfo);
@@ -42,6 +48,10 @@ jstestdriver.TestCaseManager.prototype.add = function(testCaseInfo) {
 jstestdriver.TestCaseManager.prototype.updateLatestTestCase = function(filename) {
   if (this.recentCases_.length) {
     this.fileToTestCaseMap_[filename] = this.recentCases_;
+    for (var i = 0; this.recentCases_[i]; i++) {
+      // TODO(corysmith): find a way to keep the TestCaseInfo invariant.
+      this.recentCases_[i].setFileName(filename);
+    }
     this.recentCases_ = [];
   }
 };
@@ -58,7 +68,7 @@ jstestdriver.TestCaseManager.prototype.removeTestCaseForFilename = function(file
 
 
 jstestdriver.TestCaseManager.prototype.removeTestCase_ = function(index) {
-  this.testCasesInfo_.splice(index, 1);
+  var testCase = this.testCasesInfo_.splice(index, 1);
 };
 
 
@@ -131,7 +141,8 @@ jstestdriver.TestCaseManager.prototype.getCurrentlyLoadedTestCasesFor = function
     var tests = testRunConfiguration.getTests();
     testCases.push({
       'name' : testCaseInfo.getTestCaseName(),
-      'tests' : testCaseInfo.getTestNames()
+      'tests' : testCaseInfo.getTestNames(),
+      'fileName' :  testCaseInfo.getFileName()
     })
   }
   return {
