@@ -46,8 +46,8 @@ public class JsTestDriverView extends ViewPart {
   @Override
   public void createPartControl(Composite parent) {
     parent.setLayout(new GridLayout(1, false));
-    serverInfoPanel = new ServerInfoPanel(parent, SWT.NONE);
-    testResultsPanel = new TestResultsPanel(parent, SWT.NONE);
+    serverInfoPanel = new ServerInfoPanel(parent, SWT.NONE); 
+    testResultsPanel = new TestResultsPanel(getSite().getPage(), parent, SWT.NONE);
     ServiceLocator.getService(ServerController.class).connectObservers(serverInfoPanel);
     resourceListener = new JavascriptOnSaveTestRunner();
     ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceListener);

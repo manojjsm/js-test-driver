@@ -24,6 +24,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.google.common.collect.Lists;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
+import com.google.eclipse.javascript.jstestdriver.core.model.LoadedSourceFileLibrary;
 import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
 import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
 import com.google.jstestdriver.BrowserInfo;
@@ -74,6 +76,8 @@ public class EclipseTestResultListener implements TestResultListener {
   @Override
   public void onFileLoad(BrowserInfo browserInfo, FileResult fileResult) {
     logger.info(fileResult.toString());
+    LoadedSourceFileLibrary library = ServiceLocator.getService(LoadedSourceFileLibrary.class);
+    library.addTestCaseSource(fileResult.getFileSource());
   }
 
   /* (non-Javadoc)

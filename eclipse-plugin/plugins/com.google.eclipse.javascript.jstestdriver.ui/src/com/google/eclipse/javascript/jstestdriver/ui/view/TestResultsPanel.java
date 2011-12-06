@@ -1,12 +1,12 @@
 /*
-* Copyright 2009 Google Inc.
- *
+ * Copyright 2009 Google Inc.
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -18,8 +18,14 @@ package com.google.eclipse.javascript.jstestdriver.ui.view;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -33,6 +39,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
@@ -40,17 +47,23 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.google.common.collect.Lists;
+import com.google.eclipse.javascript.jstestdriver.core.ProjectHelper;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
 import com.google.eclipse.javascript.jstestdriver.core.model.EclipseJstdTestResult;
 import com.google.eclipse.javascript.jstestdriver.core.model.EclipseJstdTestRunResult;
+import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
+import com.google.eclipse.javascript.jstestdriver.core.model.LoadedSourceFileLibrary;
 import com.google.eclipse.javascript.jstestdriver.core.model.ResultModel;
 import com.google.jstestdriver.TestResult;
 
 /**
  * Show the test results.
- *
+ * 
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
  */
 public class TestResultsPanel extends Composite {
+
+  private static final Logger logger = Logger.getLogger(TestResultsPanel.class.getName());
 
   private final EclipseJstdTestRunResult testRunResult;
   private final TreeViewer testResultsTree;
@@ -61,16 +74,22 @@ public class TestResultsPanel extends Composite {
   private final Text testDetailsText;
   private final MessageConsoleStream messageConsoleStream;
 
+  private final TestCaseOpener testCaseOpener;
+
   private int totalNumTests;
   private ILaunchConfiguration lastLaunchConfiguration;
+  private Object currentSelection;
 
-  public TestResultsPanel(Composite parent, int style) {
+  public TestResultsPanel(final IWorkbenchPage workbenchPage, Composite parent, int style) {
     super(parent, style);
+
+    testCaseOpener = new TestCaseOpener(ServiceLocator.getService(LoadedSourceFileLibrary.class));
+
     IConsoleManager consoleManager = ConsolePlugin.getDefault().getConsoleManager();
     MessageConsole messageConsole = new MessageConsole("JSTestDriver", null);
     messageConsole.activate();
     messageConsoleStream = new MessageConsoleStream(messageConsole);
-    consoleManager.addConsoles(new IConsole[] { messageConsole });
+    consoleManager.addConsoles(new IConsole[] {messageConsole});
     setLayout(new GridLayout(3, true));
     GridData layoutData = new GridData();
     layoutData.grabExcessHorizontalSpace = true;
@@ -124,12 +143,32 @@ public class TestResultsPanel extends Composite {
       public void selectionChanged(SelectionChangedEvent event) {
         testDetailsText.setText("");
         TreeSelection selection = (TreeSelection) event.getSelection();
-        if (selection.getFirstElement() instanceof EclipseJstdTestResult) {
-          EclipseJstdTestResult result =
-              (EclipseJstdTestResult) selection.getFirstElement();
+        currentSelection = selection.getFirstElement();
+        if (currentSelection instanceof EclipseJstdTestResult) {
+          EclipseJstdTestResult result = (EclipseJstdTestResult) currentSelection;
           StringBuilder details = new StringBuilder();
           result.writeDetails(details);
           testDetailsText.setText(details.toString());
+        }
+      }
+    });
+
+    testResultsTree.addDoubleClickListener(new IDoubleClickListener() {
+
+      @Override
+      public void doubleClick(DoubleClickEvent event) {
+        if (currentSelection instanceof EclipseJstdTestResult) {
+          EclipseJstdTestResult selected = (EclipseJstdTestResult) currentSelection;
+          IProject project = null;
+          try {
+            String projectName =
+                lastLaunchConfiguration.getAttribute(LaunchConfigurationConstants.PROJECT_NAME, "");
+            project = new ProjectHelper().getProject(projectName);
+          } catch (CoreException e) {
+            logger.log(Level.WARNING, "Could not read project name from launch configuration.", e);
+          }
+          testCaseOpener.openTestSource(project, selected.getResult(), workbenchPage);
+          return;
         }
       }
     });
@@ -146,6 +185,7 @@ public class TestResultsPanel extends Composite {
 
   /**
    * Gets the last launched configuration, for easy rerunning of tests.
+   * 
    * @return the last launch config, {@code null} if none were launched.
    */
   public ILaunchConfiguration getLastLaunchConfiguration() {
@@ -153,8 +193,9 @@ public class TestResultsPanel extends Composite {
   }
 
   /**
-   * Sets up the panel for the next test run, clearing all the fields, resetting the progress bar
-   * and saving the launch config for rerunning.
+   * Sets up the panel for the next test run, clearing all the fields, resetting
+   * the progress bar and saving the launch config for rerunning.
+   * 
    * @param launchConfiguration the launch config used to launch the tests
    */
   public void setupForNextTestRun(ILaunchConfiguration launchConfiguration) {
@@ -173,6 +214,7 @@ public class TestResultsPanel extends Composite {
 
   /**
    * Increases the total number of expected tests by numTests.
+   * 
    * @param numTests The number of tests to increment by.
    */
   public void addNumberOfTests(int numTests) {
@@ -184,8 +226,9 @@ public class TestResultsPanel extends Composite {
   }
 
   /**
-   * Registers the test results and increments the progress bar and adds them to the test results
-   * tree.
+   * Registers the test results and increments the progress bar and adds them to
+   * the test results tree.
+   * 
    * @param testResults the test results from JS Test Driver.
    */
   public void addTestResults(Collection<TestResult> testResults) {
@@ -222,10 +265,11 @@ public class TestResultsPanel extends Composite {
 
   /**
    * Sets the filter for the test results tree
+   * 
    * @param filter the filter
    */
   public void setTreeFilter(ViewerFilter filter) {
-    testResultsTree.setFilters(new ViewerFilter[] { filter });
+    testResultsTree.setFilters(new ViewerFilter[] {filter});
   }
 
   /**

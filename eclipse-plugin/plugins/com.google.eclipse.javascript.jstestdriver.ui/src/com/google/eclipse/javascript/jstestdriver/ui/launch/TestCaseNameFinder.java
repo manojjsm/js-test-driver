@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public class TestCaseNameFinder {
   // TODO(shyamseshadri): Handle the following case
-  /**
+  /*
    * TestCase('name', { testMooh: function() {
    * }, testMeuh: function() {} });
    * 
@@ -53,7 +53,7 @@ public class TestCaseNameFinder {
     String source = builder.toString();
     return getTestCases(source);
   }
-  
+
   public List<String> getTestCases(String source) {
     List<String> testMethods = new ArrayList<String>();
     for (String line : source.split("\n")) {
@@ -64,5 +64,4 @@ public class TestCaseNameFinder {
     }
     return testMethods;
   }
-  
 }

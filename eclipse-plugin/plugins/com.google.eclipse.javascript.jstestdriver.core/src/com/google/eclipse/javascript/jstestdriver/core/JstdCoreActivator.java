@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
+import com.google.eclipse.javascript.jstestdriver.core.model.LoadedSourceFileLibrary;
 
 /**
  * @author corysmith@google.com (Cory Smith)
@@ -27,7 +28,10 @@ public class JstdCoreActivator extends Plugin {
 
     ServiceLocator.registerServiceInstance(JstdTestRunner.class,
         new JstdTestRunner());
-  }
+
+    ServiceLocator.registerServiceInstance(LoadedSourceFileLibrary.class,
+        new LoadedSourceFileLibrary());
+}
 
   @Override
   public void stop(BundleContext context) throws Exception {

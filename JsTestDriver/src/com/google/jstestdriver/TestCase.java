@@ -28,17 +28,23 @@ public class TestCase {
 
   private String name;
   private List<String> tests;
+  private String fileName = null;
 
   public TestCase() {
   }
 
-  public TestCase(String name, List<String> tests) {
+  public TestCase(String name, String fileName, List<String> tests) {
     this.name = name;
+    this.fileName = fileName;
     this.tests = tests;
   }
 
   public String getName() {
     return name;
+  }
+  
+  public String getFileName() {
+    return fileName;
   }
 
   public List<String> getTests() {
@@ -47,6 +53,6 @@ public class TestCase {
 
   @Override
   public String toString() {
-    return "\n" + name + "\n\t" + Joiner.on("\n\t").join(tests) + "\n";
+    return String.format("\n%s (%s)\n\t%s", name, fileName, Joiner.on("\n\t").join(tests));
   }
 }
