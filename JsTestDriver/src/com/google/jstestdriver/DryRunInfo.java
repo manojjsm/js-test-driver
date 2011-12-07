@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

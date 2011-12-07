@@ -44,9 +44,9 @@ public class DefaultResponseStreamFactory implements ResponseStreamFactory {
     this.out = out;
   }
 
+  @Override
   public ResponseStream getRunTestsActionResponseStream(String browserId) {
     TestResultListener listener = resultListener.get();
-    System.out.println(listener);
 
     RunTestsActionResponseStream responseStream = new RunTestsActionResponseStream(
         new TestResultGenerator(), listener, accumulator);
@@ -54,14 +54,17 @@ public class DefaultResponseStreamFactory implements ResponseStreamFactory {
     return responseStream;
   }
 
+  @Override
   public ResponseStream getDryRunActionResponseStream() {
     return new DryRunActionResponseStream(out, resultListener.get());
   }
 
+  @Override
   public ResponseStream getEvalActionResponseStream() {
     return new EvalActionResponseStream(out);
   }
 
+  @Override
   public ResponseStream getResetActionResponseStream() {
     return new ResetActionResponseStream(out);
   }

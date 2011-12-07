@@ -207,7 +207,6 @@ public class FileUploader {
         }
       }
     }
-    
   }
 
   public void uploadToServer(final Collection<JstdTestCaseDelta> deltas) {
@@ -218,10 +217,12 @@ public class FileUploader {
     for (JstdTestCaseDelta delta : deltas) {
       loadedDeltas.add(delta.loadFiles(fileLoader));
     }
-    Map<String, String> uploadFileParams = new LinkedHashMap<String, String>();
-    uploadFileParams.put("action", DeltaUpload.ACTION);
-    uploadFileParams.put("data", gson.toJson(loadedDeltas));
-    server.post(baseUrl + "/fileSet", uploadFileParams);
+    for (List<JstdTestCaseDelta> partition : Lists.partition(loadedDeltas, 50)) {
+      Map<String, String> uploadFileParams = new LinkedHashMap<String, String>();
+      uploadFileParams.put("action", DeltaUpload.ACTION);
+      uploadFileParams.put("data", gson.toJson(partition));
+      server.post(baseUrl + "/fileSet", uploadFileParams);
+    }
   }
 
   private void reset(String browserId, ResponseStream stream, JstdTestCase testCase) {

@@ -20,6 +20,7 @@ package com.google.jstestdriver;
  */
 public class DefaultURLRewriter implements URLRewriter {
 
+  @Override
   public String rewrite(String url) {
     return url;
   }

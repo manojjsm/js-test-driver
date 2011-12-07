@@ -15,17 +15,17 @@
  */
 package com.google.jstestdriver;
 
-import java.io.PrintStream;
-import java.util.List;
-
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.jstestdriver.browser.BrowserPanicException;
 import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.model.RunData;
 import com.google.jstestdriver.protocol.BrowserLog;
+
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
@@ -48,9 +48,11 @@ public class DryRunAction implements BrowserAction {
       this.listener = testResultListener;
     }
 
+    @Override
     public void finish() {
     }
 
+    @Override
     public void stream(Response response) {
       BrowserInfo browser = response.getBrowser();
       switch(response.getResponseType()) {
@@ -87,6 +89,7 @@ public class DryRunAction implements BrowserAction {
     this.expressions = expressions;
   }
 
+  @Override
   public ResponseStream run(String id, JsTestDriverClient client, RunData runData, JstdTestCase testCase) {
     final ResponseStream responseStream = responseStreamFactory.getDryRunActionResponseStream();
     client.dryRunFor(id, responseStream, expressions, testCase);

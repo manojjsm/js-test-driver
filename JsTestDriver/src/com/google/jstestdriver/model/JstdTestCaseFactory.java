@@ -49,7 +49,7 @@ public class JstdTestCaseFactory {
         logger.debug("creating default test case");
         testCases.add(new JstdTestCase(deps, tests, plugins, "default"));
       }
-      return processTestCases(resolveDependencies(testCases));
+      return resolveDependencies(processTestCases(testCases));
     } finally {
       stopWatch.stop("Create TestCases");
     }

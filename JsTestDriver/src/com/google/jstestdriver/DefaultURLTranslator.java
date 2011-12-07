@@ -31,6 +31,7 @@ public class DefaultURLTranslator implements URLTranslator {
 
   private final BiMap<String, String> cache = HashBiMap.create();
 
+  @Override
   public void translate(String url) throws MalformedURLException {
     URL netUrl = new URL(url);
     String file = netUrl.getFile();
