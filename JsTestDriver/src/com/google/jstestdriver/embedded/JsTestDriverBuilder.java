@@ -38,6 +38,7 @@ public class JsTestDriverBuilder {
   private String serverAddress;
   private boolean raiseOnFailure = false;
   final private List<Class<? extends PluginInitializer>> pluginInitializers =  Lists.newArrayList();
+  private boolean preload = false;
 
 
   /**
@@ -98,7 +99,9 @@ public class JsTestDriverBuilder {
         plugins,
         initializers,
         baseDir,
-        serverAddress, true);
+        serverAddress,
+        true,
+        preload);
   }
 
   /**
@@ -217,5 +220,12 @@ public class JsTestDriverBuilder {
       }
     }
   }
-  
+
+  /**
+   * @return
+   */
+  public JsTestDriverBuilder preloadFiles() {
+    preload = true;
+    return this;
+  }
 }

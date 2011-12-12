@@ -128,7 +128,6 @@ public class FileInfo implements Cloneable {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
-    result = prime * result + (serveOnly ? 1231 : 1237);
     return result;
   }
 
@@ -144,9 +143,6 @@ public class FileInfo implements Cloneable {
       }
     }
     if (!filePath.equals(other.filePath)){
-      return false;
-    }
-    if (serveOnly != other.serveOnly){
       return false;
     }
     return true;
@@ -215,7 +211,6 @@ public class FileInfo implements Cloneable {
     return load(fileContent.toString(), timestamp);
   }
 
-  @SuppressWarnings("unused")
   @Override
   protected Object clone() throws CloneNotSupportedException {
     return new FileInfo(filePath, timestamp, length, isPatch, serveOnly, data, displayPath);

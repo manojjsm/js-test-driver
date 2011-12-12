@@ -26,8 +26,19 @@ import static com.google.jstestdriver.server.handlers.pages.PageType.STANDALONE_
 import static com.google.jstestdriver.server.handlers.pages.PageType.VISUAL_STANDALONE_RUNNER;
 import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.LOAD_TYPE;
 import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.REFRESH;
-import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.UPLOAD_SIZE;
 import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.TESTCASE_ID;
+import static com.google.jstestdriver.server.handlers.pages.SlavePageRequest.UPLOAD_SIZE;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -57,7 +68,6 @@ import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.requesthandlers.HttpMethod;
 import com.google.jstestdriver.requesthandlers.RequestHandler;
 import com.google.jstestdriver.requesthandlers.RequestHandlersModule;
-import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.server.JstdTestCaseStore;
 import com.google.jstestdriver.server.gateway.SimpleServletConfig;
 import com.google.jstestdriver.server.handlers.pages.BrowserControlledRunnerPage;
@@ -71,21 +81,9 @@ import com.google.jstestdriver.server.handlers.pages.StandaloneRunnerPage;
 import com.google.jstestdriver.servlet.fileset.BrowserFileCheck;
 import com.google.jstestdriver.servlet.fileset.DeltaUpload;
 import com.google.jstestdriver.servlet.fileset.FileSetRequestHandler;
+import com.google.jstestdriver.servlet.fileset.ListTestCases;
 import com.google.jstestdriver.servlet.fileset.TestCaseUpload;
 import com.google.jstestdriver.util.ParameterParser;
-
-import org.mortbay.jetty.servlet.DefaultServlet;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Defines {@link RequestHandler} bindings for the JSTD server.
@@ -239,8 +237,9 @@ public class JstdHandlersModule extends RequestHandlersModule {
   }
 
   @Provides @Singleton List<FileSetRequestHandler<?>> provideFileSetRequestHandlers(
-      BrowserFileCheck browserFileCheck, TestCaseUpload serverFileUpload, DeltaUpload deltaUpload) {
-    return ImmutableList.of(browserFileCheck, serverFileUpload, deltaUpload);
+      BrowserFileCheck browserFileCheck, TestCaseUpload serverFileUpload, DeltaUpload deltaUpload,
+      ListTestCases listTestCases) {
+    return ImmutableList.of(browserFileCheck, serverFileUpload, deltaUpload, listTestCases);
   }
 
   @Provides @Singleton

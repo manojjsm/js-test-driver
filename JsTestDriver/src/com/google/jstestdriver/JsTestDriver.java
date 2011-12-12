@@ -201,6 +201,7 @@ public class JsTestDriver {
   private final File baseDir;
   private final String serverAddress;
   private final boolean raiseOnFailure;
+  private final boolean preload;
 
   /**
    * @param configuration
@@ -211,6 +212,7 @@ public class JsTestDriver {
    * @param baseDir
    * @param serverAddress
    * @param raiseOnFailure TODO
+   * @param preload 
    * @param strings
    * @param plugins
    * @param injector
@@ -225,7 +227,8 @@ public class JsTestDriver {
       List<Module> initializerModules,
       File baseDir,
       String serverAddress,
-      boolean raiseOnFailure) {
+      boolean raiseOnFailure,
+      boolean preload) {
     this.defaultConfiguration = configuration;
     this.pluginLoader = pluginLoader;
     this.initializerModules = initializerModules;
@@ -236,6 +239,7 @@ public class JsTestDriver {
     this.baseDir = baseDir;
     this.serverAddress = serverAddress;
     this.raiseOnFailure = raiseOnFailure;
+    this.preload = preload;
   }
 
   public void startServer() {
@@ -243,8 +247,13 @@ public class JsTestDriver {
     if (port == -1) {
       throw new ConfigurationException("Port not defined, cannot start local server.");
     }
-    runConfigurationWithFlags(defaultConfiguration,
+    if (preload) {
+      runConfigurationWithFlags(defaultConfiguration,
+        createFlagsArray("--port", String.valueOf(port), "--preloadFiles"));
+    } else {
+      runConfigurationWithFlags(defaultConfiguration,
         createFlagsArray("--port", String.valueOf(port)));
+    }
   }
 
   public void stopServer() {
@@ -333,7 +342,7 @@ public class JsTestDriver {
       handlerPrefixFlag.addToArgs(flags);
     }
     flags.add("--raiseOnFailure");
-    flags.add("false");
+    flags.add(Boolean.toString(raiseOnFailure));
     String[] flagsArray = flags.toArray(new String[flags.size()]);
     return flagsArray;
   }

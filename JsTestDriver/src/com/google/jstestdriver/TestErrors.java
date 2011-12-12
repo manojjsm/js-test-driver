@@ -21,11 +21,13 @@ import java.io.PrintWriter;
 import java.util.List;
 
 /**
- * Represents all errors that occurred during a test run. 
+ * Represents all errors that occurred during a test run.
+ * 
  * @author corbinrsmith@gmail.com (Cory Smith)
  */
 public class TestErrors extends RuntimeException {
 
+  private static final long serialVersionUID = -5989784108847149994L;
   private final List<Throwable> causes;
   private final String message;
 
@@ -40,8 +42,8 @@ public class TestErrors extends RuntimeException {
     synchronized (s) {
       s.println(this);
       StackTraceElement[] trace = getStackTrace();
-      for (int i=0; i < trace.length; i++) {
-          s.println("\tat " + trace[i]);
+      for (int i = 0; i < trace.length; i++) {
+        s.println("\tat " + trace[i]);
       }
 
       s.println("Caused by:");
@@ -56,7 +58,7 @@ public class TestErrors extends RuntimeException {
     synchronized (s) {
       s.println(this);
       StackTraceElement[] trace = getStackTrace();
-      for (int i=0; i < trace.length; i++) {
+      for (int i = 0; i < trace.length; i++) {
         s.println("\tat " + trace[i]);
       }
 

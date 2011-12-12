@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -320,5 +321,22 @@ public class YamlParserTest extends TestCase {
 
     Configuration config = parser.parse(new InputStreamReader(bais), null);
     assertEquals("<!DOCTYPE zubzub>", config.getDocType().toHtml());
+  }
+  
+  public void testParseDuplicatePathsInServeAndLoad() throws Exception {
+    String configFile =
+      "load:\n" +
+      " - foo.js\n" +
+      " - bar.js\n" +
+      "serve:\n" +
+      " - foo.js\n";
+    ByteArrayInputStream bais = new ByteArrayInputStream(configFile.getBytes());
+    ConfigurationParser parser = new YamlParser();
+
+    Configuration config = parser.parse(new InputStreamReader(bais), null);
+    Iterator<FileInfo> files = config.getFilesList().iterator();
+    assertEquals("foo.js", files.next().getFilePath());
+    assertEquals("bar.js", files.next().getFilePath());
+    assertFalse(files.hasNext());
   }
 }

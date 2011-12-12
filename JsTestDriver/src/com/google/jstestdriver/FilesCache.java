@@ -73,7 +73,7 @@ public class FilesCache {
   }
   
   public static class MissingFileException extends RuntimeException {
-    
+    private static final long serialVersionUID = -552403239267162285L;
   }
 
   public FileInfo getFile(String filePath) {
