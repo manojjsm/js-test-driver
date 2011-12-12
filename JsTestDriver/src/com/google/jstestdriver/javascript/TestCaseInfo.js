@@ -21,7 +21,7 @@ goog.require('jstestdriver.TestRunFilter');
 
 /**
  * @param {string} testCaseName
- * @param {string} template
+ * @param {Function} template
  * @param {string} opt_type
  * @param {string} opt_fileName
  * @constructor
@@ -30,10 +30,11 @@ jstestdriver.TestCaseInfo = function(testCaseName,
                                      template,
                                      opt_type,
                                      opt_fileName) {
+
   this.testCaseName_ = testCaseName;
   this.template_ = template;
   this.type_ = opt_type || jstestdriver.TestCaseInfo.DEFAULT_TYPE;
-  this.fileName_ = opt_fileName;
+  this.fileName_ = opt_fileName || '';
 };
 
 
@@ -43,6 +44,37 @@ jstestdriver.TestCaseInfo.DEFAULT_TYPE = 'default';
 jstestdriver.TestCaseInfo.ASYNC_TYPE = 'async';
 
 
+/**
+ * @private
+ * @type {string}
+ */
+jstestdriver.TestCaseInfo.prototype.testCaseName_;
+
+
+/**
+ * @private
+ * @type {Function}
+ */
+jstestdriver.TestCaseInfo.prototype.template_;
+
+
+/**
+ * @private
+ * @type {string}
+ */
+jstestdriver.TestCaseInfo.prototype.type_;
+
+
+/**
+ * @private
+ * @type {string}
+ */
+jstestdriver.TestCaseInfo.prototype.fileName_;
+
+
+/**
+ * @return {string}
+ */
 jstestdriver.TestCaseInfo.prototype.getType = function() {
   return this.type_;
 };
@@ -73,7 +105,7 @@ jstestdriver.TestCaseInfo.prototype.getTestCaseName = function() {
 
 
 /**
- * @returns {string}
+ * @returns {Function}
  */
 jstestdriver.TestCaseInfo.prototype.getTemplate = function() {
   return this.template_;
@@ -119,13 +151,19 @@ jstestdriver.TestCaseInfo.prototype.getTestRunConfigurationFor = function(expres
   return new jstestdriver.TestRunFilter(this).getTestRunConfigurationFor(expressions);
 };
 
-
+/**
+ * @param {Object} obj
+ * @returns {boolean}
+ */
 jstestdriver.TestCaseInfo.prototype.equals = function(obj) {
-  return obj && typeof obj.getTestCaseName != 'undefined'
+  return (!!obj) && typeof obj.getTestCaseName != 'undefined'
       && obj.getTestCaseName() == this.testCaseName_;
 };
 
 
+/**
+ * @returns {string}
+ */
 jstestdriver.TestCaseInfo.prototype.toString = function() {
   return "TestCaseInfo(" +
     this.testCaseName_ +
