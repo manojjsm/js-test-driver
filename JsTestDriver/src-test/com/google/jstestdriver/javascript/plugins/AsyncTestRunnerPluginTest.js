@@ -138,7 +138,7 @@ asyncTestRunnerPluginTest.prototype.
   var asyncTestRunner = new jstestdriver.plugins.async.AsyncTestRunnerPlugin(
       Date,
       function() {},
-      jstestdriver.utils.serializeObject,
+      jstestdriver.utils.serializeErrors,
       false,
       function(callback) {callback();});
 

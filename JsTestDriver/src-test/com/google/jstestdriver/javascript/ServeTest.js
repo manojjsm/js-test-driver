@@ -21,7 +21,7 @@ ServeTest.prototype.test404 = function(q) {
     jstestdriver.jQuery.ajax({
       dataType : 'text',
       url : '/test/src-test/com/google/jstestdriver/javascript/notthere.txt',
-      complete : p.add('onComplete',function(xhr, statusText) {
+      complete : p.add(function(xhr, statusText) {
         assertEquals(404, xhr.status);
       })
     });
@@ -33,7 +33,7 @@ ServeTest.prototype.testSuccess = function(q) {
     jstestdriver.jQuery.ajax({
       dataType : 'text',
       url : '/test/src-test/com/google/jstestdriver/javascript/served.txt',
-      complete : p.add('onComplete',function(xhr, statusText) {
+      complete : p.add(function(xhr, statusText) {
         assertEquals(200, xhr.status);
         assertEquals('served', xhr.responseText);
       })

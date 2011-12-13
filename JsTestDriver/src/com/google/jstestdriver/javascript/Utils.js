@@ -171,6 +171,32 @@ jstestdriver.createSynchPost = function(jQuery) {
 
 jstestdriver.utils = {};
 
+jstestdriver.utils.serializeErrors = function(errors) {
+  var out = [];
+  out.push('[');
+  for (var i = 0; i < errors.length; ++i) {
+    jstestdriver.utils.serializeErrorToArray(errors[i], out);
+    if (i < errors.length - 1) {
+      out.push(',');
+    }
+  }
+  out.push(']');
+  return out.join('');
+};
+
+jstestdriver.utils.serializeErrorToArray = function(error, out) {
+  out.push('{');
+  out.push('"message":');
+  this.serializeObjectToArray(error.message, out);
+  this.serializePropertyOnObject('name', error, out);
+  this.serializePropertyOnObject('description', error, out);
+  this.serializePropertyOnObject('fileName', error, out);
+  this.serializePropertyOnObject('lineNumber', error, out);
+  this.serializePropertyOnObject('number', error, out);
+  this.serializePropertyOnObject('stack', error, out);
+  out.push('}');
+};
+
 jstestdriver.utils.serializeObject = function(obj) {
   var out = [];
   jstestdriver.utils.serializeObjectToArray(obj, out);
@@ -192,17 +218,6 @@ jstestdriver.utils.serializeObjectToArray =
         }
       }
       out.push(']');
-    } else if (obj instanceof Error) {
-      out.push('{');
-      out.push('"message":');
-      this.serializeObjectToArray(obj.message, out);
-      this.serializePropertyOnObject('name', obj, out);
-      this.serializePropertyOnObject('description', obj, out);
-      this.serializePropertyOnObject('fileName', obj, out);
-      this.serializePropertyOnObject('lineNumber', obj, out);
-      this.serializePropertyOnObject('number', obj, out);
-      this.serializePropertyOnObject('stack', obj, out);
-      out.push('}');
     } else {
       out.push(jstestdriver.angular.toJson(obj));
     }

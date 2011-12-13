@@ -185,5 +185,5 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
  *@param {Error} e
  */
 jstestdriver.plugins.TestRunnerPlugin.prototype.serializeError = function(e) {
-  return jstestdriver.utils.serializeObject(e);
+  return jstestdriver.utils.serializeErrors(e);
 };
