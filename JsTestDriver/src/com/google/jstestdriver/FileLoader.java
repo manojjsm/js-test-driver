@@ -29,5 +29,5 @@ import java.util.List;
 @ImplementedBy(ProcessingFileLoader.class)
 public interface FileLoader {
   public List<FileInfo> loadFiles(
-  		Collection<FileInfo> filesToLoad, boolean shouldReset);
+      Collection<FileInfo> filesToLoad, boolean shouldReset);
 }

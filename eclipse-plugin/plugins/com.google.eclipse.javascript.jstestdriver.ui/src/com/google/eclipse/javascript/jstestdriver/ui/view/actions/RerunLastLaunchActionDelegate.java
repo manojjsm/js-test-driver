@@ -19,14 +19,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchValidator;
 import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
 import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
 
@@ -39,7 +38,6 @@ public class RerunLastLaunchActionDelegate implements IViewActionDelegate {
   private TestResultsPanel view;
   private final Logger logger = Logger.getLogger(RerunLastLaunchActionDelegate.class.getCanonicalName());
 
-  private final LaunchValidator validator = new LaunchValidator();
   @Override
   public void init(IViewPart view) {
     if (view instanceof JsTestDriverView) {
@@ -49,21 +47,18 @@ public class RerunLastLaunchActionDelegate implements IViewActionDelegate {
 
   @Override
   public void run(IAction action) {
-    if(!validator.preLaunchCheck()) {
-      return;
-    }
-    if (view.getLastLaunchConfiguration() != null) {
-      Display.getDefault().asyncExec(new Runnable() {
-        @Override
-        public void run() {
-          view.setupForNextTestRun(view.getLastLaunchConfiguration());
-          try {
-            view.getLastLaunchConfiguration().launch(ILaunchManager.RUN_MODE, null);
-          } catch (CoreException e) {
-            logger.log(Level.SEVERE, "", e);
-          }
-        }
-      });
+    final ILaunchConfiguration lastLaunch = view.getLastLaunchConfiguration();
+    if (lastLaunch != null) {
+      try {
+        //Launch configuration launch tend to be called outside of GUI
+        //thread, there is not reason to make this call GUI-safe.
+        //
+        //Both initialization and validation are now inside launch
+        //configuration.
+        lastLaunch.launch(ILaunchManager.RUN_MODE, null);
+      } catch (CoreException e) {
+        logger.log(Level.SEVERE, "", e);
+      }
     }
   }
 

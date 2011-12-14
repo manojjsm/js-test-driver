@@ -33,8 +33,6 @@ import org.eclipse.debug.core.Launch;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import com.google.eclipse.javascript.jstestdriver.core.JstdLaunchListener;
-import com.google.eclipse.javascript.jstestdriver.core.ServerController;
-import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 import com.google.eclipse.javascript.jstestdriver.ui.Activator;
 
@@ -47,19 +45,21 @@ import com.google.eclipse.javascript.jstestdriver.ui.Activator;
  */
 public class JsTestDriverLaunchConfigurationDelegate extends LaunchConfigurationDelegate {
 
-	@Override
-  public void launch(final ILaunchConfiguration configuration, String mode, final ILaunch launch,
-      IProgressMonitor monitor) throws CoreException {
-    if (!mode.equals(ILaunchManager.RUN_MODE)) {
+  @Override
+  public void launch(final ILaunchConfiguration configuration, String mode, final ILaunch launch, IProgressMonitor monitor) throws CoreException {
+    
+    if (!isRunMode(mode)) {
       throw new IllegalStateException("Can only launch JS Test Driver configuration from Run mode");
     }
+    
     @SuppressWarnings("unchecked")
-    final List<String> testsToRun =
-        configuration.getAttribute(LaunchConfigurationConstants.TESTS_TO_RUN,
-            new ArrayList<String>());
+    final List<String> testsToRun = configuration.getAttribute(LaunchConfigurationConstants.TESTS_TO_RUN, new ArrayList<String>());
 
     notifyAllListeners(configuration);
 
+    // The eclipse test runner job does also a validation. It was moved
+    // because EclipseTestRunnerJob is called from multiple places
+    // (shortcut) and I wanted to avoid functionality duplication.
     Job job = new EclipseTestRunnerJob(configuration, testsToRun);
     job.schedule();
   }
@@ -70,15 +70,14 @@ public class JsTestDriverLaunchConfigurationDelegate extends LaunchConfiguration
             "com.google.eclipse.javascript.jstestdriver.core.jstdLaunchListener");
 
     for (IConfigurationElement element : elements) {
-      JstdLaunchListener launchListener =
-          (JstdLaunchListener) element.createExecutableExtension("class");
+      JstdLaunchListener launchListener = (JstdLaunchListener) element.createExecutableExtension("class");
       launchListener.aboutToLaunch(configuration);
     }
   }
 
   @Override
   public ILaunch getLaunch(ILaunchConfiguration configuration, String mode) throws CoreException {
-    if (ILaunchManager.RUN_MODE.equals(mode)) {
+    if (isRunMode(mode)) {
       return new Launch(configuration, mode, null);
     } else {
       throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
@@ -87,12 +86,21 @@ public class JsTestDriverLaunchConfigurationDelegate extends LaunchConfiguration
   }
 
   @Override
-  public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode,
-      IProgressMonitor monitor) throws CoreException {
-    ServerController controller = ServiceLocator.getService(ServerController.class);
-    return super.preLaunchCheck(configuration, mode, monitor)
-        && mode.equals(ILaunchManager.RUN_MODE) && !monitor.isCanceled()
-        && controller.isServerReady();
+  public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
+    // Real validation is inside launch method because js-test-driver sometimes calls launch from its own code
+    // (when re-running tests). 
+    // Each place that calls launch method would have to either double validation functionality or call this 
+    // method right before each launch method call. It is something easy to forget about, so it is better
+    // to avoid that.
+    return super.preLaunchCheck(configuration, mode, monitor) && !monitorCancelled(monitor) && isRunMode(mode);
+  }
+
+  private boolean isRunMode(String mode) {
+    return mode.equals(ILaunchManager.RUN_MODE);
+  }
+
+  private boolean monitorCancelled(IProgressMonitor monitor) {
+    return monitor!=null && monitor.isCanceled();
   }
 }
 

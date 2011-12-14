@@ -55,6 +55,8 @@ public class EclipseTestRunnerJob extends Job {
   private final ILaunchConfiguration configuration;
   private final List<String> testsToRun;
 
+  private final LaunchValidator validator = new LaunchValidator();
+
   public EclipseTestRunnerJob(ILaunchConfiguration configuration) {
     this(configuration, new ArrayList<String>());
   }
@@ -70,6 +72,12 @@ public class EclipseTestRunnerJob extends Job {
   @Override
   protected IStatus run(IProgressMonitor monitor) {
     try {
+      
+      if (!validator.preLaunchCheck()) {
+        //we do not want to report this as an error to job scheduler
+        return Status.OK_STATUS;
+      }
+
       // initialize JsTestDriverView; this needs to be done in UI thread
       Display.getDefault().asyncExec(
           new BeforeTestsViewInitialization(getTestsNumber(), configuration, logger));

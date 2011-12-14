@@ -294,7 +294,7 @@ public class JsTestDriver {
   }
 
   public List<TestResult> runTests(String path, List<String> tests) {
-	    return runTests(parseConfiguration(path), tests);
+      return runTests(parseConfiguration(path), tests);
   }
 
   public List<TestResult> runTests(Configuration config, List<String> tests) {

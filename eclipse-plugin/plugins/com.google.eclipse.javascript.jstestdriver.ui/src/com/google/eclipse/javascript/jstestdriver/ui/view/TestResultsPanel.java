@@ -204,7 +204,18 @@ public class TestResultsPanel extends Composite {
       totalRunLabel.setText("Run : 0 / 0");
       errorsLabel.setText("Errors : 0");
       failuresLabel.setText("Failed : 0");
-      lastLaunchConfiguration = launchConfiguration;
+      try {
+        //Save the copy of the original launch configuration. Therefore, 
+        //the changes on the original configuration will not influence
+        //stored values.
+        //
+        //Rerun feature will be safe no matter what happens outside. Similarly,
+        //outside word will be safe from changes done on the copy.
+        lastLaunchConfiguration = launchConfiguration.copy("Safe Save Copy");
+      } catch (CoreException e) {
+        //This really should not happen, highly unlikely.
+        logger.log(Level.SEVERE, "Could not create copy the launch configuration", e);
+      }
       testRunResult.clear();
       testResultsTree.refresh();
       testProgressIndicator.reset();

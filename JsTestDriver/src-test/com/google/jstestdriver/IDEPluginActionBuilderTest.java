@@ -157,7 +157,7 @@ public class IDEPluginActionBuilderTest extends TestCase {
   static class MyFileLoader implements FileLoader {
 
     public List<FileInfo> loadFiles(
-    		Collection<FileInfo> filesToLoad, boolean shouldReset) {
+        Collection<FileInfo> filesToLoad, boolean shouldReset) {
       return new LinkedList<FileInfo>(filesToLoad);
     }
   }

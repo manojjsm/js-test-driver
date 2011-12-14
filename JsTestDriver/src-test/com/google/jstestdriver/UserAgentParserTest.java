@@ -23,17 +23,17 @@ import junit.framework.TestCase;
 public class UserAgentParserTest extends TestCase {
 
   private static final String CHROME_WINDOWS = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) " +
-  		"AppleWebKit/530.5 (KHTML, like Gecko) Chrome/2.0.172.31 Safari/530.5";
+      "AppleWebKit/530.5 (KHTML, like Gecko) Chrome/2.0.172.31 Safari/530.5";
 
   private static final String FIREFOX_WINDOWS = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; " +
-  		"rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)";
+      "rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)";
 
   private static final String SAFARI_WINDOWS = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) " +
-  		"AppleWebKit/525.28.3 (KHTML, like Gecko) Version/3.2.3 Safari/525.29";
+      "AppleWebKit/525.28.3 (KHTML, like Gecko) Version/3.2.3 Safari/525.29";
 
   private static final String IE_WINDOWS = "Mozilla/4.0 " +
-  		"(compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; " +
-  		".NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+      "(compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; " +
+      ".NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
 
   private static final String OPERA_OLD_WINDOWS = "Opera/9.64(Windows NT 5.1; U; en) Presto/2.1.1";
 
@@ -41,8 +41,8 @@ public class UserAgentParserTest extends TestCase {
       "Presto/2.8.99 Version/11.10";
 
   private static final String FIREFOX_LINUX = "Mozilla/5.0 " +
-  		"(X11; U; Linux x86_64; en-US; rv:1.9.0.10) Gecko/2009042513 Ubuntu/8.04 (hardy) " +
-  		"Firefox/3.0.10";
+      "(X11; U; Linux x86_64; en-US; rv:1.9.0.10) Gecko/2009042513 Ubuntu/8.04 (hardy) " +
+      "Firefox/3.0.10";
 
   private static final String OPERA_OLD_LINUX = "Opera/9.64 (X11; Linux x86_64; U; pl) Presto/2.1.1";
 
@@ -50,11 +50,11 @@ public class UserAgentParserTest extends TestCase {
       "en) Presto/2.8.131 Version/11.50";
 
   private static final String FIREFOX_MACOS = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; " +
-  		"en-US; rv:1.9.0.10) Gecko/2009042315 Firefox/3.0.10";
+      "en-US; rv:1.9.0.10) Gecko/2009042315 Firefox/3.0.10";
 
   private static final String SAFARI_MACOS = "Mozilla/5.0 " +
-  		"(Macintosh; U; Intel Mac OS X 10_5_7; en-us) AppleWebKit/528.16 (KHTML, like Gecko) " +
-  		"Version/4.0 Safari/528.16";
+      "(Macintosh; U; Intel Mac OS X 10_5_7; en-us) AppleWebKit/528.16 (KHTML, like Gecko) " +
+      "Version/4.0 Safari/528.16";
 
   private static final String OPERA_OLD_MACOS = "Opera/9.61 (Macintosh; Intel Mac OS X; U; de) " +
       "Presto/2.1.1";

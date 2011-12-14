@@ -62,6 +62,7 @@ import com.google.inject.internal.Maps;
  */
 public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
 
+  private static final String EXPECTED_FILENAME = "JsTestdriver.conf";
   private final Logger logger =
       Logger.getLogger(JsTestDriverLaunchTab.class.getName());
   private Combo projectCombo;
@@ -245,9 +246,9 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   @Override
   public void initializeFrom(ILaunchConfiguration configuration) {
     try {
-      String initProjectName = configuration.getAttribute(
-          LaunchConfigurationConstants.PROJECT_NAME, "");
+      String initProjectName = configuration.getAttribute(LaunchConfigurationConstants.PROJECT_NAME, "");
       if (initProjectName != null && !"".equals(initProjectName.trim())) {
+        // find project
         selectComboItem(projectCombo, initProjectName);
         IProject project = new ProjectHelper().getProject(initProjectName);
         if (project == null || !project.exists()) {
@@ -256,10 +257,18 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
                   "Project named {0} does not exist. Please choose another project.",
                   initProjectName));
         }
-        confFileCombo.setItems(getConfigurationFiles(project));
-        String initConfFileName = configuration.getAttribute(
-            LaunchConfigurationConstants.CONF_FILENAME, "");
+
+        // initialize configuration files combo
+        String[] configurationFiles = getConfigurationFiles(project);
+        confFileCombo.setItems(configurationFiles);
+        String initConfFileName = configuration.getAttribute(LaunchConfigurationConstants.CONF_FILENAME, (String)null);
+        if (initConfFileName==null) {
+          ConfigurationFileSelectHelper helper = new ConfigurationFileSelectHelper(EXPECTED_FILENAME);
+           initConfFileName = helper.findSuitableConfigurationFile(configurationFiles);
+        }
         selectComboItem(confFileCombo, initConfFileName);
+        
+        // initialize run on every save checkbox
         runOnEverySaveCheckbox.setSelection(
             configuration.getAttribute(
                 LaunchConfigurationConstants.RUN_ON_EVERY_SAVE,false));
@@ -285,17 +294,18 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
 
   public void performApply(ILaunchConfigurationWorkingCopy configuration) {
     if (getSelectedProject() != null) {
-      configuration.setAttribute(LaunchConfigurationConstants.PROJECT_NAME,
-          getSelectedComboString(projectCombo));
-      configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME,
-          getSelectedComboString(confFileCombo));
+      configuration.setAttribute(LaunchConfigurationConstants.PROJECT_NAME, getSelectedComboString(projectCombo));
+      configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME, getSelectedComboString(confFileCombo));
       ConfigurationData data = projectPathToAbsolutePath.get(getSelectedComboString(confFileCombo));
-      configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH,
-        data.configurationPath);
-      configuration.setAttribute(LaunchConfigurationConstants.BASEPATH,
-        data.basePath);
-      configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE,
-          runOnEverySaveCheckbox.getSelection());
+      
+      if (data != null) {
+        configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH,
+            data.configurationPath);
+        configuration.setAttribute(LaunchConfigurationConstants.BASEPATH,
+            data.basePath);
+      }
+      
+      configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, runOnEverySaveCheckbox.getSelection());
     }
   }
 
@@ -305,4 +315,52 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH, "");
     configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, false);
   }
+}
+
+/**
+ * This class contains configuration file pre-selection logic. Its purpose is to leave 
+ * the main class uncluttered with string comparison logic. 
+ */
+class ConfigurationFileSelectHelper {
+
+  private final String expectedFilename;
+  
+  public ConfigurationFileSelectHelper(String expectedFilename) {
+    super();
+    this.expectedFilename = expectedFilename;
+  }
+
+  public String findSuitableConfigurationFile(String[] configurationFiles) {
+    if (configurationFiles==null || configurationFiles.length==0)
+      return null;
+    
+    String result = configurationFiles[0];
+    for (String candidate : configurationFiles) {
+      result = betterCandidate(candidate, result);
+    }
+    return result;
+  }
+
+  private String betterCandidate(String candidate1, String candidate2) {
+    boolean c1ending = candidate1.endsWith(expectedFilename);
+    boolean c2ending = candidate2.endsWith(expectedFilename);
+    
+    if (c1ending == c2ending) {
+      return shorterString(candidate1, candidate2);
+    }
+    
+    if (c1ending)
+      return candidate1;
+    
+    return candidate2;
+  }
+
+  private String shorterString(String candidate1, String candidate2) {
+    if (candidate1.length() <= candidate2.length())
+      return candidate1;
+    
+    return candidate2;
+  }
+
+
 }

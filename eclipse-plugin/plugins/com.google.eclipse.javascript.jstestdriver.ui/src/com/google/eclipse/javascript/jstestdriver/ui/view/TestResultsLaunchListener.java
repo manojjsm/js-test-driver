@@ -16,16 +16,11 @@
 
 package com.google.eclipse.javascript.jstestdriver.ui.view;
 
-import com.google.eclipse.javascript.jstestdriver.core.JstdLaunchListener;
+import java.util.logging.Logger;
 
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.eclipse.javascript.jstestdriver.core.JstdLaunchListener;
 
 /**
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
@@ -33,23 +28,15 @@ import java.util.logging.Logger;
  */
 public class TestResultsLaunchListener implements JstdLaunchListener {
 
-  private static final Logger logger =
-      Logger.getLogger(TestResultsLaunchListener.class.getCanonicalName());
+  @SuppressWarnings("unused")
+  private static final Logger logger = Logger.getLogger(TestResultsLaunchListener.class.getCanonicalName());
+  
   @Override
   public void aboutToLaunch(final ILaunchConfiguration launchConfiguration) {
-    Display.getDefault().asyncExec(new Runnable() {
-
-      public void run() {
-        IWorkbenchPage page = PlatformUI.getWorkbench()
-            .getActiveWorkbenchWindow().getActivePage();
-        try {
-          JsTestDriverView view = (JsTestDriverView) page.showView(JsTestDriverView.ID);
-          view.getTestResultsPanel().setupForNextTestRun(launchConfiguration);
-        } catch (PartInitException e) {
-          logger.log(Level.WARNING, "PartInitException trying to show JsTestDriverView for new run",
-              e);
-        }
-      }
-    });
+    // This class did initialization that was done also in the EclipseTestRunnerJob.BeforeTestsViewInitialization
+    // class. As this is called only from the launch configuration delegate and the tests may be run also from the 
+    // shortcut JsTestDriverLaunchShortcut, it needs to stay in the BeforeTestsViewInitialization.
+    // 
+    // Double initialization is not needed, so I removed it from here. 
   }
 }

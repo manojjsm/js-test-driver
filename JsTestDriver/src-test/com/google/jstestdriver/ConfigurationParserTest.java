@@ -99,11 +99,11 @@ public class ConfigurationParserTest extends TestCase {
         "load:\n" +
         "- code/code.js\n" +
         "- patch code/patch.js\n" +
-		"- code/code2.js\n" +
-		"- test/*.js\n" +
-		"exclude:\n" +
-		"- code/code2.js\n" +
-		"- test/test2.js";
+    "- code/code2.js\n" +
+    "- test/*.js\n" +
+    "exclude:\n" +
+    "- code/code2.js\n" +
+    "- test/test2.js";
     ByteArrayInputStream bais = new ByteArrayInputStream(configFile.getBytes());
     ConfigurationParser parser =
         new ConfigurationParser(tmpDir, new InputStreamReader(bais), new DefaultPathRewriter());
