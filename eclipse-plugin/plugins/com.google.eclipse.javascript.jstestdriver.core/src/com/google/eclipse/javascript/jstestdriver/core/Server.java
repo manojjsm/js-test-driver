@@ -69,6 +69,7 @@ public class Server {
       if (instance == null) {
         JsTestDriver jstd = new JsTestDriverBuilder()
             .setDefaultConfiguration(new EclipseServerConfiguration())
+            .raiseExceptionOnTestFailure(false)
             .addServerListener(jstdServerListener)
             .setPort(port).build();
         instance = new Server(jstd, port);

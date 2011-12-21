@@ -100,7 +100,7 @@ public class JsTestDriverBuilder {
         initializers,
         baseDir,
         serverAddress,
-        true,
+        raiseOnFailure,
         preload);
   }
 
@@ -115,8 +115,8 @@ public class JsTestDriverBuilder {
   }
 
   /**
-   * @param mode
-   * @return
+   * Sets the runner mode for JsTestDriver. The Runner mode is a combination of
+   * logging and reporting level indications.
    */
   public JsTestDriverBuilder setRunnerMode(RunnerMode runnerMode) {
     this.runnerMode = runnerMode;

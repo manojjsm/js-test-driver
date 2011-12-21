@@ -2,18 +2,18 @@
 
 package com.google.eclipse.javascript.jstestdriver.core;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.runner.RunnerMode;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Layer for integration with the JsTestDriver object.
@@ -26,6 +26,7 @@ public class JstdTestRunner {
     JsTestDriverBuilder builder = new JsTestDriverBuilder()
         .setServer(ServiceLocator.getService(ServerController.class).getServerUrl())
         .setRunnerMode(RunnerMode.DEBUG)
+        .raiseExceptionOnTestFailure(false)
         .setDefaultConfiguration(new EclipseServerConfiguration());
 
     for (TestResultListener listener : ServiceLocator.getExtensionPoints(TestResultListener.class,

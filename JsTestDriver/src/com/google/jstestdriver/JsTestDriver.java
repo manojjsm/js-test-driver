@@ -213,9 +213,6 @@ public class JsTestDriver {
    * @param serverAddress
    * @param raiseOnFailure TODO
    * @param preload 
-   * @param strings
-   * @param plugins
-   * @param injector
    */
   public JsTestDriver(
       Configuration configuration,
@@ -325,16 +322,10 @@ public class JsTestDriver {
     return testCaseCollector.getTestCases();
   }
 
-  /**
-   * @param string
-   */
   public void captureBrowser(String browserPath) {
     throw new RuntimeException("not implemented");
   }
 
-  /**
-   * @return
-   */
   private String[] createFlagsArray(String...coreflags) {
     List<String> flags = Lists.newArrayList(coreflags);
     CmdLineFlag handlerPrefixFlag = findServerHandlerPrefixFlag();
@@ -399,9 +390,6 @@ public class JsTestDriver {
     return null;
   }
 
-  /**
-   * @param config
-   */
   // TODO(corysmith): make this go away by resolving the multiple basePath issue.
   private File getBasePath(Configuration config) {
     for (int i = 0; i < defaultFlags.length; i++) {
