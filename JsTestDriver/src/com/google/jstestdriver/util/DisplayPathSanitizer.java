@@ -16,7 +16,6 @@
 package com.google.jstestdriver.util;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import java.io.File;
 
@@ -26,14 +25,7 @@ import java.io.File;
  */
 public class DisplayPathSanitizer {
 
-  private final File basePath;
-
-  @Inject
-  public DisplayPathSanitizer(@Named("basePath") File basePath) {
-    this.basePath = basePath;
-  }
-
-  public String sanitize(String absolutePath) {
+  public String sanitize(String absolutePath, File basePath) {
     return (absolutePath.startsWith(basePath.getAbsolutePath())
         ? absolutePath.substring(basePath.getAbsolutePath().length() + 1)
         : absolutePath).replaceAll("\\\\", "/");

@@ -52,7 +52,7 @@ public class Initializer {
   private final FlagsParser flagsParser;
   private final Set<PluginInitializer> initializers;
   private final PrintStream outputStream;
-  private final File basePath;
+  private final List<File> basePaths;
 
   @Inject
   public Initializer(PluginLoader pluginLoader,
@@ -60,14 +60,14 @@ public class Initializer {
                      FlagsParser flagsParser,
                      Set<PluginInitializer> initializers,
                      @Named("outputStream") PrintStream outputStream,
-                     @Named("basePath") File basePath,
+                     @Named("basePath") List<File> basePaths,
                      RunnerMode runnerMode) {
     this.pluginLoader = pluginLoader;
     this.pathResolver = pathResolver;
     this.flagsParser = flagsParser;
     this.initializers = initializers;
     this.outputStream = outputStream;
-    this.basePath = basePath;
+    this.basePaths = basePaths;
     
   }
 
@@ -110,7 +110,7 @@ public class Initializer {
             serverAddress,
             captureAddress,
             outputStream,
-            basePath,
+            basePaths,
             resolvedConfiguration.getTestSuiteTimeout(),
             resolvedConfiguration.getTests(),
             // TODO(corysmith): pull js plugins from the configuration.

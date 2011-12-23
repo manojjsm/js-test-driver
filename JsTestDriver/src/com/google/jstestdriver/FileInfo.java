@@ -193,10 +193,9 @@ public class FileInfo implements Cloneable {
   /**
    * Loads a file from the file system using a reader.
    * @param reader The file reader to pull from the file system.
-   * @param basePath The base path
    * @return The loaded file info.
    */
-  public FileInfo loadFile(FileReader reader, File basePath) {
+  public FileInfo loadFile(FileReader reader) {
     if (!this.canLoad()) {
       return this;
     }

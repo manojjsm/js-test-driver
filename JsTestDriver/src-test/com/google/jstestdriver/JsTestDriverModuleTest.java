@@ -16,6 +16,7 @@
 
 package com.google.jstestdriver;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.inject.Guice;
 import com.google.jstestdriver.guice.DebugModule;
@@ -39,7 +40,7 @@ public class JsTestDriverModuleTest extends TestCase {
         "http://foo",
         "http://foo",
         System.out,
-        new File(""),
+        Lists.newArrayList(new File("")),
         2 * 60 * 60,
         Collections.<FileInfo>emptyList(),
         Collections.<FileInfo>emptyList(),
@@ -55,7 +56,7 @@ public class JsTestDriverModuleTest extends TestCase {
         "http://foo",
         "https://foo",
         System.out,
-        new File(""),
+        Lists.newArrayList(new File("")),
         2 * 60 * 60,
         Collections.<FileInfo>emptyList(),
         Collections.<FileInfo>emptyList(),

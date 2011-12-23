@@ -18,6 +18,7 @@ package com.google.jstestdriver;
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -63,7 +64,7 @@ public class JsTestDriverModule extends AbstractModule {
   private final String serverAddress;
   private final String captureAddress;
   private final PrintStream outputStream;
-  private final File basePath;
+  private final List<File> basePaths;
   private final long testSuiteTimeout;
   private final List<FileInfo> tests;
   private final List<FileInfo> plugins;
@@ -80,7 +81,7 @@ public class JsTestDriverModule extends AbstractModule {
          serverAddress,
          captureAddress,
          outputStream,
-         basePath,
+         Lists.newArrayList(basePath),
          DefaultConfiguration.DEFAULT_TEST_TIMEOUT,
          Collections.<FileInfo>emptyList(),
          Collections.<FileInfo>emptyList(),
@@ -92,7 +93,7 @@ public class JsTestDriverModule extends AbstractModule {
       String serverAddress,
       String captureAddress,
       PrintStream outputStream,
-      File basePath,
+      List<File> basePaths,
       long testSuiteTimeout,
       List<FileInfo> tests,
       List<FileInfo> plugins,
@@ -102,7 +103,7 @@ public class JsTestDriverModule extends AbstractModule {
     this.serverAddress = serverAddress;
     this.captureAddress = captureAddress;
     this.outputStream = outputStream;
-    this.basePath = basePath;
+    this.basePaths = basePaths;
     this.testSuiteTimeout = testSuiteTimeout;
     this.tests = tests;
     this.plugins = plugins;
@@ -128,7 +129,7 @@ public class JsTestDriverModule extends AbstractModule {
          serverAddress,
          captureAddress,
          outputStream,
-         basePath,
+         basePaths,
          testSuiteTimeout,
          tests,
          plugins,
@@ -157,7 +158,7 @@ public class JsTestDriverModule extends AbstractModule {
 
     bind(Long.class).annotatedWith(Names.named("testSuiteTimeout")).toInstance(testSuiteTimeout);
 
-    bind(File.class).annotatedWith(Names.named("basePath")).toInstance(basePath);
+    bind(new TypeLiteral<List<File>>(){}).annotatedWith(Names.named("basePath")).toInstance(basePaths);
 
     install(new FlagsModule(flags));
     install(new ActionFactoryModule());
@@ -208,6 +209,7 @@ public class JsTestDriverModule extends AbstractModule {
       this.client = client;
     }
 
+    @Override
     public synchronized Integer get() {
       try {
         return client.listBrowsers().size();

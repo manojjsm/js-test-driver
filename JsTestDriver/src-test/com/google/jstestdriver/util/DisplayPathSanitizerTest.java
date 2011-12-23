@@ -33,21 +33,21 @@ public class DisplayPathSanitizerTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     basePath = new File(".");
-    sanitizer = new DisplayPathSanitizer(basePath);
+    sanitizer = new DisplayPathSanitizer();
   }
   
   public void testRemoveBasePath() throws Exception {
     String path = new File(basePath,
         "baz" + File.separator + "bar.js").getAbsolutePath();
-    assertEquals("baz/bar.js", sanitizer.sanitize(path));
+    assertEquals("baz/bar.js", sanitizer.sanitize(path, basePath));
   }
 
   public void testLeaveAbsoluteWithoutBasePath() throws Exception {
     String path = File.separator + "baz" + File.separator + "bar.js";
-    assertEquals("/baz/bar.js", sanitizer.sanitize(path));
+    assertEquals("/baz/bar.js", sanitizer.sanitize(path, basePath));
   }
   
   public void testCleanupWindowsPath() throws Exception {
-    assertEquals("/baz/bar.js", sanitizer.sanitize("\\baz\\bar.js"));
+    assertEquals("/baz/bar.js", sanitizer.sanitize("\\baz\\bar.js", basePath));
   }
 }

@@ -198,7 +198,7 @@ public class JsTestDriver {
   private final RunnerMode runnerMode;
   private final int port;
   private final List<Module> pluginModules;
-  private final File baseDir;
+  private final List<File> baseDirs;
   private final String serverAddress;
   private final boolean raiseOnFailure;
   private final boolean preload;
@@ -209,7 +209,7 @@ public class JsTestDriver {
    * @param runnerMode
    * @param flags
    * @param pluginModules
-   * @param baseDir
+   * @param baseDirs
    * @param serverAddress
    * @param raiseOnFailure TODO
    * @param preload 
@@ -222,7 +222,7 @@ public class JsTestDriver {
       int port,
       List<Module> pluginModules,
       List<Module> initializerModules,
-      File baseDir,
+      List<File> baseDirs,
       String serverAddress,
       boolean raiseOnFailure,
       boolean preload) {
@@ -233,7 +233,7 @@ public class JsTestDriver {
     this.defaultFlags = flags;
     this.port = port;
     this.pluginModules = pluginModules;
-    this.baseDir = baseDir;
+    this.baseDirs = baseDirs;
     this.serverAddress = serverAddress;
     this.raiseOnFailure = raiseOnFailure;
     this.preload = preload;
@@ -354,12 +354,12 @@ public class JsTestDriver {
       throw new ConfigurationException("Configuration cannot be null.");
     }
     List<Module> initializeModules = Lists.newArrayList(initializerModules);
-    File basePath;
+    List<File> basePaths;
     try {
       // configure logging before we start seriously processing.
       LogManager.getLogManager().readConfiguration(runnerMode.getLogConfig());
-      basePath = getBasePath(config);
-      initializeModules.add(new InitializeModule(pluginLoader, basePath, new Args4jFlagsParser(),
+      basePaths = getPathResolver(config);
+      initializeModules.add(new InitializeModule(pluginLoader, basePaths, new Args4jFlagsParser(),
           runnerMode));
     } catch (IOException e) {
       throw new ConfigurationException("Could not find " + config.getBasePath(), e);
@@ -391,18 +391,18 @@ public class JsTestDriver {
   }
 
   // TODO(corysmith): make this go away by resolving the multiple basePath issue.
-  private File getBasePath(Configuration config) {
+  private List<File> getPathResolver(Configuration config) {
     for (int i = 0; i < defaultFlags.length; i++) {
       if ("--basePath".equals(defaultFlags[i])) {
         if (i < defaultFlags.length) {
-          return new File(defaultFlags[i + 1]);
+          return Lists.newArrayList(new File(defaultFlags[i + 1]));
         }
         break;
       }
     }
-    if (baseDir != null) {
-      return baseDir;
+    if (baseDirs != null) {
+      return baseDirs;
     }
-    return config.getBasePath();
+    return Lists.newArrayList(config.getBasePath());
   }
 }

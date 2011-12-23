@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.GlobCompiler;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -42,27 +43,16 @@ import com.google.jstestdriver.util.DisplayPathSanitizer;
 public class PathResolver {
 
   private final Set<FileParsePostProcessor> processors;
-  private final File basePath;
+  private final List<File> basePaths;
   private DisplayPathSanitizer sanitizer;
 
   @Inject
-  public PathResolver(@Named("basePath") File basePath, Set<FileParsePostProcessor> processors,
+  public PathResolver(@Named("basePath") List<File> basePaths, Set<FileParsePostProcessor> processors,
       DisplayPathSanitizer sanitizer) {
-    this.basePath = basePath;
+    this.basePaths = basePaths;
     this.processors = processors;
     this.sanitizer = sanitizer;
   }
-
-  /**
-   * Creates a full resolved path to a resource without following the sym links.
-   */
-  public File resolvePath(String filePath) {
-    File absolute = new File(filePath);
-    if(!absolute.isAbsolute())
-      absolute = new File(basePath, filePath);
-
-  return new File(resolveRelativePathReferences(absolute.getAbsolutePath()));
-}
 
   private Set<FileInfo> consolidatePatches(Set<FileInfo> resolvedFilesLoad) {
     Set<FileInfo> consolidated = new LinkedHashSet<FileInfo>(resolvedFilesLoad.size());
@@ -100,32 +90,29 @@ public class PathResolver {
       if (fileInfo.isWebAddress()) {
         resolvedFiles.add(fileInfo.fromResolvedPath(filePath, filePath, -1));
       } else {
-        File file = resolvePath(filePath);
-        File absoluteDir = file.getParentFile().getAbsoluteFile();
+        List<IllegalArgumentException> es =
+            Lists.newArrayListWithCapacity(basePaths.size());
+        for (File basePath : basePaths) {
+          try {
+            File file = resolvePath(filePath, basePath);
+            File absoluteDir = file.getParentFile().getAbsoluteFile();
 
-        // Get all files for the current FileInfo. This will return one file
-        // if the FileInfo
-        // doesn't represent a glob
-        String[] expandedFileNames =
-            expandGlob(absoluteDir.getAbsolutePath(), file.getName(), absoluteDir);
+            // Get all files for the current FileInfo. This will return one file
+            // if the FileInfo
+            // doesn't represent a glob
+            String[] expandedFileNames =
+                expandGlob(absoluteDir.getAbsolutePath(), file.getName(), absoluteDir);
 
-        for (String fileName : expandedFileNames) {
-          File sourceFile = new File(absoluteDir, fileName);
-          if (!sourceFile.canRead()) {
-            unreadable.add(
-                new UnreadableFile(fileInfo.getFilePath(), sourceFile.getAbsolutePath()));
-          } else {
-            String absolutePath = sourceFile.getAbsolutePath();
-            String displayPath = sanitizer.sanitize(absolutePath);
-
-            File resolvedFile = new File(absolutePath);
-            long timestamp = resolvedFile.lastModified();
-
-            FileInfo newFileInfo =
-                fileInfo.fromResolvedPath(absolutePath, displayPath, timestamp);
-
-            resolvedFiles.add(newFileInfo);
+            for (String fileName : expandedFileNames) {
+              File sourceFile = new File(absoluteDir, fileName);
+              createFileInfo(resolvedFiles, unreadable, fileInfo, sourceFile, basePath);
+            }
+          } catch (IllegalArgumentException e) {
+            es.add(e);
           }
+        }
+        if (es.size() == basePaths.size()) {
+          throw new IllegalArgumentException();
         }
       }
     }
@@ -137,7 +124,48 @@ public class PathResolver {
 
     return consolidatePatches(resolvedFiles);
   }
-  
+
+  private void createFileInfo(Set<FileInfo> resolvedFiles, List<UnreadableFile> unreadable,
+      FileInfo fileInfo, File sourceFile, File basePath) {
+    if (!sourceFile.canRead()) {
+      unreadable.add(
+          new UnreadableFile(fileInfo.getFilePath(), sourceFile.getAbsolutePath()));
+    } else {
+      String absolutePath = sourceFile.getAbsolutePath();
+      String displayPath = sanitizer.sanitize(absolutePath, basePath);
+
+      File resolvedFile = new File(absolutePath);
+      long timestamp = resolvedFile.lastModified();
+
+      FileInfo newFileInfo =
+          fileInfo.fromResolvedPath(absolutePath, displayPath, timestamp);
+
+      resolvedFiles.add(newFileInfo);
+    }
+  }
+
+  /**
+   * Creates a full resolved path to a resource without following the sym links.
+   */
+  public File resolvePath(String filePath) {
+    for (File basePath : basePaths) {
+      try {
+        return resolvePath(filePath, basePath);
+      } catch (IllegalArgumentException e) {
+        // noop, repeat to the next file.
+      }
+    }
+    throw new IllegalArgumentException();
+  }
+
+  private File resolvePath(String filePath, File basePath) {
+    File absolute = new File(filePath);
+    if (!absolute.isAbsolute()) {
+      absolute = new File(basePath, filePath);
+    }
+    return new File(resolveRelativePathReferences(absolute.getAbsolutePath()));
+  }
+
   /**
    * This function is needed to deal with removing ".." from a path.
    * Java absolute paths  
@@ -161,16 +189,7 @@ public class PathResolver {
         fileNamePattern, GlobCompiler.DEFAULT_MASK | GlobCompiler.CASE_INSENSITIVE_MASK));
 
     if (filteredFiles == null || filteredFiles.length == 0) {
-      try {
-        String error = "The patterns/paths "
-          + filePath + " (" + dir + ") "
-          + " used in the configuration"
-          + " file didn't match any file, the files patterns/paths need to"
-          + " be relative " + basePath.getCanonicalPath();
-        throw new IllegalArgumentException(error);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+        throw new IllegalArgumentException();
     }
 
     Arrays.sort(filteredFiles, String.CASE_INSENSITIVE_ORDER);

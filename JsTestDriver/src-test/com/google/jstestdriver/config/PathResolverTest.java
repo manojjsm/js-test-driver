@@ -39,18 +39,25 @@ import com.google.jstestdriver.util.DisplayPathSanitizer;
 
 public class PathResolverTest extends TestCase {
 
-  File tmpDir;
+  List<File> tmpDirs = Lists.newArrayList() ;
 
   @Override
   protected void setUp() throws Exception {
-    tmpDir = File.createTempFile("test", "JsTestDriver", new File(System
+    File tmpDirOne = File.createTempFile("test", "JsTestDriver", new File(System
       .getProperty("java.io.tmpdir")));
-    tmpDir.delete();
-    tmpDir.mkdir();
-    tmpDir.deleteOnExit();
+    tmpDirOne.delete();
+    tmpDirOne.mkdir();
+    tmpDirOne.deleteOnExit();
+    File tmpDirTwo = File.createTempFile("test2", "JsTestDriver", new File(System
+        .getProperty("java.io.tmpdir")));
+    tmpDirTwo.delete();
+    tmpDirTwo.mkdir();
+    tmpDirTwo.deleteOnExit();
+    tmpDirs.add(tmpDirOne);
+    tmpDirs.add(tmpDirTwo);
   }
 
-  private File createTmpSubDir(String dirName) {
+  private File createTmpSubDir(String dirName, File tmpDir) {
     File codeDir = new File(tmpDir, dirName);
     codeDir.mkdir();
     codeDir.deleteOnExit();
@@ -71,8 +78,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testParseConfigFileAndHaveListOfFiles() throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -91,8 +98,8 @@ public class PathResolverTest extends TestCase {
 
     Configuration config =
         parser.parse(new InputStreamReader(bais), null).resolvePaths(
-            new PathResolver(tmpDir, Collections.<FileParsePostProcessor>emptySet(),
-                new DisplayPathSanitizer(tmpDir)), createFlags());
+            new PathResolver(tmpDirs, Collections.<FileParsePostProcessor>emptySet(),
+                new DisplayPathSanitizer()), createFlags());
 
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
@@ -102,9 +109,43 @@ public class PathResolverTest extends TestCase {
     assertTrue(listFiles.get(1).getFilePath().replace(File.separatorChar, '/').endsWith("test/test.js"));
     assertTrue(listFiles.get(2).getFilePath().replace(File.separatorChar, '/').endsWith("test/test3.js"));
   }
+  
+  public void testParseConfigFileAndHaveListOfFilesFromMultipleDirectories() throws Exception {
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(1));
+    createTmpFile(codeDir, "code.js");
+    createTmpFile(codeDir, "code2.js");
+    createTmpFile(testDir, "test.js");
+    createTmpFile(testDir, "test2.js");
+    createTmpFile(testDir, "test3.js");
+    
+    String configFile =
+      "load:\n" +
+      " - code/*.js\n" +
+      " - test/*.js\n" +
+      "exclude:\n" +
+      " - code/code2.js\n" +
+      " - test/test2.js";
+    ByteArrayInputStream bais = new ByteArrayInputStream(configFile.getBytes());
+    ConfigurationParser parser = new YamlParser();
+    
+    Configuration config =
+      parser.parse(new InputStreamReader(bais), null).resolvePaths(
+          new PathResolver(tmpDirs, Collections.<FileParsePostProcessor>emptySet(),
+              new DisplayPathSanitizer()), createFlags());
+    
+    Set<FileInfo> files = config.getFilesList();
+    List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
+
+    assertEquals(3, files.size());
+    assertTrue(listFiles.get(0).getFilePath().replace(File.separatorChar, '/').endsWith("code/code.js"));
+    assertTrue(listFiles.get(1).getFilePath().replace(File.separatorChar, '/').endsWith("test/test.js"));
+    assertTrue(listFiles.get(2).getFilePath().replace(File.separatorChar, '/').endsWith("test/test3.js"));
+  }
+
   public void testParseConfigFileAndHaveListOfFilesRelative() throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -122,10 +163,11 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
     
     Configuration config =
-      parser.parse(new InputStreamReader(bais), null).resolvePaths(
-          new PathResolver(codeDir, Collections.<FileParsePostProcessor>emptySet(),
-              new DisplayPathSanitizer(codeDir)), createFlags());
-    
+        parser.parse(new InputStreamReader(bais), null).resolvePaths(
+            new PathResolver(Lists.newArrayList(codeDir),
+                Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer()),
+            createFlags());
+
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
     
@@ -139,14 +181,14 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testParseConfigFileAndHaveListOfFilesWithTests() throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
     createTmpFile(testDir, "test2.js");
     createTmpFile(testDir, "test3.js");
-    
+
     String configFile =
       "load:\n" +
       " - code/*.js\n" +
@@ -159,7 +201,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
     
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = Lists.newArrayList(files);
@@ -168,14 +210,14 @@ public class PathResolverTest extends TestCase {
     assertTrue(listFiles.get(0).getFilePath().replace(File.separatorChar, '/').endsWith("code/code.js"));
     
     List<FileInfo> tests = config.getTests();
-    assertEquals(new File(tmpDir, "test/test.js").getAbsolutePath(), tests.get(0).getFilePath());
+    assertEquals(new File(tmpDirs.get(0), "test/test.js").getAbsolutePath(), tests.get(0).getFilePath());
     assertEquals("test/test.js", tests.get(0).getDisplayPath());
-    assertEquals(new File(tmpDir, "test/test3.js").getAbsolutePath(), tests.get(1).getFilePath());
+    assertEquals(new File(tmpDirs.get(0), "test/test3.js").getAbsolutePath(), tests.get(1).getFilePath());
     assertEquals("test/test3.js", tests.get(1).getDisplayPath());
   }
 
   public void testParseConfigFileAndProcessAListOfFiles() throws Exception {
-    File codeDir = createTmpSubDir("code");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
     final String fileName = "code.js";
     final File code = createTmpFile(codeDir, fileName);
 
@@ -184,7 +226,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir,
+        new PathResolver(tmpDirs,
             Sets.<FileParsePostProcessor>newHashSet(new FileParsePostProcessor(){
               public Set<FileInfo> process(Set<FileInfo> files) {
                 Set<FileInfo> processed = Sets.newHashSet();
@@ -194,7 +236,7 @@ public class PathResolverTest extends TestCase {
                 }
                 return processed;
               }
-            }), new DisplayPathSanitizer(tmpDir)), createFlags());
+            }), new DisplayPathSanitizer()), createFlags());
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
 
@@ -204,7 +246,7 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testGlobIsExpanded() throws Exception {
-    File codeDir = createTmpSubDir("code");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
 
@@ -213,7 +255,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
 
@@ -224,8 +266,8 @@ public class PathResolverTest extends TestCase {
 
   public void testParseConfigFileAndHaveListOfFilesWithPatches()
       throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(codeDir, "patch.js");
@@ -240,7 +282,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null)
-        .resolvePaths(new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        .resolvePaths(new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
 
@@ -254,8 +296,8 @@ public class PathResolverTest extends TestCase {
 
   public void testParseConfigFileAndHaveListOfFilesWithUnassociatedPatch()
       throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(codeDir, "patch.js");
@@ -270,7 +312,8 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
     try {
       parser.parse(new InputStreamReader(bais), null).resolvePaths(
-          new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+          new PathResolver(tmpDirs, Collections.<FileParsePostProcessor>emptySet(),
+              new DisplayPathSanitizer()), createFlags());
       fail("should have thrown an exception due to patching a non-existant file");
     } catch (IllegalStateException e) {
       // pass
@@ -279,7 +322,7 @@ public class PathResolverTest extends TestCase {
 
   public void testParsePlugin() throws IOException {
     String jarPath = "pathto.jar";
-    File jar = createTmpFile(this.tmpDir, jarPath);
+    File jar = createTmpFile(this.tmpDirs.get(0), jarPath);
     Plugin expected = new Plugin("test", jar.getAbsolutePath(), "com.test.PluginModule",
         Lists.<String>newArrayList());
     String configFile =
@@ -291,9 +334,9 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config =
-        parser.parse(new InputStreamReader(bais), null)
-            .resolvePaths(new PathResolver(tmpDir, Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer(tmpDir)),
-                createFlags());
+        parser.parse(new InputStreamReader(bais), null).resolvePaths(
+            new PathResolver(tmpDirs, Collections.<FileParsePostProcessor>emptySet(),
+                new DisplayPathSanitizer()), createFlags());
     List<Plugin> plugins = config.getPlugins();
     assertEquals(expected, plugins.get(0));
   }
@@ -301,8 +344,8 @@ public class PathResolverTest extends TestCase {
   public void testParsePlugins() throws IOException {
     String jarPath = "pathto.jar";
     String jarPath2 = "pathto.jar2";
-    File jar = createTmpFile(this.tmpDir, jarPath);
-    File jar2 = createTmpFile(this.tmpDir, jarPath2);
+    File jar = createTmpFile(this.tmpDirs.get(0), jarPath);
+    File jar2 = createTmpFile(this.tmpDirs.get(0), jarPath2);
     List<Plugin> expected = new LinkedList<Plugin>(Arrays.asList(
       new Plugin("test", jar.getAbsolutePath(), "com.test.PluginModule",
         Lists.<String> newArrayList()),
@@ -317,7 +360,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null)
-        .resolvePaths(new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        .resolvePaths(new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     List<Plugin> plugins = config.getPlugins();
 
     assertEquals(2, plugins.size());
@@ -329,8 +372,8 @@ public class PathResolverTest extends TestCase {
   public void testParsePluginArgs() throws Exception {
     String jarPath = "pathtojar";
     String jarPath2 = "pathtojar2";
-    createTmpFile(this.tmpDir, jarPath);
-    createTmpFile(this.tmpDir, jarPath2);
+    createTmpFile(this.tmpDirs.get(0), jarPath);
+    createTmpFile(this.tmpDirs.get(0), jarPath2);
     String configFile = "plugin:\n" + "  - name: test\n"
       + "    jar: \"pathtojar\"\n" + "    module: \"com.test.PluginModule\"\n"
       + "    args: hello, mooh, some/file.js, another/file.js";
@@ -338,7 +381,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     List<Plugin> plugins = config.getPlugins();
     Plugin plugin = plugins.get(0);
     List<String> args = plugin.getArgs();
@@ -353,15 +396,15 @@ public class PathResolverTest extends TestCase {
   public void testParsePluginNoArgs() throws Exception {
     String jarPath = "pathtojar";
     String jarPath2 = "pathtojar2";
-    createTmpFile(this.tmpDir, jarPath);
-    createTmpFile(this.tmpDir, jarPath2);
+    createTmpFile(this.tmpDirs.get(0), jarPath);
+    createTmpFile(this.tmpDirs.get(0), jarPath2);
     String configFile = "plugin:\n" + "  - name: test\n"
       + "    jar: \"pathtojar\"\n" + "    module: \"com.test.PluginModule\"\n";
     ByteArrayInputStream bais = new ByteArrayInputStream(configFile.getBytes());
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     List<Plugin> plugins = config.getPlugins();
     Plugin plugin = plugins.get(0);
     List<String> args = plugin.getArgs();
@@ -370,9 +413,9 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testServeFile() throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
-    File serveDir = createTmpSubDir("serve");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File serveDir = createTmpSubDir("serve", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -387,7 +430,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     Set<FileInfo> serveFilesSet = config.getFilesList();
     List<FileInfo> serveFiles = new ArrayList<FileInfo>(serveFilesSet);
 
@@ -400,8 +443,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testCheckValidTimeStamp() throws Exception {
-    File codeDir = createTmpSubDir("code");
-    File testDir = createTmpSubDir("test");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File testDir = createTmpSubDir("test", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -414,7 +457,7 @@ public class PathResolverTest extends TestCase {
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bais), null).resolvePaths(
-        new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+        new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
     Set<FileInfo> files = config.getFilesList();
     List<FileInfo> listFiles = new ArrayList<FileInfo>(files);
 
@@ -425,7 +468,7 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testExceptionIsThrownIfFileNotFound() throws Exception {
-    File codeDir = createTmpSubDir("code");
+    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
     createTmpFile(codeDir, "code.js");
 
     String configFile = "load:\n - invalid-dir/code.js";
@@ -434,43 +477,43 @@ public class PathResolverTest extends TestCase {
 
     try {
       parser.parse(new InputStreamReader(bais), null)
-          .resolvePaths(new PathResolver(tmpDir, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer(tmpDir)), createFlags());
+          .resolvePaths(new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
       fail("Exception not caught");
     } catch (IllegalArgumentException e) {
     }
   }
 
   public void testResolveFullQualifiedPath() throws Exception {
-    File baseDir = createTmpSubDir("base");
+    File baseDir = createTmpSubDir("base", tmpDirs.get(0));
     // test dir and file reside outside the base directory
-    File absoluteDir = createTmpSubDir("absolute");
+    File absoluteDir = createTmpSubDir("absolute", tmpDirs.get(0));
     File absoluteFile = new File(absoluteDir, "file.js");
 
-    PathResolver pathResolver = new PathResolver(baseDir,
+    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
         Collections.<FileParsePostProcessor>emptySet(),
-        new DisplayPathSanitizer(baseDir));
+        new DisplayPathSanitizer());
 
     File result1 = pathResolver.resolvePath(absoluteFile.getAbsolutePath());
     assertEquals(absoluteFile, result1);
   }
 
   public void testResolveFullQualifiedPathWithParentRef() throws Exception {
-    File baseDir = createTmpSubDir("base");
-    File dir = createTmpSubDir("absolute");
+    File baseDir = createTmpSubDir("base", tmpDirs.get(0));
+    File dir = createTmpSubDir("absolute", tmpDirs.get(0));
     File subDir = new File(dir, "sub");
     subDir.mkdir();
     subDir.deleteOnExit();
     
-    File otherDir = createTmpSubDir("other");
+    File otherDir = createTmpSubDir("other", tmpDirs.get(0));
 
-    PathResolver pathResolver = new PathResolver(baseDir,
+    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
         Collections.<FileParsePostProcessor>emptySet(),
-        new DisplayPathSanitizer(baseDir));
+        new DisplayPathSanitizer());
 
     {
       File file = new File(dir, "../file.js");
       File result = pathResolver.resolvePath(file.getAbsolutePath());
-      assertEquals(new File(tmpDir, "file.js"), result);
+      assertEquals(new File(tmpDirs.get(0), "file.js"), result);
     }
     {
       File file = new File(subDir, "../../other/file.js");
@@ -481,25 +524,34 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testResolvePathFragement() {
-    File baseDir = createTmpSubDir("base");
+    File baseDir = createTmpSubDir("base", tmpDirs.get(0));
 
-    PathResolver pathResolver = new PathResolver(baseDir,
+    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
         Collections.<FileParsePostProcessor>emptySet(),
-        new DisplayPathSanitizer(baseDir));
+        new DisplayPathSanitizer());
 
     File result1 = pathResolver.resolvePath("file.js");
     assertEquals(new File(baseDir, "file.js").getAbsolutePath(), result1.getAbsolutePath());
   }
 
   public void testResolvePathFragementWithParentRef() {
-    File baseDir = tmpDir;
-    File dir = createTmpSubDir("dir");
+    File baseDir = tmpDirs.get(0);
+    File dir = createTmpSubDir("dir", tmpDirs.get(0));
 
-    PathResolver pathResolver = new PathResolver(baseDir,
+    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
         Collections.<FileParsePostProcessor>emptySet(),
-        new DisplayPathSanitizer(baseDir));
+        new DisplayPathSanitizer());
 
     File result = pathResolver.resolvePath("other/nowhere/../../dir/file.js");
     assertEquals(new File(dir, "file.js"), result);
+  }
+
+  public void testWindowsFileSeperator() throws Exception {
+    File basePath = new File("");
+    PathResolver pathResolver =
+        new PathResolver(Lists.newArrayList(basePath),
+            Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
+
+    File resolvePath = pathResolver.resolvePath("\\foo\\bar");
   }
 }

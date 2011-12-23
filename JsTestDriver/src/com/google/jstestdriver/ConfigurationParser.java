@@ -58,7 +58,7 @@ public class ConfigurationParser {
     this.configReader = configReader;
     this.pathRewriter = pathRewriter;
     pathResolver =
-        new PathResolver(basePath, Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer(basePath));
+        new PathResolver(Lists.newArrayList(basePath), Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
   }
 
   @SuppressWarnings("unchecked")

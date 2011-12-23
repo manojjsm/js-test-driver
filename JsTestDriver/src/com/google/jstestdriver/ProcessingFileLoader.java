@@ -34,21 +34,19 @@ import java.util.Set;
 public class ProcessingFileLoader implements FileLoader {
   private final FileReader reader;
   private final Set<FileLoadPostProcessor> postprocessors;
-  private final File basePath;
   private final StopWatch stopWatch;
 
   @Inject
   public ProcessingFileLoader(FileReader reader,
                               Set<FileLoadPostProcessor> postprocessors,
-                              @Named("basePath") File basePath,
                               StopWatch stopWatch) {
     this.reader = reader;
     this.postprocessors = postprocessors;
-    this.basePath = basePath;
     this.stopWatch = stopWatch;
   }
 
   // TODO(corysmith): Remove shouldReset.
+  @Override
   public List<FileInfo> loadFiles(
       Collection<FileInfo> filesToLoad, boolean shouldReset) {
     List<FileInfo> processed = new LinkedList<FileInfo>();
@@ -60,7 +58,7 @@ public class ProcessingFileLoader implements FileLoader {
 
       stopWatch.start("loadFile");
       for (FileInfo file : preProcessedFiles) {
-        loaded.add(file.loadFile(reader, basePath));
+        loaded.add(file.loadFile(reader));
       }
       stopWatch.stop("loadFile");
 

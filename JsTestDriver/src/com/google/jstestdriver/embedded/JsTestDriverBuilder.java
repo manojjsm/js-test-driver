@@ -98,7 +98,7 @@ public class JsTestDriverBuilder {
         port,
         plugins,
         initializers,
-        baseDir,
+        Lists.newArrayList(baseDir),
         serverAddress,
         raiseOnFailure,
         preload);

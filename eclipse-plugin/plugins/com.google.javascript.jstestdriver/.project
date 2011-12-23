@@ -29,7 +29,7 @@
 		<link>
 			<name>lib/JsTestDriver.jar</name>
 			<type>1</type>
-			<location>/Users/corysmith/repos/jstestdriver/trunk/JsTestDriver/target/bin/JsTestDriver.jar</location>
+			<location>/home/corysmith/gitclients/jstd-os/svn/JsTestDriver/target/bin/JsTestDriver.jar</location>
 		</link>
 	</linkedResources>
 </projectDescription>

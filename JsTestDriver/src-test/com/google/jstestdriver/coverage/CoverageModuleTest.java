@@ -55,7 +55,7 @@ public class CoverageModuleTest extends TestCase {
             "http://127.0.0.1:42242",
             "http://127.0.0.1:42242",
             System.out,
-            new File(""),
+            Lists.newArrayList(new File("")),
             2 * 60 * 60,
             Collections.<FileInfo>emptyList(),
             Collections.<FileInfo>emptyList(),

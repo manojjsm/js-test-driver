@@ -80,7 +80,7 @@ public class ProcessingFileLoaderTest extends TestCase {
         return infoData;
       }
     },
-        Collections.<FileLoadPostProcessor> emptySet(), new File("."),
+        Collections.<FileLoadPostProcessor> emptySet(),
         new com.google.jstestdriver.util.NullStopWatch()).loadFiles(
             Collections.singleton(info), shouldReset);
 
@@ -107,7 +107,7 @@ public class ProcessingFileLoaderTest extends TestCase {
     };
 
     List<FileInfo> actual = new ProcessingFileLoader(new FileReaderStub(infoData, info),
-        Collections.singleton(processor), new File("."),
+        Collections.singleton(processor),
         new com.google.jstestdriver.util.NullStopWatch()).loadFiles(
             Collections.singleton(info), shouldReset);
 
@@ -127,7 +127,6 @@ public class ProcessingFileLoaderTest extends TestCase {
     List<FileInfo> actual =
         new ProcessingFileLoader(mockFileReader,
             Collections.<FileLoadPostProcessor>emptySet(),
-            new File("."),
             new com.google.jstestdriver.util.NullStopWatch()
         ).loadFiles(Collections.singleton(info), shouldReset);
 
@@ -141,7 +140,7 @@ public class ProcessingFileLoaderTest extends TestCase {
     final FileInfo info = new FileInfo("http://local/foo.js", -1, -1, false, false, "", "http://local/foo.js");
     final boolean shouldReset = false;
     List<FileInfo> actual = new ProcessingFileLoader(null, Collections
-        .<FileLoadPostProcessor> emptySet(), new File("."),
+        .<FileLoadPostProcessor> emptySet(),
         new com.google.jstestdriver.util.NullStopWatch())
             .loadFiles(Collections.singleton(info), shouldReset);
 
