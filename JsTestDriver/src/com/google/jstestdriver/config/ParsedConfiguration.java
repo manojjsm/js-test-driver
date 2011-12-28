@@ -15,6 +15,10 @@
  */
 package com.google.jstestdriver.config;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
@@ -23,12 +27,8 @@ import com.google.jstestdriver.Flags;
 import com.google.jstestdriver.PathResolver;
 import com.google.jstestdriver.Plugin;
 import com.google.jstestdriver.browser.DocType;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.HandlerPathPrefix;
-
-import java.io.File;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a parsed configuration.
@@ -42,19 +42,19 @@ public class ParsedConfiguration implements Configuration {
   private final Set<FileInfo> excludedFiles;
   private final long testTimeout;
   private final List<FileInfo> tests;
-  private final File basePath;
+  private final BasePaths basePaths;
   private final JsonArray gatewayConfig;
   private final DocType doctype;
 
   public ParsedConfiguration(Set<FileInfo> filesList, Set<FileInfo> excludedFiles,
-      List<Plugin> plugins, String server, long testTimeout, File basePath, List<FileInfo> tests,
+      List<Plugin> plugins, String server, long testTimeout, BasePaths basePaths, List<FileInfo> tests,
       JsonArray gatewayConfig, DocType doctype) {
     this.filesList = filesList;
     this.excludedFiles = excludedFiles;
     this.plugins = plugins;
     this.server = server;
     this.testTimeout = testTimeout;
-    this.basePath = basePath;
+    this.basePaths = basePaths;
     this.tests = tests;
     this.gatewayConfig = gatewayConfig;
     this.doctype = doctype;
@@ -108,7 +108,7 @@ public class ParsedConfiguration implements Configuration {
             flags.getPort(),
             flags.getServerHandlerPrefix()),
         testTimeout,
-        basePath,
+        basePaths,
         Lists.newArrayList(testFiles),
         gatewayConfig);
   }
@@ -121,8 +121,8 @@ public class ParsedConfiguration implements Configuration {
     return tests;
   }
 
-  public File getBasePath() {
-    return basePath;
+  public BasePaths getBasePaths() {
+    return basePaths;
   }
 
   public JsonArray getGatewayConfiguration() {

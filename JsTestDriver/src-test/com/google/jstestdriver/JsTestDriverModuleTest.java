@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.inject.Guice;
 import com.google.jstestdriver.guice.DebugModule;
 import com.google.jstestdriver.guice.TestResultPrintingModule;
+import com.google.jstestdriver.model.BasePaths;
 
 import junit.framework.TestCase;
 
@@ -40,7 +41,7 @@ public class JsTestDriverModuleTest extends TestCase {
         "http://foo",
         "http://foo",
         System.out,
-        Lists.newArrayList(new File("")),
+        new BasePaths(new File("")),
         2 * 60 * 60,
         Collections.<FileInfo>emptyList(),
         Collections.<FileInfo>emptyList(),
@@ -56,7 +57,7 @@ public class JsTestDriverModuleTest extends TestCase {
         "http://foo",
         "https://foo",
         System.out,
-        Lists.newArrayList(new File("")),
+        new BasePaths(new File("")),
         2 * 60 * 60,
         Collections.<FileInfo>emptyList(),
         Collections.<FileInfo>emptyList(),

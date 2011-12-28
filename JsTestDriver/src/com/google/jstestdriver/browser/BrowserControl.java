@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * Class that handles the 
  *
  * @author Cory Smith (corbinrsmith@gmail.com) 
  */

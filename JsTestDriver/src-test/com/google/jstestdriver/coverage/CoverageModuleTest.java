@@ -35,6 +35,7 @@ import com.google.jstestdriver.JsTestDriverModule;
 import com.google.jstestdriver.guice.BrowserActionProvider;
 import com.google.jstestdriver.guice.DebugModule;
 import com.google.jstestdriver.guice.TestResultPrintingModule;
+import com.google.jstestdriver.model.BasePaths;
 
 /**
  * Smoke test. If you see smoke, it failed.
@@ -55,7 +56,7 @@ public class CoverageModuleTest extends TestCase {
             "http://127.0.0.1:42242",
             "http://127.0.0.1:42242",
             System.out,
-            Lists.newArrayList(new File("")),
+            new BasePaths(new File(".")),
             2 * 60 * 60,
             Collections.<FileInfo>emptyList(),
             Collections.<FileInfo>emptyList(),

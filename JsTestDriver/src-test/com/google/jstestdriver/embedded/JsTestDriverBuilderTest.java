@@ -9,7 +9,7 @@ import com.google.jstestdriver.FileResult;
 import com.google.jstestdriver.Flags;
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.TestResult;
-import com.google.jstestdriver.config.CmdFlags;
+import com.google.jstestdriver.config.CmdLineFlags;
 import com.google.jstestdriver.config.CmdLineFlag;
 import com.google.jstestdriver.config.Configuration;
 import com.google.jstestdriver.hooks.PluginInitializer;

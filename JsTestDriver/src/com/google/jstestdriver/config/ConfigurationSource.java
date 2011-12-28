@@ -16,6 +16,9 @@
 package com.google.jstestdriver.config;
 
 import java.io.File;
+import java.util.List;
+
+import com.google.jstestdriver.model.BasePaths;
 
 /**
  * The source of the configuration.
@@ -33,12 +36,12 @@ public interface ConfigurationSource {
   /**
    * Parses the Configuration from the source.
    * 
-   * @param basePath The base path for all the test resources.
+   * @param baseDirs The base paths for all the test resources to resolve against.
    * @param configParser the parser of the configuration.
    * @return The parsed configuration object.
    * @throws ConfigurationException If the configuration file does not exist.
    */
-  Configuration parse(File basePath, ConfigurationParser configParser) throws ConfigurationException;
+  Configuration parse(BasePaths baseDirs, ConfigurationParser configParser) throws ConfigurationException;
 
   /** Returns the name of the current configuration. */
   String getName();

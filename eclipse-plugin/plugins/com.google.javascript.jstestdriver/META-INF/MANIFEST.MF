@@ -317,9 +317,6 @@ Export-Package: com.google.common.annotations,
  org.slf4j.helpers;uses:="org.slf4j.spi,org.slf4j",
  org.slf4j.impl;uses:="org.slf4j.spi,org.slf4j.helpers,org.slf4j",
  org.slf4j.spi;uses:="org.slf4j"
-Bundle-ClassPath: lib/JsTestDriver.jar,
- .,
- lib/
 Import-Package: com.google.common.annotations,
  com.google.common.base,
  com.google.common.collect,

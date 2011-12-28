@@ -15,29 +15,30 @@
  */
 package com.google.jstestdriver.config;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gson.JsonArray;
 import com.google.jstestdriver.FileInfo;
 import com.google.jstestdriver.Flags;
 import com.google.jstestdriver.PathResolver;
 import com.google.jstestdriver.Plugin;
 import com.google.jstestdriver.browser.DocType;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 /**
+ * A simple empty configuration. Commonly used for starting the server.
  * @author corysmith@google.com (Cory Smith)
  */
 public class DefaultConfiguration implements Configuration{
 
   public static final long DEFAULT_TEST_TIMEOUT = 2 * 60 * 60;
-  private final File basePath;
+  private final BasePaths basePaths;
 
-  public DefaultConfiguration(File basePath) {
-    this.basePath = basePath;
+  public DefaultConfiguration(BasePaths basePaths) {
+    this.basePaths = basePaths;
   }
 
   public Set<FileInfo> getFilesList() {
@@ -81,8 +82,8 @@ public class DefaultConfiguration implements Configuration{
     return Collections.<FileInfo>emptyList();
   }
 
-  public File getBasePath() {
-    return basePath;
+  public BasePaths getBasePaths() {
+    return basePaths;
   }
 
   public JsonArray getGatewayConfiguration() {

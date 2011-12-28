@@ -3,6 +3,7 @@
 package com.google.jstestdriver.embedded;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -18,6 +19,7 @@ import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.hooks.PluginInitializer;
 import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
 /**
@@ -26,7 +28,7 @@ import com.google.jstestdriver.runner.RunnerMode;
  */
 public class JsTestDriverBuilder {
 
-  private File baseDir;
+  private BasePaths basePaths = new BasePaths();
   private List<Module> pluginModules = Lists.newArrayList();
   private String[] flags = new String[]{};
   private Configuration configuration;
@@ -98,7 +100,7 @@ public class JsTestDriverBuilder {
         port,
         plugins,
         initializers,
-        Lists.newArrayList(baseDir),
+        basePaths,
         serverAddress,
         raiseOnFailure,
         preload);
@@ -146,7 +148,7 @@ public class JsTestDriverBuilder {
    * @return
    */
   public JsTestDriverBuilder setBaseDir(File file) {
-    this.baseDir = file;
+    this.basePaths = new BasePaths(file);
     return this;
   }
 
@@ -154,7 +156,7 @@ public class JsTestDriverBuilder {
    * @param configurationSource
    */
   public JsTestDriverBuilder setConfigurationSource(ConfigurationSource source) {
-    setDefaultConfiguration(source.parse(baseDir, new YamlParser()));
+    setDefaultConfiguration(source.parse(basePaths, new YamlParser()));
     return this;
   }
 
@@ -171,7 +173,8 @@ public class JsTestDriverBuilder {
   }
 
   /**
-   * Don't pass in the commandline flags.
+   * Don't pass in the commandline flags. This method is heavily used by the 
+   * command line JsTD. Currently work to remove it.
    * @param flags
    * @return 
    * @deprecated
@@ -222,10 +225,26 @@ public class JsTestDriverBuilder {
   }
 
   /**
-   * @return
+   * Configures JsTestDriver to load the default configuration files into the browser on capture.
    */
   public JsTestDriverBuilder preloadFiles() {
     preload = true;
+    return this;
+  }
+
+  /**
+   * Adds the basePaths for the JsTestDriver instance to use for path resolution.
+   */
+  public JsTestDriverBuilder addBasePaths(BasePaths basePaths) {
+    this.basePaths.addAll(basePaths);
+    return this;
+  }
+
+  /**
+   * Adds the basePaths for the JsTestDriver instance to use for path resolution.
+   */
+  public JsTestDriverBuilder addBasePaths(File...basePaths) {
+    this.basePaths.addAll(Arrays.asList(basePaths));
     return this;
   }
 }

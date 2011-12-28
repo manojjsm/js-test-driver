@@ -11,13 +11,13 @@ import java.util.List;
  * @author corysmith@google.com (Cory Smith)
  */
 public class CmdLineFlagsFactory {
-  public CmdFlags create(String[] args) {
+  public CmdLineFlags create(String[] args) {
     CmdLineFlagsFactory.CmdLineFlagIterator iterator = new CmdLineFlagIterator(args);
     List<CmdLineFlag> flags = Lists.newLinkedList();
     while (iterator.hasNext()) {
       flags.add(iterator.next());
     }
-    return new CmdFlags(flags);
+    return new CmdLineFlags(flags);
   }
 
   /**

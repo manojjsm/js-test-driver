@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import com.google.jstestdriver.model.BasePaths;
+
 /**
  * The user defined configuration source.
  * 
@@ -43,11 +45,11 @@ public class UserConfigurationSource implements ConfigurationSource {
   }
 
   /** {@inheritDoc} */
-  public Configuration parse(File basePath, ConfigurationParser configParser) throws ConfigurationException {
+  public Configuration parse(BasePaths basePaths, ConfigurationParser configParser) throws ConfigurationException {
     try {
       return configParser.parse(
           new InputStreamReader(new FileInputStream(configurationFile), Charset.defaultCharset()),
-          basePath);
+          basePaths);
     } catch (FileNotFoundException e) {
       throw new ConfigurationException("Unable to read configuration file.", e);
     }

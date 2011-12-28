@@ -16,12 +16,14 @@
 package com.google.jstestdriver.config;
 
 import com.google.jstestdriver.Flags;
+import com.google.jstestdriver.model.BasePaths;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * Defines the default configuration source.
@@ -44,15 +46,16 @@ public class DefaultConfigurationSource implements ConfigurationSource {
   }
 
   /** {@inheritDoc} */
-  public Configuration parse(File basePath, ConfigurationParser configParser) {
+  @Override
+  public Configuration parse(BasePaths basePaths, ConfigurationParser configParser) {
     File configFile = new File(Flags.DEFAULT_CONFIG_NAME).getAbsoluteFile();
     if (!configFile.exists()) {
-      return new DefaultConfiguration(basePath);
+      return new DefaultConfiguration(basePaths);
     }
     try {
       return configParser.parse(
           new InputStreamReader(new FileInputStream(configFile), Charset.defaultCharset()),
-          basePath);
+          basePaths);
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }

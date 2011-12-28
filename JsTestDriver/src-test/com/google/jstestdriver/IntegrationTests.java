@@ -35,6 +35,7 @@ import com.google.jstestdriver.config.ConfigurationParser;
 import com.google.jstestdriver.config.ConfigurationSource;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.hooks.ServerListener;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.servlet.fileset.ListTestCases;
 import com.google.jstestdriver.util.NullStopWatch;
@@ -49,13 +50,13 @@ public class IntegrationTests extends TestCase {
     final File depOne = File.createTempFile(this.toString(), "depOne.js");
     final File depTwo = File.createTempFile(this.toString(), "depTwo.js");
     final File depThree = File.createTempFile(this.toString(), "depThree.js");
-    final File serve = File.createTempFile(this.toString(), "serve.js");
+    //final File serve = File.createTempFile(this.toString(), "serve.js");
     final File test = File.createTempFile(this.toString(), "test.js");
     final File basePath = depOne.getParentFile();
     ConfigurationSource configurationSource = new ConfigurationSource() {
       
       @Override
-      public Configuration parse(File basePath, ConfigurationParser configParser)
+      public Configuration parse(BasePaths basePaths, ConfigurationParser configParser)
           throws ConfigurationException {
         return configParser.parse(new StringReader(
         "serve:\n" +
@@ -65,7 +66,7 @@ public class IntegrationTests extends TestCase {
         "  - " + depTwo.getPath() + "\n" +
         "  - " + depOne.getPath() + "\n" +
         "test:\n" +
-        "  - " + test.getPath() + "\n"), basePath);
+        "  - " + test.getPath() + "\n"), basePaths);
       }
       
       @Override

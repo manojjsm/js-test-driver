@@ -13,6 +13,7 @@ import com.google.jstestdriver.config.UserConfigurationSource;
 import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.hooks.ServerListener;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.runner.RunnerMode;
 
@@ -70,13 +71,9 @@ public class JsTestDriverTest extends TestCase {
     }
   }
 
-  /**
-   * @author corysmith@google.com (Cory Smith)
-   *
-   */
   private final class TestConfiguration extends DefaultConfiguration {
     public TestConfiguration(File basePath) {
-      super(basePath);
+      super(new BasePaths(basePath));
     }
   }
 
@@ -88,7 +85,7 @@ public class JsTestDriverTest extends TestCase {
         .setDefaultConfiguration(new TestConfiguration(new File(".")))
         .setRunnerMode(RunnerMode.DEBUG)
         .addServerListener(testServerListener)
-        .setPort(8080)
+        .setPort(8081)
         .build();
     jstd.startServer();
     startLatch.await(10, TimeUnit.SECONDS);
@@ -106,12 +103,12 @@ public class JsTestDriverTest extends TestCase {
         .setDefaultConfiguration(new TestConfiguration(new File(".")))
         .setRunnerMode(RunnerMode.DEBUG)
         .addServerListener(testServerListener)
-        .setPort(8080)
+        .setPort(8082)
         .build();
     jstd.startServer();
     startLatch.await(10, TimeUnit.SECONDS);
     assertTrue(testServerListener.serverStarted);
-    Configuration configuration = new UserConfigurationSource(new File("./jsTestDriver.conf")).parse(new File("."), new YamlParser());
+    Configuration configuration = new UserConfigurationSource(new File("./jsTestDriver.conf")).parse(new BasePaths(new File(".")), new YamlParser());
     jstd.getTestCasesFor(configuration);
     jstd.stopServer();
     stopLatch.await(10, TimeUnit.SECONDS);

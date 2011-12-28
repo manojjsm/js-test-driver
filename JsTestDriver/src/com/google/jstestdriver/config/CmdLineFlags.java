@@ -3,6 +3,7 @@ package com.google.jstestdriver.config;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.jstestdriver.Plugin;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
 import java.io.File;
@@ -21,7 +22,7 @@ import java.util.Map;
  * @author corbinrsmith@gmail.com (Cory Smith)
  *
  */
-public class CmdFlags {
+public class CmdLineFlags {
   private static final Map<String, CmdLineFlagMetaData> PREPARSE_FLAGS = 
     ImmutableMap.<String, CmdLineFlagMetaData>builder()
       .put(
@@ -31,7 +32,7 @@ public class CmdFlags {
       .put("--config", new CmdLineFlagMetaData("--config", "VAL", "Path to configuration file."))
       .put(
           "--basePath",
-          new CmdLineFlagMetaData("--basePath", "VAL", "Override the base path in the "
+          new CmdLineFlagMetaData("--basePath", "VAL[,VAL]", "Override the base path(s) in the "
               + "configuration file. Defaults to the parent directory of the configuration file."))
       .put(
           "--runnerMode",
@@ -40,7 +41,7 @@ public class CmdFlags {
               + "DEBUG_NO_TRACE, DEBUG_OBSERVE, PROFILE, QUIET (default), INFO")).build();
   private final List<CmdLineFlag> flags;
 
-  public CmdFlags(List<CmdLineFlag> flags) {
+  public CmdLineFlags(List<CmdLineFlag> flags) {
     this.flags = flags;
   }
 
@@ -49,7 +50,7 @@ public class CmdFlags {
       if ("--plugins".equals(cmdLineFlag.flag)) {
         List<Plugin> plugins = Lists.newLinkedList();
         for (String pluginPath : cmdLineFlag.valuesList()) {
-          plugins.add(new Plugin(null, new File(getBasePath(), pluginPath).getAbsolutePath(), null,
+          plugins.add(new Plugin(null, pluginPath, null,
               Collections.<String> emptyList()));
         }
         return plugins;
@@ -67,10 +68,14 @@ public class CmdFlags {
     return null;
   }
 
-  private String getBasePathNoDefault() throws IOException {
+  private BasePaths getBasePathNoDefault() throws IOException {
     for (CmdLineFlag cmdLineFlag : flags) {
       if ("--basePath".equals(cmdLineFlag.flag)) {
-        return new File(cmdLineFlag.safeValue()).getCanonicalPath();
+        BasePaths paths = new BasePaths();
+        for (String stringPath : cmdLineFlag.valuesList()) {
+          paths.add(new File(stringPath).getCanonicalFile());
+        }
+        return paths;
       }
     }
     return null;
@@ -84,12 +89,12 @@ public class CmdFlags {
     return new DefaultConfigurationSource();
   }
 
-  public File getBasePath() throws IOException {
-    final String basePath = getBasePathNoDefault();
-    if (basePath != null) {
-      return new File(basePath);
+  public BasePaths getBasePath() throws IOException {
+    final BasePaths basePaths = getBasePathNoDefault();
+    if (basePaths != null) {
+      return basePaths;
     }
-    return getConfigurationSource().getParentFile();
+    return new BasePaths(getConfigurationSource().getParentFile());
   }
 
   public RunnerMode getRunnerMode() {

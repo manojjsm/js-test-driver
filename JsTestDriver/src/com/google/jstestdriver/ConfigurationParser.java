@@ -17,6 +17,7 @@ package com.google.jstestdriver;
 
 import com.google.common.collect.Lists;
 import com.google.jstestdriver.hooks.FileParsePostProcessor;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.util.DisplayPathSanitizer;
 
 import org.apache.oro.io.GlobFilenameFilter;
@@ -58,7 +59,7 @@ public class ConfigurationParser {
     this.configReader = configReader;
     this.pathRewriter = pathRewriter;
     pathResolver =
-        new PathResolver(Lists.newArrayList(basePath), Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
+        new PathResolver(new BasePaths(basePath), Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
   }
 
   @SuppressWarnings("unchecked")

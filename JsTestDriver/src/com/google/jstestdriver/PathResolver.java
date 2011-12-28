@@ -16,7 +16,6 @@
 package com.google.jstestdriver;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,14 +25,13 @@ import java.util.regex.Pattern;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.GlobCompiler;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.google.jstestdriver.config.UnreadableFile;
 import com.google.jstestdriver.config.UnreadableFilesException;
 import com.google.jstestdriver.hooks.FileParsePostProcessor;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.util.DisplayPathSanitizer;
 
 /**
@@ -43,11 +41,11 @@ import com.google.jstestdriver.util.DisplayPathSanitizer;
 public class PathResolver {
 
   private final Set<FileParsePostProcessor> processors;
-  private final List<File> basePaths;
+  private final BasePaths basePaths;
   private DisplayPathSanitizer sanitizer;
 
   @Inject
-  public PathResolver(@Named("basePath") List<File> basePaths, Set<FileParsePostProcessor> processors,
+  public PathResolver(BasePaths basePaths, Set<FileParsePostProcessor> processors,
       DisplayPathSanitizer sanitizer) {
     this.basePaths = basePaths;
     this.processors = processors;

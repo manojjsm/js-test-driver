@@ -21,6 +21,7 @@ import com.google.jstestdriver.Flags;
 import com.google.jstestdriver.PathResolver;
 import com.google.jstestdriver.Plugin;
 import com.google.jstestdriver.browser.DocType;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 
 import java.io.File;
@@ -60,7 +61,7 @@ public interface Configuration {
   /**
    * Returns the basePath for the configuration.
    */
-  public File getBasePath();
+  public BasePaths getBasePaths();
 
   JsonArray getGatewayConfiguration();
 

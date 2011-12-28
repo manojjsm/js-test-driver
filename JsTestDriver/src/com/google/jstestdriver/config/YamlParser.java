@@ -21,6 +21,7 @@ import com.google.jstestdriver.FileInfo;
 import com.google.jstestdriver.Plugin;
 import com.google.jstestdriver.browser.DocType;
 import com.google.jstestdriver.browser.DocTypeParser;
+import com.google.jstestdriver.model.BasePaths;
 
 import org.jvyaml.YAML;
 
@@ -43,7 +44,7 @@ public class YamlParser implements ConfigurationParser {
   private DocTypeParser docTypeParser = new DocTypeParser();
 
   @SuppressWarnings("unchecked")
-  public Configuration parse(Reader configReader, File defaultBasePath) {
+  public Configuration parse(Reader configReader, BasePaths defaultBasePaths) {
     Map<Object, Object> data = (Map<Object, Object>) YAML.load(configReader);
     Set<FileInfo> resolvedFilesLoad = new LinkedHashSet<FileInfo>();
     Set<FileInfo> testFiles = new LinkedHashSet<FileInfo>();
@@ -51,7 +52,7 @@ public class YamlParser implements ConfigurationParser {
 
     String server = "";
     DocType doctype = docTypeParser.parse("quirks");
-    File basePath = defaultBasePath;
+    BasePaths basePaths = defaultBasePaths;
     long timeOut = 0;
     List<Plugin> plugins = Lists.newLinkedList();
     JsonArray gatewayConfig = new JsonArray();
@@ -90,9 +91,20 @@ public class YamlParser implements ConfigurationParser {
       timeOut = (Long) data.get("timeout");
     }
     if (data.containsKey("basepath")) {
-      basePath = new File((String) data.get("basepath"));
-      if (!basePath.isAbsolute()) {
-        basePath = new File(defaultBasePath, basePath.getPath());
+      Object rawBasePaths = data.get("basepath");
+      List<String> stringBasePaths = Lists.newArrayList();
+      if (rawBasePaths instanceof String) {
+        stringBasePaths.add((String) data.get("basepath"));
+      } else if (rawBasePaths instanceof List) {
+        stringBasePaths.addAll((List<String>) rawBasePaths);
+      }
+      for (String stringPath : stringBasePaths) {
+        File basePath = new File(stringPath);
+        if (!basePath.isAbsolute()) {
+          basePaths = basePaths.applyRelativePath(stringPath);
+        } else {
+          basePaths.add(basePath);
+        }
       }
     }
     if (data.containsKey("proxy")) {
@@ -119,7 +131,7 @@ public class YamlParser implements ConfigurationParser {
                                    plugins,
                                    server,
                                    timeOut,
-                                   basePath,
+                                   basePaths,
                                    Lists.newArrayList(testFiles),
                                    gatewayConfig,
                                    doctype);

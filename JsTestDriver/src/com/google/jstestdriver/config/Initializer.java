@@ -29,6 +29,7 @@ import com.google.jstestdriver.PluginLoader;
 import com.google.jstestdriver.guice.DebugModule;
 import com.google.jstestdriver.hooks.PluginInitializer;
 import com.google.jstestdriver.html.HtmlDocModule;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class Initializer {
   private final FlagsParser flagsParser;
   private final Set<PluginInitializer> initializers;
   private final PrintStream outputStream;
-  private final List<File> basePaths;
+  private final BasePaths basePaths;
 
   @Inject
   public Initializer(PluginLoader pluginLoader,
@@ -60,7 +61,7 @@ public class Initializer {
                      FlagsParser flagsParser,
                      Set<PluginInitializer> initializers,
                      @Named("outputStream") PrintStream outputStream,
-                     @Named("basePath") List<File> basePaths,
+                     BasePaths basePaths,
                      RunnerMode runnerMode) {
     this.pluginLoader = pluginLoader;
     this.pathResolver = pathResolver;

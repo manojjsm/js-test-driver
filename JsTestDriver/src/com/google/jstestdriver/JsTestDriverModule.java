@@ -17,8 +17,18 @@ package com.google.jstestdriver;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 
+import java.io.File;
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -36,18 +46,8 @@ import com.google.jstestdriver.guice.BrowserActionProvider;
 import com.google.jstestdriver.guice.FlagsModule;
 import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.output.MultiTestResultListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.PrintStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Guice module for configuring JsTestDriver.
@@ -64,7 +64,7 @@ public class JsTestDriverModule extends AbstractModule {
   private final String serverAddress;
   private final String captureAddress;
   private final PrintStream outputStream;
-  private final List<File> basePaths;
+  private final BasePaths basePaths;
   private final long testSuiteTimeout;
   private final List<FileInfo> tests;
   private final List<FileInfo> plugins;
@@ -81,7 +81,7 @@ public class JsTestDriverModule extends AbstractModule {
          serverAddress,
          captureAddress,
          outputStream,
-         Lists.newArrayList(basePath),
+         new BasePaths(basePath),
          DefaultConfiguration.DEFAULT_TEST_TIMEOUT,
          Collections.<FileInfo>emptyList(),
          Collections.<FileInfo>emptyList(),
@@ -93,7 +93,7 @@ public class JsTestDriverModule extends AbstractModule {
       String serverAddress,
       String captureAddress,
       PrintStream outputStream,
-      List<File> basePaths,
+      BasePaths basePaths,
       long testSuiteTimeout,
       List<FileInfo> tests,
       List<FileInfo> plugins,
@@ -158,7 +158,7 @@ public class JsTestDriverModule extends AbstractModule {
 
     bind(Long.class).annotatedWith(Names.named("testSuiteTimeout")).toInstance(testSuiteTimeout);
 
-    bind(new TypeLiteral<List<File>>(){}).annotatedWith(Names.named("basePath")).toInstance(basePaths);
+    bind(BasePaths.class).toInstance(basePaths);
 
     install(new FlagsModule(flags));
     install(new ActionFactoryModule());

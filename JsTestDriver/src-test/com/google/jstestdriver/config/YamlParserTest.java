@@ -32,6 +32,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.jstestdriver.FileInfo;
 import com.google.jstestdriver.Plugin;
+import com.google.jstestdriver.model.BasePaths;
 
 /**
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
@@ -207,7 +208,7 @@ public class YamlParserTest extends TestCase {
     ByteArrayInputStream bais = new ByteArrayInputStream(configFile.getBytes());
     ConfigurationParser parser = new YamlParser();
     
-    Configuration config = parser.parse(new InputStreamReader(bais), null);
+    Configuration config = parser.parse(new InputStreamReader(bais), new BasePaths());
     Set<FileInfo> serveFilesSet = config.getFilesList();
     List<FileInfo> serveFiles = Lists.newArrayList(serveFilesSet);
     
@@ -218,7 +219,8 @@ public class YamlParserTest extends TestCase {
     
     List<FileInfo> tests = config.getTests();
     assertEquals("test/*.js", tests.get(0).getFilePath());
-    assertEquals(new File("/some/path"), config.getBasePath());
+    Iterator<File> basePathIterator = config.getBasePaths().iterator();
+    assertEquals(new File("/some/path"), basePathIterator.next());
   }
 
   public void testParseGatewayConfiguration() throws Exception {

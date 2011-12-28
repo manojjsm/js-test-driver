@@ -15,19 +15,17 @@
  */
 package com.google.jstestdriver.config;
 
-import java.io.File;
 import java.io.Reader;
+
+import com.google.jstestdriver.model.BasePaths;
 
 
 
 /**
- *
+ * The interface for configuration parsers.
  *
  * @author Cory Smith (corbinrsmith@gmail.com) 
  */
 public interface ConfigurationParser {
-
-  @SuppressWarnings("unchecked")
-  public abstract Configuration parse(Reader configReader, File defaultBasePath);
-
+  Configuration parse(Reader configReader, BasePaths basePaths);
 }

@@ -32,7 +32,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 import com.google.jstestdriver.browser.BrowserPanicException;
-import com.google.jstestdriver.config.CmdFlags;
+import com.google.jstestdriver.config.CmdLineFlags;
 import com.google.jstestdriver.config.CmdLineFlag;
 import com.google.jstestdriver.config.CmdLineFlagsFactory;
 import com.google.jstestdriver.config.Configuration;
@@ -46,6 +46,7 @@ import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.guice.TestResultPrintingModule.TestResultPrintingInitializer;
 import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.ConcretePathPrefix;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.model.NullPathPrefix;
@@ -65,7 +66,7 @@ public class JsTestDriver {
 
     /**
      * @param listener An instance of a {@link TestResultListener} to collect
-     *    results druing a run.
+     *    results during a run.
      */
     private TestListenerModule(TestResultListener listener) {
       this.listener = listener;
@@ -140,7 +141,7 @@ public class JsTestDriver {
       
       // pre-parse parsing... These are the flags
       // that must be dealt with before we parse the flags.
-      CmdFlags cmdLineFlags = new CmdLineFlagsFactory().create(args);
+      CmdLineFlags cmdLineFlags = new CmdLineFlagsFactory().create(args);
       List<Plugin> cmdLinePlugins = cmdLineFlags.getPlugins();
   
       // configure logging before we start seriously processing.
@@ -154,7 +155,7 @@ public class JsTestDriver {
       logger.debug("loaded plugins %s", pluginModules);
   
       JsTestDriverBuilder builder = new JsTestDriverBuilder();
-      builder.setBaseDir(cmdLineFlags.getBasePath().getCanonicalFile());
+      builder.addBasePaths(cmdLineFlags.getBasePath());
       builder.setConfigurationSource(cmdLineFlags.getConfigurationSource());
       builder.addPluginModules(pluginModules);
       builder.withPluginInitializer(TestResultPrintingInitializer.class);
@@ -166,7 +167,7 @@ public class JsTestDriver {
       logger.info("Finished action run.");
     } catch (InvalidFlagException e) {
       e.printErrorMessages(System.out);
-      CmdFlags.printUsage(System.out);
+      CmdLineFlags.printUsage(System.out);
       System.exit(1);
     } catch (UnreadableFilesException e) {
       System.out.println("Configuration Error: \n" + e.getMessage());
@@ -198,7 +199,7 @@ public class JsTestDriver {
   private final RunnerMode runnerMode;
   private final int port;
   private final List<Module> pluginModules;
-  private final List<File> baseDirs;
+  private final BasePaths basePaths;
   private final String serverAddress;
   private final boolean raiseOnFailure;
   private final boolean preload;
@@ -222,7 +223,7 @@ public class JsTestDriver {
       int port,
       List<Module> pluginModules,
       List<Module> initializerModules,
-      List<File> baseDirs,
+      BasePaths basePaths,
       String serverAddress,
       boolean raiseOnFailure,
       boolean preload) {
@@ -233,7 +234,7 @@ public class JsTestDriver {
     this.defaultFlags = flags;
     this.port = port;
     this.pluginModules = pluginModules;
-    this.baseDirs = baseDirs;
+    this.basePaths = basePaths;
     this.serverAddress = serverAddress;
     this.raiseOnFailure = raiseOnFailure;
     this.preload = preload;
@@ -344,7 +345,7 @@ public class JsTestDriver {
       throw new ConfigurationException("Could not find " + configFile);
     }
     UserConfigurationSource userConfigurationSource = new UserConfigurationSource(configFile);
-    return userConfigurationSource.parse(userConfigurationSource.getParentFile(), new YamlParser());
+    return userConfigurationSource.parse(basePaths, new YamlParser());
   }
 
   private void runConfigurationWithFlags(Configuration config,
@@ -354,7 +355,7 @@ public class JsTestDriver {
       throw new ConfigurationException("Configuration cannot be null.");
     }
     List<Module> initializeModules = Lists.newArrayList(initializerModules);
-    List<File> basePaths;
+    BasePaths basePaths;
     try {
       // configure logging before we start seriously processing.
       LogManager.getLogManager().readConfiguration(runnerMode.getLogConfig());
@@ -362,7 +363,7 @@ public class JsTestDriver {
       initializeModules.add(new InitializeModule(pluginLoader, basePaths, new Args4jFlagsParser(),
           runnerMode));
     } catch (IOException e) {
-      throw new ConfigurationException("Could not find " + config.getBasePath(), e);
+      throw new ConfigurationException("Could not find " + config.getBasePaths(), e);
     }
     Injector initializeInjector = Guice.createInjector(initializeModules);
 
@@ -391,18 +392,18 @@ public class JsTestDriver {
   }
 
   // TODO(corysmith): make this go away by resolving the multiple basePath issue.
-  private List<File> getPathResolver(Configuration config) {
+  private BasePaths getPathResolver(Configuration config) {
     for (int i = 0; i < defaultFlags.length; i++) {
       if ("--basePath".equals(defaultFlags[i])) {
         if (i < defaultFlags.length) {
-          return Lists.newArrayList(new File(defaultFlags[i + 1]));
+          return new BasePaths(new File(defaultFlags[i + 1]));
         }
         break;
       }
     }
-    if (baseDirs != null) {
-      return baseDirs;
+    if (basePaths != null) {
+      return basePaths;
     }
-    return Lists.newArrayList(config.getBasePath());
+    return config.getBasePaths();
   }
 }

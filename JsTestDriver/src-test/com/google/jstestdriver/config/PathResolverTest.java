@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -35,11 +36,12 @@ import com.google.jstestdriver.FlagsImpl;
 import com.google.jstestdriver.PathResolver;
 import com.google.jstestdriver.Plugin;
 import com.google.jstestdriver.hooks.FileParsePostProcessor;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.util.DisplayPathSanitizer;
 
 public class PathResolverTest extends TestCase {
 
-  List<File> tmpDirs = Lists.newArrayList() ;
+  BasePaths tmpDirs = new BasePaths();
 
   @Override
   protected void setUp() throws Exception {
@@ -78,8 +80,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testParseConfigFileAndHaveListOfFiles() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -111,8 +113,9 @@ public class PathResolverTest extends TestCase {
   }
   
   public void testParseConfigFileAndHaveListOfFilesFromMultipleDirectories() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(1));
+    Iterator<File> baseIterator = tmpDirs.iterator();
+    File codeDir = createTmpSubDir("code", baseIterator.next());
+    File testDir = createTmpSubDir("test", baseIterator.next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -144,8 +147,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testParseConfigFileAndHaveListOfFilesRelative() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -164,7 +167,7 @@ public class PathResolverTest extends TestCase {
     
     Configuration config =
         parser.parse(new InputStreamReader(bais), null).resolvePaths(
-            new PathResolver(Lists.newArrayList(codeDir),
+            new PathResolver(new BasePaths(codeDir),
                 Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer()),
             createFlags());
 
@@ -181,8 +184,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testParseConfigFileAndHaveListOfFilesWithTests() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -210,14 +213,14 @@ public class PathResolverTest extends TestCase {
     assertTrue(listFiles.get(0).getFilePath().replace(File.separatorChar, '/').endsWith("code/code.js"));
     
     List<FileInfo> tests = config.getTests();
-    assertEquals(new File(tmpDirs.get(0), "test/test.js").getAbsolutePath(), tests.get(0).getFilePath());
+    assertEquals(new File(tmpDirs.iterator().next(), "test/test.js").getAbsolutePath(), tests.get(0).getFilePath());
     assertEquals("test/test.js", tests.get(0).getDisplayPath());
-    assertEquals(new File(tmpDirs.get(0), "test/test3.js").getAbsolutePath(), tests.get(1).getFilePath());
+    assertEquals(new File(tmpDirs.iterator().next(), "test/test3.js").getAbsolutePath(), tests.get(1).getFilePath());
     assertEquals("test/test3.js", tests.get(1).getDisplayPath());
   }
 
   public void testParseConfigFileAndProcessAListOfFiles() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
     final String fileName = "code.js";
     final File code = createTmpFile(codeDir, fileName);
 
@@ -246,7 +249,7 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testGlobIsExpanded() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
 
@@ -266,8 +269,8 @@ public class PathResolverTest extends TestCase {
 
   public void testParseConfigFileAndHaveListOfFilesWithPatches()
       throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(codeDir, "patch.js");
@@ -296,8 +299,8 @@ public class PathResolverTest extends TestCase {
 
   public void testParseConfigFileAndHaveListOfFilesWithUnassociatedPatch()
       throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(codeDir, "patch.js");
@@ -322,7 +325,7 @@ public class PathResolverTest extends TestCase {
 
   public void testParsePlugin() throws IOException {
     String jarPath = "pathto.jar";
-    File jar = createTmpFile(this.tmpDirs.get(0), jarPath);
+    File jar = createTmpFile(this.tmpDirs.iterator().next(), jarPath);
     Plugin expected = new Plugin("test", jar.getAbsolutePath(), "com.test.PluginModule",
         Lists.<String>newArrayList());
     String configFile =
@@ -344,8 +347,8 @@ public class PathResolverTest extends TestCase {
   public void testParsePlugins() throws IOException {
     String jarPath = "pathto.jar";
     String jarPath2 = "pathto.jar2";
-    File jar = createTmpFile(this.tmpDirs.get(0), jarPath);
-    File jar2 = createTmpFile(this.tmpDirs.get(0), jarPath2);
+    File jar = createTmpFile(this.tmpDirs.iterator().next(), jarPath);
+    File jar2 = createTmpFile(this.tmpDirs.iterator().next(), jarPath2);
     List<Plugin> expected = new LinkedList<Plugin>(Arrays.asList(
       new Plugin("test", jar.getAbsolutePath(), "com.test.PluginModule",
         Lists.<String> newArrayList()),
@@ -372,8 +375,8 @@ public class PathResolverTest extends TestCase {
   public void testParsePluginArgs() throws Exception {
     String jarPath = "pathtojar";
     String jarPath2 = "pathtojar2";
-    createTmpFile(this.tmpDirs.get(0), jarPath);
-    createTmpFile(this.tmpDirs.get(0), jarPath2);
+    createTmpFile(this.tmpDirs.iterator().next(), jarPath);
+    createTmpFile(this.tmpDirs.iterator().next(), jarPath2);
     String configFile = "plugin:\n" + "  - name: test\n"
       + "    jar: \"pathtojar\"\n" + "    module: \"com.test.PluginModule\"\n"
       + "    args: hello, mooh, some/file.js, another/file.js";
@@ -396,8 +399,8 @@ public class PathResolverTest extends TestCase {
   public void testParsePluginNoArgs() throws Exception {
     String jarPath = "pathtojar";
     String jarPath2 = "pathtojar2";
-    createTmpFile(this.tmpDirs.get(0), jarPath);
-    createTmpFile(this.tmpDirs.get(0), jarPath2);
+    createTmpFile(this.tmpDirs.iterator().next(), jarPath);
+    createTmpFile(this.tmpDirs.iterator().next(), jarPath2);
     String configFile = "plugin:\n" + "  - name: test\n"
       + "    jar: \"pathtojar\"\n" + "    module: \"com.test.PluginModule\"\n";
     ByteArrayInputStream bais = new ByteArrayInputStream(configFile.getBytes());
@@ -413,9 +416,9 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testServeFile() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
-    File serveDir = createTmpSubDir("serve", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
+    File serveDir = createTmpSubDir("serve", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -443,8 +446,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testCheckValidTimeStamp() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
-    File testDir = createTmpSubDir("test", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
+    File testDir = createTmpSubDir("test", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
     createTmpFile(codeDir, "code2.js");
     createTmpFile(testDir, "test.js");
@@ -468,7 +471,7 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testExceptionIsThrownIfFileNotFound() throws Exception {
-    File codeDir = createTmpSubDir("code", tmpDirs.get(0));
+    File codeDir = createTmpSubDir("code", tmpDirs.iterator().next());
     createTmpFile(codeDir, "code.js");
 
     String configFile = "load:\n - invalid-dir/code.js";
@@ -484,12 +487,12 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testResolveFullQualifiedPath() throws Exception {
-    File baseDir = createTmpSubDir("base", tmpDirs.get(0));
+    File baseDir = createTmpSubDir("base", tmpDirs.iterator().next());
     // test dir and file reside outside the base directory
-    File absoluteDir = createTmpSubDir("absolute", tmpDirs.get(0));
+    File absoluteDir = createTmpSubDir("absolute", tmpDirs.iterator().next());
     File absoluteFile = new File(absoluteDir, "file.js");
 
-    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
+    PathResolver pathResolver = new PathResolver(tmpDirs,
         Collections.<FileParsePostProcessor>emptySet(),
         new DisplayPathSanitizer());
 
@@ -498,22 +501,22 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testResolveFullQualifiedPathWithParentRef() throws Exception {
-    File baseDir = createTmpSubDir("base", tmpDirs.get(0));
-    File dir = createTmpSubDir("absolute", tmpDirs.get(0));
+    File baseDir = createTmpSubDir("base", tmpDirs.iterator().next());
+    File dir = createTmpSubDir("absolute", tmpDirs.iterator().next());
     File subDir = new File(dir, "sub");
     subDir.mkdir();
     subDir.deleteOnExit();
     
-    File otherDir = createTmpSubDir("other", tmpDirs.get(0));
+    File otherDir = createTmpSubDir("other", tmpDirs.iterator().next());
 
-    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
+    PathResolver pathResolver = new PathResolver(tmpDirs,
         Collections.<FileParsePostProcessor>emptySet(),
         new DisplayPathSanitizer());
 
     {
       File file = new File(dir, "../file.js");
       File result = pathResolver.resolvePath(file.getAbsolutePath());
-      assertEquals(new File(tmpDirs.get(0), "file.js"), result);
+      assertEquals(new File(tmpDirs.iterator().next(), "file.js"), result);
     }
     {
       File file = new File(subDir, "../../other/file.js");
@@ -523,10 +526,10 @@ public class PathResolverTest extends TestCase {
 
   }
 
-  public void testResolvePathFragement() {
-    File baseDir = createTmpSubDir("base", tmpDirs.get(0));
+  public void testResolvePathFragment() {
+    File baseDir = createTmpSubDir("base", tmpDirs.iterator().next());
 
-    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
+    PathResolver pathResolver = new PathResolver(new BasePaths(baseDir),
         Collections.<FileParsePostProcessor>emptySet(),
         new DisplayPathSanitizer());
 
@@ -535,10 +538,10 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testResolvePathFragementWithParentRef() {
-    File baseDir = tmpDirs.get(0);
-    File dir = createTmpSubDir("dir", tmpDirs.get(0));
+    File baseDir = tmpDirs.iterator().next();
+    File dir = createTmpSubDir("dir", tmpDirs.iterator().next());
 
-    PathResolver pathResolver = new PathResolver(Lists.newArrayList(baseDir),
+    PathResolver pathResolver = new PathResolver(tmpDirs,
         Collections.<FileParsePostProcessor>emptySet(),
         new DisplayPathSanitizer());
 
@@ -547,9 +550,8 @@ public class PathResolverTest extends TestCase {
   }
 
   public void testWindowsFileSeperator() throws Exception {
-    File basePath = new File("");
     PathResolver pathResolver =
-        new PathResolver(Lists.newArrayList(basePath),
+        new PathResolver(tmpDirs,
             Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
 
     File resolvePath = pathResolver.resolvePath("\\foo\\bar");
