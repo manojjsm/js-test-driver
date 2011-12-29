@@ -1,6 +1,7 @@
 package com.google.jstestdriver;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.jstestdriver.Response.ResponseType;
 import com.google.jstestdriver.browser.BrowserPanicException;
 
@@ -20,15 +21,19 @@ class BrowserPanicResponseStream implements ResponseStream {
   @Override
   public void stream(Response response) {
     if (response.getResponseType() == ResponseType.BROWSER_PANIC) {
-      BrowserPanic panic = gson.fromJson(response.getResponse(),
-                                         response.getResponseType().type);
-      BrowserPanicException exception =
-          new BrowserPanicException(panic.getBrowserInfo(),
-                                    "");
-      logger.error("Browser not found : {}\n Exception: {}",
-                   new Object[]{response.getResponse(),
-                                exception});
-      throw exception;
+      try {
+        BrowserPanic panic = gson.fromJson(response.getResponse(),
+                                           response.getResponseType().type);
+        BrowserPanicException exception =
+            new BrowserPanicException(panic.getBrowserInfo(),
+                                      "");
+        logger.error("Browser not found : {}\n Exception: {}",
+                     new Object[]{response.getResponse(),
+                                  exception});
+        throw exception;
+      } catch (JsonSyntaxException e) {
+        throw new RuntimeException(String.format("Failed to deserialize |%s|", response.getResponse()), e);
+      }
     }
   }
 

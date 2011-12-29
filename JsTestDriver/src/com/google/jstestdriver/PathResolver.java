@@ -110,7 +110,7 @@ public class PathResolver {
           }
         }
         if (es.size() == basePaths.size()) {
-          throw new IllegalArgumentException();
+          throw new IllegalArgumentException(String.format("Could not find %s in %s", filePath, basePaths));
         }
       }
     }

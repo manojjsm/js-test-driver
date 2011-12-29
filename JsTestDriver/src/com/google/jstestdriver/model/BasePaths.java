@@ -17,11 +17,14 @@ package com.google.jstestdriver.model;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  *
@@ -29,18 +32,17 @@ import com.google.common.collect.Lists;
  * @author Cory Smith (corbinrsmith@gmail.com) 
  */
 public class BasePaths implements Collection<File> {
-  private final List<File> paths;
+  private final Set<File> paths;
 
-  /**
-   * Creates a 
-   */
   public BasePaths(File... paths) {
-    this(Lists.newArrayList(paths));
+    this(Sets.newHashSet(paths));
   }
-  /**
-   * @param parentFile
-   */
+
   public BasePaths(List<File> paths) {
+    this(Sets.newHashSet(paths));
+  }
+
+  public BasePaths(Set<File> paths) {
     this.paths = paths;
   }
 
@@ -49,17 +51,9 @@ public class BasePaths implements Collection<File> {
    * @return
    * @see java.util.List#add(java.lang.Object)
    */
+  @Override
   public boolean add(File arg0) {
     return paths.add(arg0);
-  }
-
-  /**
-   * @param arg0
-   * @param arg1
-   * @see java.util.List#add(int, java.lang.Object)
-   */
-  public void add(int arg0, File arg1) {
-    paths.add(arg0, arg1);
   }
 
   /**
@@ -69,16 +63,6 @@ public class BasePaths implements Collection<File> {
    */
   public boolean addAll(Collection<? extends File> arg0) {
     return paths.addAll(arg0);
-  }
-
-  /**
-   * @param arg0
-   * @param arg1
-   * @return
-   * @see java.util.List#addAll(int, java.util.Collection)
-   */
-  public boolean addAll(int arg0, Collection<? extends File> arg1) {
-    return paths.addAll(arg0, arg1);
   }
 
   /**
@@ -191,19 +175,22 @@ public class BasePaths implements Collection<File> {
   }
   /**
    * @param basePath
-   * @return 
+   * @return A BasePaths containing the aboslute paths.
    */
   public BasePaths applyRelativePath(final String relativePath) {
-    return new BasePaths(Lists.transform(paths, new Function<File, File>() {
-      @Override
-      public File apply(File path) {
-        return new File(path, relativePath);
-      }
-    }));
+    Set<File> relativePaths = Sets.newHashSet();
+    for (File path : paths) {
+      relativePaths.add(new File(path, relativePath));
+    }
+    return new BasePaths(relativePaths);
   }
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
+
+  public BasePaths merge(Collection<File> newPaths) {
+    Set<File> merged = Sets.newHashSet(newPaths);
+    merged.addAll(paths);
+    return new BasePaths(merged);
+  }
+
   @Override
   public String toString() {
     return "BasePaths [paths=" + paths + "]";

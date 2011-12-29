@@ -23,6 +23,7 @@ import java.util.List;
 public class JstdTestRunner {
 
   private JsTestDriver getJstd() throws CoreException {
+    
     JsTestDriverBuilder builder = new JsTestDriverBuilder()
         .setServer(ServiceLocator.getService(ServerController.class).getServerUrl())
         .setRunnerMode(RunnerMode.DEBUG)
@@ -56,14 +57,6 @@ public class JstdTestRunner {
   private String getConfigurationPath(ILaunchConfiguration configuration) throws CoreException {
     return configuration.getAttribute(LaunchConfigurationConstants.CONF_FULLPATH, "");
   }
-
-  /*} catch (FileNotFoundException e) {
-    throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-        "Config file for JSTestDriver not found", e));
-  } catch (final RuntimeException e) {
-    throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-        "Runtime exception happened in JS Test Driver", e));
-  }*/
 
   /**
    * @param lastLaunchConfiguration

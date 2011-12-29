@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
@@ -93,6 +94,10 @@ public class JsTestDriverBuilder {
     List<Module> plugins = Lists.newArrayList(pluginModules);
     plugins.add(new ListenerBindingModule(serverListeners, testListeners));
     List<Module> initializers = Lists.<Module>newArrayList(new PluginInitializerModule(pluginInitializers));
+    
+    // merge basepaths
+    basePaths.addAll(configuration.getBasePaths());
+    configuration.getBasePaths().addAll(basePaths);
     return new JsTestDriver(configuration,
         pluginLoader,
         runnerMode,

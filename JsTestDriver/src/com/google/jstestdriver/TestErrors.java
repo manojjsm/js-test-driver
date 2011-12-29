@@ -82,4 +82,8 @@ public class TestErrors extends RuntimeException {
     writer.flush();
     return core.toString();
   }
+
+  public List<Throwable> getCauses() {
+    return causes;
+  }
 }

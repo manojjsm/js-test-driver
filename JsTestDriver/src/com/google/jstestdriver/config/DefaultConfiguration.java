@@ -41,14 +41,17 @@ public class DefaultConfiguration implements Configuration{
     this.basePaths = basePaths;
   }
 
+  @Override
   public Set<FileInfo> getFilesList() {
     return Collections.<FileInfo>emptySet();
   }
 
+  @Override
   public List<Plugin> getPlugins() {
     return Collections.<Plugin>emptyList();
   }
 
+  @Override
   public String getServer(String flagValue, int port, HandlerPathPrefix handlerPrefix) {
     if (flagValue != null && !flagValue.isEmpty()) {
       return handlerPrefix.suffixServer(flagValue);
@@ -70,26 +73,32 @@ public class DefaultConfiguration implements Configuration{
     }
   }
 
+  @Override
   public Configuration resolvePaths(PathResolver resolver, Flags flags) {
     return this;
   }
 
+  @Override
   public long getTestSuiteTimeout() {
     return DEFAULT_TEST_TIMEOUT; // two hours. Should be enough to debug.
   }
 
+  @Override
   public List<FileInfo> getTests() {
     return Collections.<FileInfo>emptyList();
   }
 
+  @Override
   public BasePaths getBasePaths() {
     return basePaths;
   }
 
+  @Override
   public JsonArray getGatewayConfiguration() {
     return new JsonArray();
   }
 
+  @Override
   public DocType getDocType() {
     // TODO Auto-generated method stub
     return null;

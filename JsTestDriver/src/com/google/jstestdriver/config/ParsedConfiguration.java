@@ -94,6 +94,7 @@ public class ParsedConfiguration implements Configuration {
     }
   }
 
+  @Override
   public Configuration resolvePaths(PathResolver resolver, Flags flags) {
     Set<FileInfo> resolvedFiles = resolver.resolve(filesList);
     Set<FileInfo> testFiles = resolver.resolve(Sets.newLinkedHashSet(tests));

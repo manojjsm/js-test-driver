@@ -189,6 +189,7 @@ public class JsTestDriver {
           + "\n Use --runnerMode DEBUG for more information.");
       System.exit(1);
     }
+    
   }
 
   private static final Logger logger = LoggerFactory.getLogger(JsTestDriver.class);
@@ -393,17 +394,19 @@ public class JsTestDriver {
 
   // TODO(corysmith): make this go away by resolving the multiple basePath issue.
   private BasePaths getPathResolver(Configuration config) {
+    BasePaths mergedPaths = new BasePaths();
+    
     for (int i = 0; i < defaultFlags.length; i++) {
       if ("--basePath".equals(defaultFlags[i])) {
-        if (i < defaultFlags.length) {
-          return new BasePaths(new File(defaultFlags[i + 1]));
+        if (i + 1 < defaultFlags.length) {
+          for (String path : defaultFlags[i + 1].split(",")) {
+            mergedPaths.add(new File(path));
+          }
         }
         break;
       }
     }
-    if (basePaths != null) {
-      return basePaths;
-    }
-    return config.getBasePaths();
+    mergedPaths = mergedPaths.merge(basePaths);
+    return mergedPaths.merge(config.getBasePaths());
   }
 }

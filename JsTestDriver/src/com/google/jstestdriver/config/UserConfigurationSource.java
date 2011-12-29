@@ -40,13 +40,16 @@ public class UserConfigurationSource implements ConfigurationSource {
   }
 
   /** {@inheritDoc} */
+  @Override
   public File getParentFile() {
     return configurationFile.getParentFile();
   }
 
   /** {@inheritDoc} */
+  @Override
   public Configuration parse(BasePaths basePaths, ConfigurationParser configParser) throws ConfigurationException {
     try {
+      basePaths.add(getParentFile());
       return configParser.parse(
           new InputStreamReader(new FileInputStream(configurationFile), Charset.defaultCharset()),
           basePaths);
@@ -56,6 +59,7 @@ public class UserConfigurationSource implements ConfigurationSource {
   }
 
   /** {@inheritDoc} */
+  @Override
   public String getName() {
     return configurationFile.getName();
   }

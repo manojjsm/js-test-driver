@@ -20,11 +20,12 @@ import java.io.File;
 
 import com.google.jstestdriver.browser.DocType;
 import com.google.jstestdriver.config.DefaultConfiguration;
+import com.google.jstestdriver.model.BasePaths;
 
 public final class EclipseServerConfiguration extends DefaultConfiguration {
 
   public EclipseServerConfiguration() {
-    super(new File("."));
+    super(new BasePaths(new File(".")));
   }
 
   @Override

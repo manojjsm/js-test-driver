@@ -38,6 +38,7 @@ import com.google.eclipse.javascript.jstestdriver.ui.Activator;
 import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
 import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
 import com.google.jstestdriver.TestCase;
+import com.google.jstestdriver.browser.BrowserPanicException;
 
 /**
  * Handles the execution of jstd tests into a background thread.
@@ -91,6 +92,9 @@ public class EclipseTestRunnerJob extends Job {
     } catch (CoreException e) {
       logger.log(Level.SEVERE, "", e);
       return new Status(Status.ERROR, Activator.PLUGIN_ID, ERROR_MESSAGE, e);
+    } catch (BrowserPanicException e) {
+      logger.log(Level.SEVERE, "", e);
+      return new Status(Status.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
     }
 
     return Status.OK_STATUS;
@@ -125,6 +129,7 @@ public class EclipseTestRunnerJob extends Job {
       this.testsNumber = testsNumber;
     }
 
+    @Override
     public void run() {
       IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
       try {
