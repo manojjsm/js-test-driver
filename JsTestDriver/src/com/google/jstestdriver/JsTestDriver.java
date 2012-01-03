@@ -172,6 +172,9 @@ public class JsTestDriver {
     } catch (UnreadableFilesException e) {
       System.out.println("Configuration Error: \n" + e.getMessage());
       System.exit(1);
+    } catch (ConfigurationException e) {
+      System.out.println("Configuration Error: \n" + e.getMessage());
+      System.exit(1);
     } catch (RetryException e) {
       System.out.println("Tests failed due to unexpected environment issue: "
           + e.getCause().getMessage());
@@ -204,6 +207,7 @@ public class JsTestDriver {
   private final String serverAddress;
   private final boolean raiseOnFailure;
   private final boolean preload;
+  private final FlagsParser flagsParser;
 
   /**
    * @param configuration
@@ -215,6 +219,7 @@ public class JsTestDriver {
    * @param serverAddress
    * @param raiseOnFailure TODO
    * @param preload 
+   * @param flagsParser 
    */
   public JsTestDriver(
       Configuration configuration,
@@ -227,7 +232,8 @@ public class JsTestDriver {
       BasePaths basePaths,
       String serverAddress,
       boolean raiseOnFailure,
-      boolean preload) {
+      boolean preload,
+      FlagsParser flagsParser) {
     this.defaultConfiguration = configuration;
     this.pluginLoader = pluginLoader;
     this.initializerModules = initializerModules;
@@ -239,6 +245,7 @@ public class JsTestDriver {
     this.serverAddress = serverAddress;
     this.raiseOnFailure = raiseOnFailure;
     this.preload = preload;
+    this.flagsParser = flagsParser;
   }
 
   public void startServer() {
@@ -361,7 +368,7 @@ public class JsTestDriver {
       // configure logging before we start seriously processing.
       LogManager.getLogManager().readConfiguration(runnerMode.getLogConfig());
       basePaths = getPathResolver(config);
-      initializeModules.add(new InitializeModule(pluginLoader, basePaths, new Args4jFlagsParser(),
+      initializeModules.add(new InitializeModule(pluginLoader, basePaths, flagsParser,
           runnerMode));
     } catch (IOException e) {
       throw new ConfigurationException("Could not find " + config.getBasePaths(), e);

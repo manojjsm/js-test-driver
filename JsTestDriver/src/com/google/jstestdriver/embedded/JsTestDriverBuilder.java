@@ -11,6 +11,8 @@ import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
+import com.google.jstestdriver.Args4jFlagsParser;
+import com.google.jstestdriver.FlagsParser;
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.PluginLoader;
 import com.google.jstestdriver.config.Configuration;
@@ -42,6 +44,7 @@ public class JsTestDriverBuilder {
   private boolean raiseOnFailure = false;
   final private List<Class<? extends PluginInitializer>> pluginInitializers =  Lists.newArrayList();
   private boolean preload = false;
+  private FlagsParser flagsParser = new Args4jFlagsParser();
 
 
   /**
@@ -70,6 +73,15 @@ public class JsTestDriverBuilder {
     this.port = port;
     return this;
   }
+  
+  /**
+   * @deprecated Use the builder to set the options usually dictated by flags.
+   */
+  @Deprecated
+  public JsTestDriverBuilder setFlagsParser(FlagsParser flagsParser) {
+    this.flagsParser = flagsParser;
+    return this;
+  }
 
   /**
    * @param testServerListener
@@ -94,6 +106,7 @@ public class JsTestDriverBuilder {
     List<Module> plugins = Lists.newArrayList(pluginModules);
     plugins.add(new ListenerBindingModule(serverListeners, testListeners));
     List<Module> initializers = Lists.<Module>newArrayList(new PluginInitializerModule(pluginInitializers));
+    initializers.addAll(pluginModules);
     
     // merge basepaths
     basePaths.addAll(configuration.getBasePaths());
@@ -108,7 +121,8 @@ public class JsTestDriverBuilder {
         basePaths,
         serverAddress,
         raiseOnFailure,
-        preload);
+        preload,
+        flagsParser);
   }
 
   /**
