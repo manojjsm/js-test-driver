@@ -15,16 +15,6 @@
  */
 package com.google.jstestdriver;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.apache.oro.io.GlobFilenameFilter;
-import org.apache.oro.text.GlobCompiler;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -33,6 +23,16 @@ import com.google.jstestdriver.config.UnreadableFilesException;
 import com.google.jstestdriver.hooks.FileParsePostProcessor;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.util.DisplayPathSanitizer;
+
+import org.apache.oro.io.GlobFilenameFilter;
+import org.apache.oro.text.GlobCompiler;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Handles the resolution of glob paths (*.js) and relative paths.
@@ -84,34 +84,12 @@ public class PathResolver {
     List<UnreadableFile> unreadable = Lists.newLinkedList();
     for (FileInfo fileInfo : unresolvedFiles) {
       String filePath = fileInfo.getFilePath();
-
       if (fileInfo.isWebAddress()) {
         resolvedFiles.add(fileInfo.fromResolvedPath(filePath, filePath, -1));
       } else {
         List<IllegalArgumentException> es =
             Lists.newArrayListWithCapacity(basePaths.size());
-        for (File basePath : basePaths) {
-          try {
-            File file = resolvePath(filePath, basePath);
-            File absoluteDir = file.getParentFile().getAbsoluteFile();
-
-            // Get all files for the current FileInfo. This will return one file
-            // if the FileInfo
-            // doesn't represent a glob
-            String[] expandedFileNames =
-                expandGlob(absoluteDir.getAbsolutePath(), file.getName(), absoluteDir);
-
-            for (String fileName : expandedFileNames) {
-              File sourceFile = new File(absoluteDir, fileName);
-              createFileInfo(resolvedFiles, unreadable, fileInfo, sourceFile, basePath);
-            }
-          } catch (IllegalArgumentException e) {
-            es.add(e);
-          }
-        }
-        if (es.size() == basePaths.size()) {
-          throw new IllegalArgumentException(String.format("Could not find %s in %s", filePath, basePaths));
-        }
+        expandFileInfosFromFileInfo(resolvedFiles, unreadable, fileInfo, filePath);
       }
     }
     if (!unreadable.isEmpty()) {
@@ -121,6 +99,30 @@ public class PathResolver {
     resolvedFiles = postProcessFiles(resolvedFiles);
 
     return consolidatePatches(resolvedFiles);
+  }
+
+  private void expandFileInfosFromFileInfo(Set<FileInfo> resolvedFiles,
+      List<UnreadableFile> unreadable, FileInfo fileInfo, String filePath) {
+    List<String> unresolvedPaths = Lists.newArrayListWithCapacity(basePaths.size());
+    for (File basePath : basePaths) {
+        File file = resolvePath(filePath, basePath);
+        File absoluteDir = file.getParentFile().getAbsoluteFile();
+
+        // Get all files for the current FileInfo. This will return one file
+        // if the FileInfo doesn't represent a glob
+        String[] expandedFileNames =
+            expandGlob(absoluteDir.getAbsolutePath(), file.getName(), absoluteDir);
+        if (expandedFileNames == null) {
+          continue;
+        }
+
+        for (String fileName : expandedFileNames) {
+          File sourceFile = new File(absoluteDir, fileName);
+          createFileInfo(resolvedFiles, unreadable, fileInfo, sourceFile, basePath);
+        }
+        return;
+    }
+    unreadable.add(new UnreadableFile(fileInfo.getFilePath(), basePaths.toString()));
   }
 
   private void createFileInfo(Set<FileInfo> resolvedFiles, List<UnreadableFile> unreadable,
@@ -146,20 +148,42 @@ public class PathResolver {
    * Creates a full resolved path to a resource without following the sym links.
    */
   public File resolvePath(String filePath) {
+    return resolvePathToFileInfo(filePath, false, false).toFile();
+  }
+
+  
+  /**
+   * Resolves a path to a {@link FileInfo}.
+   * @param path The path to the file.
+   * @param isPatch Indicates if this file is intended to patch the file it loads before.
+   * @param serveOnly Indicates that this 
+   * @return A FileInfo generated from the path.
+   * @throws {{@link IllegalArgumentException} If the file can't be read.
+   */
+  public FileInfo resolvePathToFileInfo(String path, boolean isPatch, boolean serveOnly) {
     for (File basePath : basePaths) {
-      try {
-        return resolvePath(filePath, basePath);
-      } catch (IllegalArgumentException e) {
-        // noop, repeat to the next file.
-      }
+        File resolved = resolvePath(path, basePath);
+        if (resolved == null) {
+          continue;
+        }
+        return new FileInfo(resolved.getAbsolutePath(),
+            resolved.lastModified(),
+            resolved.length(),
+            isPatch,
+            serveOnly,
+            null,
+            sanitizer.sanitize(resolved.getAbsolutePath(), basePath));
     }
-    throw new IllegalArgumentException();
+    throw new IllegalArgumentException(String.format("Unable to resolve %s with paths %s", path, basePaths));
   }
 
   private File resolvePath(String filePath, File basePath) {
     File absolute = new File(filePath);
     if (!absolute.isAbsolute()) {
       absolute = new File(basePath, filePath);
+    }
+    if (!absolute.canRead()) {
+      return null;
     }
     return new File(resolveRelativePathReferences(absolute.getAbsolutePath()));
   }
@@ -187,11 +211,9 @@ public class PathResolver {
         fileNamePattern, GlobCompiler.DEFAULT_MASK | GlobCompiler.CASE_INSENSITIVE_MASK));
 
     if (filteredFiles == null || filteredFiles.length == 0) {
-        throw new IllegalArgumentException();
+        return null;
     }
-
     Arrays.sort(filteredFiles, String.CASE_INSENSITIVE_ORDER);
-
     return filteredFiles;
   }
 

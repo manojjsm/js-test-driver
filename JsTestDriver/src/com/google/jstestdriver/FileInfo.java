@@ -119,7 +119,7 @@ public class FileInfo implements Cloneable {
     return data != null;
   }
 
-  public File toFile(File basePath) {
+  public File toFile() {
     return new File(filePath);
   }
 

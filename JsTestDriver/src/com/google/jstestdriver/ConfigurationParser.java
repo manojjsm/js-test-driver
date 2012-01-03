@@ -16,6 +16,7 @@
 package com.google.jstestdriver;
 
 import com.google.common.collect.Lists;
+import com.google.jstestdriver.config.ConfigurationException;
 import com.google.jstestdriver.hooks.FileParsePostProcessor;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.util.DisplayPathSanitizer;
@@ -148,18 +149,15 @@ public class ConfigurationParser {
             String error = "The patterns/paths " + f  + " used in the configuration"
                 + " file didn't match any file, the files patterns/paths need to be relative to"
                 + " the configuration file.";
-
-            System.err.println(error);
-            throw new RuntimeException(error);
+            throw new ConfigurationException(error);
           }
           Arrays.sort(filteredFiles, String.CASE_INSENSITIVE_ORDER);
 
           for (String filteredFile : filteredFiles) {
-            File resolvedFile =
-                pathResolver.resolvePath(dir.getPath() + File.separator + filteredFile);
-
-            resolvedFiles.add(new FileInfo(resolvedFile.getAbsolutePath(), resolvedFile.lastModified(), -1,
-                isPatch, serveOnly, null, filteredFile));
+            FileInfo resolvedFile =
+                pathResolver.resolvePathToFileInfo(dir.getPath() + File.separator + filteredFile,
+                    isPatch, serveOnly);
+            resolvedFiles.add(resolvedFile);
           }
         }
       }
