@@ -16,6 +16,7 @@
 package com.google.jstestdriver.model;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -194,5 +196,17 @@ public class BasePaths implements Collection<File> {
   @Override
   public String toString() {
     return "BasePaths [paths=" + paths + "]";
+  }
+
+  /**
+   * @param filePath
+   * @return
+   */
+  public String toErrorString(String filePath) {
+    List<String> errorPaths = Lists.newArrayListWithCapacity(paths.size());
+    for (File basePath : paths) {
+      errorPaths.add(new File(basePath, filePath).getAbsolutePath());
+    }
+    return "[\n" + Joiner.on("\n\t").join(errorPaths) + "\n]";
   }
 }

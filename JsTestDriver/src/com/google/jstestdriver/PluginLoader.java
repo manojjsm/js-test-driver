@@ -44,8 +44,14 @@ public class PluginLoader {
       this.initializer = initializer;
     }
 
+    @Override
     public void configure(Binder binder) {
       newSetBinder(binder, PluginInitializer.class).addBinding().to(initializer);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("InitializerModule [%s]", initializer);
     }
   }
 
@@ -59,7 +65,6 @@ public class PluginLoader {
   public List<Module> load(List<Plugin> plugins) {
     List<Module> modules = new LinkedList<Module>();
     for (Plugin plugin : plugins) {
-
       // TODO(corysmith): figure out how to test this...
       try {
         URLClassLoader urlClassLoader = new URLClassLoader(

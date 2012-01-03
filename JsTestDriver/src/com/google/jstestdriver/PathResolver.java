@@ -87,8 +87,6 @@ public class PathResolver {
       if (fileInfo.isWebAddress()) {
         resolvedFiles.add(fileInfo.fromResolvedPath(filePath, filePath, -1));
       } else {
-        List<IllegalArgumentException> es =
-            Lists.newArrayListWithCapacity(basePaths.size());
         expandFileInfosFromFileInfo(resolvedFiles, unreadable, fileInfo, filePath);
       }
     }
@@ -106,6 +104,9 @@ public class PathResolver {
     List<String> unresolvedPaths = Lists.newArrayListWithCapacity(basePaths.size());
     for (File basePath : basePaths) {
         File file = resolvePath(filePath, basePath);
+        if (file == null) {
+          continue;
+        }
         File absoluteDir = file.getParentFile().getAbsoluteFile();
 
         // Get all files for the current FileInfo. This will return one file
@@ -122,7 +123,8 @@ public class PathResolver {
         }
         return;
     }
-    unreadable.add(new UnreadableFile(fileInfo.getFilePath(), basePaths.toString()));
+    unreadable.add(new UnreadableFile(fileInfo.getFilePath(),
+        basePaths.toErrorString(fileInfo.getFilePath())));
   }
 
   private void createFileInfo(Set<FileInfo> resolvedFiles, List<UnreadableFile> unreadable,
@@ -158,7 +160,7 @@ public class PathResolver {
    * @param isPatch Indicates if this file is intended to patch the file it loads before.
    * @param serveOnly Indicates that this 
    * @return A FileInfo generated from the path.
-   * @throws {{@link IllegalArgumentException} If the file can't be read.
+   * @throws {@link UnreadableFilesException} If the file can't be read.
    */
   public FileInfo resolvePathToFileInfo(String path, boolean isPatch, boolean serveOnly) {
     for (File basePath : basePaths) {
@@ -174,7 +176,8 @@ public class PathResolver {
             null,
             sanitizer.sanitize(resolved.getAbsolutePath(), basePath));
     }
-    throw new IllegalArgumentException(String.format("Unable to resolve %s with paths %s", path, basePaths));
+    throw new UnreadableFilesException(Lists.newArrayList(new UnreadableFile(path, basePaths
+        .toErrorString(path))));
   }
 
   private File resolvePath(String filePath, File basePath) {
@@ -182,10 +185,11 @@ public class PathResolver {
     if (!absolute.isAbsolute()) {
       absolute = new File(basePath, filePath);
     }
-    if (!absolute.canRead()) {
-      return null;
+    File resolved = new File(resolveRelativePathReferences(absolute.getAbsolutePath()));
+    if (resolved.canRead()) {
+      return resolved;
     }
-    return new File(resolveRelativePathReferences(absolute.getAbsolutePath()));
+    return null;
   }
 
   /**
@@ -222,10 +226,10 @@ public class PathResolver {
     List<Plugin> resolved = Lists.newLinkedList();
     for (Plugin plugin : plugins) {
       File resolvedFile = resolvePath(plugin.getPathToJar());
-      if (!resolvedFile.canRead()) {
-        unreadable.add(new UnreadableFile(plugin.getPathToJar(), resolvedFile.getAbsolutePath()));
+      /*if (!resolvedFile.exists()) {
+        unreadable.add(new UnreadableFile(plugin.getPathToJar(), basePaths.toErrorString(plugin.getPathToJar())));
         continue;
-      }
+      }*/
       resolved.add(plugin.getPluginFromPath(resolvedFile.getAbsolutePath()));
     }
     if (!unreadable.isEmpty()) {

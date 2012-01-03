@@ -482,7 +482,7 @@ public class PathResolverTest extends TestCase {
       parser.parse(new InputStreamReader(bais), null)
           .resolvePaths(new PathResolver(tmpDirs, Collections.<FileParsePostProcessor> emptySet(), new DisplayPathSanitizer()), createFlags());
       fail("Exception not caught");
-    } catch (IllegalArgumentException e) {
+    } catch (UnreadableFilesException e) {
     }
   }
 
