@@ -46,6 +46,7 @@ public class DefaultResponseStreamFactory implements ResponseStreamFactory {
 
   @Override
   public ResponseStream getRunTestsActionResponseStream(String browserId) {
+
     TestResultListener listener = resultListener.get();
 
     RunTestsActionResponseStream responseStream = new RunTestsActionResponseStream(

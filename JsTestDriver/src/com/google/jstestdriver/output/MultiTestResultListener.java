@@ -24,7 +24,7 @@ public class MultiTestResultListener implements TestResultListener {
   @Inject
   public MultiTestResultListener(Set<TestResultListener> delegates) {
     this.delegates = delegates;
-    logger.debug("listener delegates: {}", delegates);
+    logger.debug("listener:{} delegates: {}", this, delegates);
   }
 
   public void onTestComplete(TestResult testResult) {

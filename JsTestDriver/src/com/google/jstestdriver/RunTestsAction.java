@@ -51,6 +51,7 @@ public class RunTestsAction implements BrowserAction {
    * @param client The client to run tests in.
    * @param id The Browser id to execute tests in.
    */
+  @Override
   public ResponseStream run(String id, JsTestDriverClient client, RunData runData, JstdTestCase testCase) {
     List<String> testsToRun = tests;
     for (TestsPreProcessor preProcessor : preProcessors) {
