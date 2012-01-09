@@ -26,8 +26,11 @@ import com.google.jstestdriver.util.DisplayPathSanitizer;
 
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.GlobCompiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +42,7 @@ import java.util.regex.Pattern;
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
  */
 public class PathResolver {
+  private static final Logger logger = LoggerFactory.getLogger(PathResolver.class);
 
   private final Set<FileParsePostProcessor> processors;
   private final BasePaths basePaths;
@@ -103,10 +107,7 @@ public class PathResolver {
       List<UnreadableFile> unreadable, FileInfo fileInfo, String filePath) {
     List<String> unresolvedPaths = Lists.newArrayListWithCapacity(basePaths.size());
     for (File basePath : basePaths) {
-        File file = resolvePath(filePath, basePath);
-        if (file == null) {
-          continue;
-        }
+        File file = new File(basePath, filePath);
         File absoluteDir = file.getParentFile().getAbsoluteFile();
 
         // Get all files for the current FileInfo. This will return one file
@@ -133,16 +134,20 @@ public class PathResolver {
       unreadable.add(
           new UnreadableFile(fileInfo.getFilePath(), sourceFile.getAbsolutePath()));
     } else {
-      String absolutePath = sourceFile.getAbsolutePath();
-      String displayPath = sanitizer.sanitize(absolutePath, basePath);
+      try {
+        String absolutePath = sourceFile.getCanonicalPath();
+        String displayPath = sanitizer.sanitize(absolutePath, basePath);
 
-      File resolvedFile = new File(absolutePath);
-      long timestamp = resolvedFile.lastModified();
+        File resolvedFile = new File(absolutePath);
+        long timestamp = resolvedFile.lastModified();
 
-      FileInfo newFileInfo =
-          fileInfo.fromResolvedPath(absolutePath, displayPath, timestamp);
+        FileInfo newFileInfo = fileInfo.fromResolvedPath(absolutePath, displayPath, timestamp);
 
-      resolvedFiles.add(newFileInfo);
+        resolvedFiles.add(newFileInfo);
+      } catch (IOException e) {
+        // TODO(corysmith): Auto-generated catch block
+        e.printStackTrace();
+      }
     }
   }
 

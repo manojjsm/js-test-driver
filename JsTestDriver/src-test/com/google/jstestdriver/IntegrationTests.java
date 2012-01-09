@@ -83,7 +83,7 @@ public class IntegrationTests extends TestCase {
     JsTestDriver jstd = new JsTestDriverBuilder()
         .setConfigurationSource(configurationSource)
         .setPort(8080)
-        .setBaseDir(basePath)
+        .addBaseDir(basePath)
         .preloadFiles()
         .addServerListener(new ServerListener() {
           

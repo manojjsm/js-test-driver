@@ -166,8 +166,8 @@ public class JsTestDriverBuilder {
    * @param file
    * @return
    */
-  public JsTestDriverBuilder setBaseDir(File file) {
-    this.basePaths = new BasePaths(file);
+  public JsTestDriverBuilder addBaseDir(File file) {
+    this.basePaths.add(file);
     return this;
   }
 

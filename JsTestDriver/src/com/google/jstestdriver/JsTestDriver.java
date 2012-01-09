@@ -171,9 +171,11 @@ public class JsTestDriver {
       System.exit(1);
     } catch (UnreadableFilesException e) {
       System.out.println("Configuration Error: \n" + e.getMessage());
+      logger.debug("Details: {}", e);
       System.exit(1);
     } catch (ConfigurationException e) {
       System.out.println("Configuration Error: \n" + e.getMessage());
+      logger.debug("Details: {}", e);
       System.exit(1);
     } catch (RetryException e) {
       System.out.println("Tests failed due to unexpected environment issue: "
@@ -367,6 +369,7 @@ public class JsTestDriver {
     try {
       // configure logging before we start seriously processing.
       LogManager.getLogManager().readConfiguration(runnerMode.getLogConfig());
+      System.out.println("setting runnermode " + runnerMode);
       basePaths = getPathResolver(config);
       initializeModules.add(new InitializeModule(pluginLoader, basePaths, flagsParser,
           runnerMode));

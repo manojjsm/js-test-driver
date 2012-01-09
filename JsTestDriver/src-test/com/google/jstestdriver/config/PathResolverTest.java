@@ -491,6 +491,7 @@ public class PathResolverTest extends TestCase {
     // test dir and file reside outside the base directory
     File absoluteDir = createTmpSubDir("absolute", tmpDirs.iterator().next());
     File absoluteFile = new File(absoluteDir, "file.js");
+    absoluteFile.createNewFile();
 
     PathResolver pathResolver = new PathResolver(tmpDirs,
         Collections.<FileParsePostProcessor>emptySet(),
@@ -515,29 +516,33 @@ public class PathResolverTest extends TestCase {
 
     {
       File file = new File(dir, "../file.js");
+      file.createNewFile();
       File result = pathResolver.resolvePath(file.getAbsolutePath());
       assertEquals(new File(tmpDirs.iterator().next(), "file.js"), result);
     }
     {
       File file = new File(subDir, "../../other/file.js");
+      file.createNewFile();
       File result = pathResolver.resolvePath(file.getAbsolutePath());
       assertEquals(new File(otherDir, "file.js"), result);
     }
 
   }
 
-  public void testResolvePathFragment() {
+  public void testResolvePathFragment() throws Exception {
     File baseDir = createTmpSubDir("base", tmpDirs.iterator().next());
 
     PathResolver pathResolver = new PathResolver(new BasePaths(baseDir),
         Collections.<FileParsePostProcessor>emptySet(),
         new DisplayPathSanitizer());
 
+    File file = new File(baseDir, "file.js");
+    file.createNewFile();
     File result1 = pathResolver.resolvePath("file.js");
-    assertEquals(new File(baseDir, "file.js").getAbsolutePath(), result1.getAbsolutePath());
+    assertEquals(file.getAbsolutePath(), result1.getAbsolutePath());
   }
 
-  public void testResolvePathFragementWithParentRef() {
+  public void testResolvePathFragementWithParentRef() throws Exception {
     File baseDir = tmpDirs.iterator().next();
     File dir = createTmpSubDir("dir", tmpDirs.iterator().next());
 
@@ -545,15 +550,23 @@ public class PathResolverTest extends TestCase {
         Collections.<FileParsePostProcessor>emptySet(),
         new DisplayPathSanitizer());
 
+    File file = new File(dir, "file.js");
+    file.createNewFile();
     File result = pathResolver.resolvePath("other/nowhere/../../dir/file.js");
-    assertEquals(new File(dir, "file.js"), result);
+    assertEquals(file, result);
   }
 
   public void testWindowsFileSeperator() throws Exception {
-    PathResolver pathResolver =
-        new PathResolver(tmpDirs,
-            Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
+    try {
+      File baseDir = createTmpSubDir("base", tmpDirs.iterator().next());
+      new File(baseDir, "bar").createNewFile();
+      PathResolver pathResolver =
+          new PathResolver(tmpDirs,
+              Collections.<FileParsePostProcessor>emptySet(), new DisplayPathSanitizer());
 
-    File resolvePath = pathResolver.resolvePath("\\foo\\bar");
+      File resolvePath = pathResolver.resolvePath("\\foo\\bar");
+    } catch (UnreadableFilesException e) {
+      // a formatting error will fall out on windows.
+    }
   }
 }

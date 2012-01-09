@@ -105,7 +105,7 @@ public class JsTestDriverBuilderTest extends TestCase {
     writer.flush();
     JsTestDriver server =
         new JsTestDriverBuilder()
-            .setBaseDir(tmpDir)
+            .addBaseDir(tmpDir)
             .setFlags(new String[]{"--port", "8080"})
             .setDefaultConfiguration(configuration.getAbsolutePath())
             .setRunnerMode(RunnerMode.QUIET)
@@ -121,7 +121,7 @@ public class JsTestDriverBuilderTest extends TestCase {
     writer.flush();
     JsTestDriver client =
         new JsTestDriverBuilder()
-            .setBaseDir(tmpDir)
+            .addBaseDir(tmpDir)
             .setFlags(new String[]{"--tests", "all", "--browser", "foo"})
             .setDefaultConfiguration(configuration.getAbsolutePath())
             .setServer("http://localhost:8080")
