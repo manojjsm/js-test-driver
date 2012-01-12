@@ -50,7 +50,7 @@ public class BrowserStartupActionTest extends TestCase {
     public BrowserControl create(BrowserRunner runner, String serverAddress,
         List<JstdTestCase> testCases) {
       return new BrowserControl(runner, serverAddress, new NullStopWatch(), client,
-          testCases);
+          testCases, 1000);
     }
   }
 
@@ -157,7 +157,7 @@ public class BrowserStartupActionTest extends TestCase {
 
     action.run(new RunData(Collections.<ResponseStream>emptyList(), Collections
         .<JstdTestCase>emptyList(), null));
-    assertEquals(serverAddress + "/capture/id/123/timeout/10/upload_size/0/",
+    assertEquals(serverAddress + "/capture/id/123/timeout/1000/upload_size/0/",
         browserRunner.serverAddress);
   }
 }

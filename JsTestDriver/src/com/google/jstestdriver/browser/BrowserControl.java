@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.name.Named;
 import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.JsTestDriverClient;
 import com.google.jstestdriver.model.JstdTestCase;
@@ -70,12 +71,15 @@ public class BrowserControl {
 
   private final List<JstdTestCase> testCases;
 
+  private final long browserTimeout;
+
   /**
    * @param runner
-   * @param stopWatch 
    * @param serverAddress 
+   * @param stopWatch 
    * @param client 
    * @param testCases 
+   * @param browserTimeout TODO
    */
   @Inject
   public BrowserControl(
@@ -83,12 +87,14 @@ public class BrowserControl {
       @Assisted String serverAddress,
       StopWatch stopWatch,
       JsTestDriverClient client,
-      @Assisted List<JstdTestCase> testCases) {
+      @Assisted List<JstdTestCase> testCases,
+      @Named("browserTimeout") long browserTimeout) {
     this.runner = runner;
     this.serverAddress = serverAddress;
     this.stopWatch = stopWatch;
     this.client = client;
     this.testCases = testCases;
+    this.browserTimeout = browserTimeout;
   }
 
   /** Slaves a new browser window with the provided id. */
@@ -100,18 +106,20 @@ public class BrowserControl {
         url = String.format(CAPTURE_URL,
             serverAddress,
             browserId,
-            runner.getHeartbeatTimeout(),
+            Math.max(runner.getHeartbeatTimeout(), browserTimeout),
             runner.getUploadSize());
       } else {
         url = String.format(CAPTURE_URL_WITH_TESTCASE_IDS,
             serverAddress,
             browserId,
-            runner.getHeartbeatTimeout(),
+            Math.max(runner.getHeartbeatTimeout(), browserTimeout),
             runner.getUploadSize(),
             Joiner.on(",").join(Lists.transform(testCases, TESTCASE_TO_ID)));
       }
       runner.startBrowser(url);
-      long timeOut = TimeUnit.MILLISECONDS.convert(runner.getTimeout(), TimeUnit.SECONDS);
+      long timeOut =
+          TimeUnit.MILLISECONDS.convert(Math.max(runner.getTimeout(), browserTimeout),
+              TimeUnit.SECONDS);
       long start = System.currentTimeMillis();
       // TODO(corysmith): replace this with a stream from the client on browser
       // updates.

@@ -47,10 +47,31 @@ public class BrowserManagedRunnerTest extends TestCase {
         new FakeJsTestDriverClient(Lists.newArrayList(browserInfo));
     final FakeBrowserRunner runner = new FakeBrowserRunner();
     final FakeBrowserActionRunner browserActionRunner = new FakeBrowserActionRunner();
+    int browserTimeout = 70000;
+    runCaptureUrlTest(browserId, serverAddress, client, runner, browserActionRunner, browserTimeout);
+    assertTrue(runner.serverAddress,
+      runner.serverAddress.contains(String.valueOf(browserTimeout)));
+    runCaptureUrlTest(browserId, serverAddress, client, runner, browserActionRunner, 1);
+    assertTrue(runner.serverAddress,
+      runner.serverAddress.contains(String.valueOf(SlaveBrowser.TIMEOUT)));
+  }
+
+  /**
+   * @param browserId
+   * @param serverAddress
+   * @param client
+   * @param runner
+   * @param browserActionRunner
+   * @param browserTimeout
+   * @throws Exception
+   */
+  private void runCaptureUrlTest(String browserId, String serverAddress,
+      final FakeJsTestDriverClient client, final FakeBrowserRunner runner,
+      final FakeBrowserActionRunner browserActionRunner, int browserTimeout) throws Exception {
     final BrowserCallable<Collection<ResponseStream>> browserRunner =
         new BrowserCallable<Collection<ResponseStream>>(browserActionRunner, browserId,
             new BrowserControl(runner, serverAddress, new NullStopWatch(), client,
-                Collections.<JstdTestCase>emptyList()));
+                Collections.<JstdTestCase>emptyList(), browserTimeout));
     browserRunner.call();
   }
 
@@ -66,12 +87,14 @@ public class BrowserManagedRunnerTest extends TestCase {
   }
 
   private static final class FakeBrowserRunner implements BrowserRunner {
+    private String serverAddress;
+
     public void stopBrowser() {
       
     }
 
     public void startBrowser(String serverAddress) {
-      
+      this.serverAddress = serverAddress;
     }
 
     public int getTimeout() {
