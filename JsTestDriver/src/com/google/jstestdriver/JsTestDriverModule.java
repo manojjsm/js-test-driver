@@ -40,6 +40,8 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.jstestdriver.action.ConfigureGatewayAction;
 import com.google.jstestdriver.annotations.BrowserCount;
+import com.google.jstestdriver.browser.BrowserControl;
+import com.google.jstestdriver.browser.BrowserControl.BrowserControlFactory;
 import com.google.jstestdriver.browser.BrowserRunner;
 import com.google.jstestdriver.config.DefaultConfiguration;
 import com.google.jstestdriver.guice.BrowserActionProvider;
@@ -189,6 +191,8 @@ public class JsTestDriverModule extends AbstractModule {
 
     bind(JsTestDriverServer.Factory.class).toProvider(
         FactoryProvider.newFactory(JsTestDriverServer.Factory.class, JsTestDriverServerImpl.class));
+    bind(BrowserControlFactory.class).toProvider(
+        FactoryProvider.newFactory(BrowserControlFactory.class, BrowserControl.class));
 
     bind(TestResultListener.class).to(MultiTestResultListener.class);
     newSetBinder(binder(),

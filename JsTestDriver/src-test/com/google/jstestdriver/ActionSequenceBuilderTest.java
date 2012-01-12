@@ -39,7 +39,7 @@ public class ActionSequenceBuilderTest extends TestCase {
   public void testAddTestsWithRemoteServerAddress() throws Exception {
     List<String> tests = tests();
     ActionSequenceBuilder builder =
-        new ActionSequenceBuilder(actionFactory, new BrowserActionExecutorAction(null, null, null, null, null, 0, null, null), new FailureCheckerAction(null, null),
+        new ActionSequenceBuilder(actionFactory, new BrowserActionExecutorAction(null, null, null, null, null, 0, null, null, null), new FailureCheckerAction(null, null),
             new UploadAction(null),
             new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0))),
             null,
@@ -75,7 +75,7 @@ public class ActionSequenceBuilderTest extends TestCase {
             null,
             null,
             new NullStopWatch()),
-            new BrowserActionExecutorAction(null, null, null, null, null, 0, null, null), new FailureCheckerAction(null, null), new UploadAction(null),
+            new BrowserActionExecutorAction(null, null, null, null, null, 0, null, null, null), new FailureCheckerAction(null, null), new UploadAction(null),
         new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0))),
         null,
         newConfigureGatewayActionFactory(),
@@ -104,7 +104,7 @@ public class ActionSequenceBuilderTest extends TestCase {
             null,
             null,
             new NullStopWatch()),
-            new BrowserActionExecutorAction(null, null, null, null, null, 0, null, null), new FailureCheckerAction(null, null), new UploadAction(null),
+            new BrowserActionExecutorAction(null, null, null, null, null, 0, null, null, null), new FailureCheckerAction(null, null), new UploadAction(null),
             new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0))),
             null,
             newConfigureGatewayActionFactory(),
@@ -137,7 +137,7 @@ public class ActionSequenceBuilderTest extends TestCase {
                 null,
                 new NullStopWatch()),
             new BrowserActionExecutorAction(
-                null, null, null, null, null, 0, null, null), new FailureCheckerAction(null, null), new UploadAction(null),
+                null, null, null, null, null, 0, null, null, null), new FailureCheckerAction(null, null), new UploadAction(null),
             new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0))),
             null,
             newConfigureGatewayActionFactory(),

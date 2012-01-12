@@ -25,6 +25,7 @@ import com.google.jstestdriver.JsTestDriverClient;
 import com.google.jstestdriver.ResponseStream;
 import com.google.jstestdriver.RunTestsAction;
 import com.google.jstestdriver.TestErrors;
+import com.google.jstestdriver.browser.BrowserControl.BrowserControlFactory;
 import com.google.jstestdriver.model.RunData;
 import com.google.jstestdriver.util.RetryingCallable;
 import com.google.jstestdriver.util.StopWatch;
@@ -61,6 +62,8 @@ public class BrowserActionExecutorAction implements Action {
 
   private final BrowserSessionManager sessionManager;
 
+  private final BrowserControlFactory browserControlFactory;
+
   @Inject
   public BrowserActionExecutorAction(JsTestDriverClient client,
       List<BrowserAction> actions,
@@ -69,7 +72,8 @@ public class BrowserActionExecutorAction implements Action {
       @Named("captureAddress") String captureAddress,
       @Named("testSuiteTimeout") long testTimeout,
       StopWatch stopWatch,
-      BrowserSessionManager sessionManager) {
+      BrowserSessionManager sessionManager,
+      BrowserControlFactory browserControlFactory) {
     this.client = client;
     this.actions = actions;
     this.executor = executor;
@@ -78,6 +82,7 @@ public class BrowserActionExecutorAction implements Action {
     this.testSuiteTimeout = testTimeout;
     this.stopWatch = stopWatch;
     this.sessionManager = sessionManager;
+    this.browserControlFactory = browserControlFactory;
   }
 
   @Override
@@ -157,7 +162,7 @@ public class BrowserActionExecutorAction implements Action {
       String browserId, BrowserActionRunner actionRunner) {
     return new RetryingCallable<Collection<ResponseStream>>(runner.getNumStartupTries(),
         new BrowserCallable<Collection<ResponseStream>>(actionRunner, browserId,
-      new BrowserControl(runner, captureAddress, stopWatch, client, runData.getTestCases())));
+            browserControlFactory.create(runner, captureAddress, runData.getTestCases())));
   }
 
   public List<BrowserAction> getActions() {

@@ -24,6 +24,8 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryProvider;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.google.jstestdriver.browser.BrowserControl;
+import com.google.jstestdriver.browser.BrowserControl.BrowserControlFactory;
 import com.google.jstestdriver.config.DefaultConfiguration;
 import com.google.jstestdriver.guice.BrowserActionProvider;
 import com.google.jstestdriver.guice.FlagsModule;
@@ -175,6 +177,9 @@ public class IDEPluginActionBuilder {
       bind(JsTestDriverServer.Factory.class).toProvider(
         FactoryProvider.newFactory(JsTestDriverServer.Factory.class,
           JsTestDriverServerImpl.class));
+
+      bind(BrowserControlFactory.class).toProvider(
+          FactoryProvider.newFactory(BrowserControlFactory.class, BrowserControl.class));
 
       for (Module module : modules) {
         install(module);

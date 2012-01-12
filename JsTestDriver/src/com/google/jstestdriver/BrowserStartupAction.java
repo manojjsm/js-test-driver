@@ -19,9 +19,9 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.jstestdriver.browser.BrowserControl;
+import com.google.jstestdriver.browser.BrowserControl.BrowserControlFactory;
 import com.google.jstestdriver.browser.BrowserRunner;
 import com.google.jstestdriver.model.RunData;
-import com.google.jstestdriver.util.StopWatch;
 
 import java.util.List;
 import java.util.Set;
@@ -39,20 +39,20 @@ public class BrowserStartupAction implements Action {
   private final Set<BrowserRunner> browsers;
   private final String captureAddress;
   private final JsTestDriverClient client;
-  private final StopWatch stopWatch;
   private final ExecutorService executor;
+  private final BrowserControlFactory browserControlFactory;
 
   @Inject
   public BrowserStartupAction(Set<BrowserRunner> browsers,
-                              StopWatch stopWatch,
                               JsTestDriverClient client,
                               @Named("captureAddress") String captureAddress,
-                              ExecutorService executor) {
+                              ExecutorService executor,
+                              BrowserControlFactory browserControlFactory) {
       this.browsers = browsers;
-      this.stopWatch = stopWatch;
       this.client = client;
       this.captureAddress = captureAddress;
       this.executor = executor;
+      this.browserControlFactory = browserControlFactory;
   }
 
   @Override
@@ -62,10 +62,9 @@ public class BrowserStartupAction implements Action {
       browserIds.add(executor.submit(new Callable<String>() {
         @Override
         public String call() throws Exception {
-          return new BrowserControl(browser,
+          return browserControlFactory.create(
+              browser,
               captureAddress,
-              stopWatch,
-              client,
               runData.getTestCases()).captureBrowser(client.getNextBrowserId());
         }
       }));

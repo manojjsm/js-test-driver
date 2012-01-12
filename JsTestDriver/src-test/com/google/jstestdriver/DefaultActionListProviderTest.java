@@ -93,7 +93,7 @@ public class DefaultActionListProviderTest extends TestCase {
                 null,
                 -1,
                 null,
-                null),
+                null, null),
             new FailureCheckerAction(null, null),
             new UploadAction(null),
             new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0))),

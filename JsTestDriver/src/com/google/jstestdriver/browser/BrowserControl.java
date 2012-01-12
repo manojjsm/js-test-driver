@@ -18,6 +18,8 @@ package com.google.jstestdriver.browser;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.JsTestDriverClient;
 import com.google.jstestdriver.model.JstdTestCase;
@@ -36,10 +38,13 @@ import java.util.concurrent.TimeUnit;
  * @author Cory Smith (corbinrsmith@gmail.com) 
  */
 public class BrowserControl {
-  /**
-   * @author corysmith@google.com (Cory Smith)
-   *
-   */
+  
+  public static interface BrowserControlFactory {
+    public BrowserControl create(BrowserRunner runner,
+                                 String serverAddress,
+                                 List<JstdTestCase> testCases);
+  }
+
   private final Function<JstdTestCase, String> TESTCASE_TO_ID = new Function<JstdTestCase, String>() {
     @Override
     public String apply(JstdTestCase testCase) {
@@ -72,11 +77,13 @@ public class BrowserControl {
    * @param client 
    * @param testCases 
    */
-  public BrowserControl(BrowserRunner runner,
-      String serverAddress,
+  @Inject
+  public BrowserControl(
+      @Assisted BrowserRunner runner,
+      @Assisted String serverAddress,
       StopWatch stopWatch,
       JsTestDriverClient client,
-      List<JstdTestCase> testCases) {
+      @Assisted List<JstdTestCase> testCases) {
     this.runner = runner;
     this.serverAddress = serverAddress;
     this.stopWatch = stopWatch;

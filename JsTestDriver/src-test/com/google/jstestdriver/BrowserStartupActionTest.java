@@ -25,29 +25,39 @@ import junit.framework.TestCase;
 
 import com.google.common.collect.Sets;
 import com.google.inject.internal.Lists;
+import com.google.jstestdriver.browser.BrowserControl;
+import com.google.jstestdriver.browser.BrowserControl.BrowserControlFactory;
 import com.google.jstestdriver.browser.BrowserRunner;
 import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.model.RunData;
 import com.google.jstestdriver.util.NullStopWatch;
 
 /**
- * @author corysmith@google.com (Cory Smith)
  * Integration test for the browser startup action.
+ * @author corysmith@google.com (Cory Smith)
  */
 public class BrowserStartupActionTest extends TestCase {
-  /**
-   * 
-   * 
-   * @author Cory Smith (corbinrsmith@gmail.com)
-   */
+
+  private final class BrowserControlFactoryFake implements BrowserControlFactory {
+
+    private final FakeJsTestDriverClient client;
+
+    private BrowserControlFactoryFake(FakeJsTestDriverClient client) {
+      this.client = client;
+    }
+
+    @Override
+    public BrowserControl create(BrowserRunner runner, String serverAddress,
+        List<JstdTestCase> testCases) {
+      return new BrowserControl(runner, serverAddress, new NullStopWatch(), client,
+          testCases);
+    }
+  }
+
   private final class FakeJsTestDriverClient implements JsTestDriverClient {
     private final Collection<BrowserInfo> capturedBrowsers;
     private final String nextId;
 
-    /**
-     * @param capturedBrowsers
-     * @param nextId
-     */
     public FakeJsTestDriverClient(Collection<BrowserInfo> capturedBrowsers, String nextId) {
       this.capturedBrowsers = capturedBrowsers;
       this.nextId = nextId;
@@ -140,13 +150,14 @@ public class BrowserStartupActionTest extends TestCase {
     Collection<BrowserInfo> capturedBrowsers = Lists.newArrayList(browserInfo);
 
     String serverAddress = "http://localhost";
-    BrowserStartupAction action = new BrowserStartupAction(browsers,
-        new NullStopWatch(),
-        new FakeJsTestDriverClient(capturedBrowsers, nextId),
-        serverAddress,
-        Executors.newSingleThreadExecutor());
+    final FakeJsTestDriverClient client = new FakeJsTestDriverClient(capturedBrowsers, nextId);
+    BrowserStartupAction action =
+        new BrowserStartupAction(browsers, client, serverAddress,
+            Executors.newSingleThreadExecutor(), new BrowserControlFactoryFake(client));
 
-    action.run(new RunData(Collections.<ResponseStream>emptyList(), Collections.<JstdTestCase>emptyList(), null));
-    assertEquals(serverAddress + "/capture/id/123/timeout/10/upload_size/0/", browserRunner.serverAddress);
+    action.run(new RunData(Collections.<ResponseStream>emptyList(), Collections
+        .<JstdTestCase>emptyList(), null));
+    assertEquals(serverAddress + "/capture/id/123/timeout/10/upload_size/0/",
+        browserRunner.serverAddress);
   }
 }
