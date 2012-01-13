@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Google Inc.
+ * Copyright 2012 Google Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,16 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.jstestdriver.annotations;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+package com.google.jstestdriver.hooks;
 
-import com.google.inject.BindingAnnotation;
-
-import java.lang.annotation.Retention;
+import com.google.inject.Injector;
 
 /**
-* @author rdionne@google.com (Robert Dionne)
-*/
-@BindingAnnotation
-@Retention(RUNTIME) public @interface BrowserCount {}
+ * Allows plugins to provide a custom list of validations against the guice
+ * runtime scope.
+ * @author corysmith@google.com (Cory Smith)
+ */
+public interface JsTestDriverValidator {
+  public void validate(Injector injector) throws AssertionError;
+}
+

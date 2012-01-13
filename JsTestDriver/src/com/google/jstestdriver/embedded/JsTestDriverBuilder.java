@@ -1,35 +1,73 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
+/*
+ * Copyright 2011 Google Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 package com.google.jstestdriver.embedded;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Binder;
+import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import com.google.jstestdriver.ActionRunner;
 import com.google.jstestdriver.Args4jFlagsParser;
 import com.google.jstestdriver.FlagsParser;
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.PluginLoader;
+import com.google.jstestdriver.ResponseStreamFactory;
 import com.google.jstestdriver.config.Configuration;
+import com.google.jstestdriver.config.ConfigurationException;
 import com.google.jstestdriver.config.ConfigurationSource;
 import com.google.jstestdriver.config.UserConfigurationSource;
 import com.google.jstestdriver.config.YamlParser;
+import com.google.jstestdriver.hooks.ActionListProcessor;
+import com.google.jstestdriver.hooks.FileLoadPostProcessor;
+import com.google.jstestdriver.hooks.JsTestDriverValidator;
 import com.google.jstestdriver.hooks.PluginInitializer;
 import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.hooks.TestResultListener;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author corbinrsmith@gmail.com (Cory Smith)
  *
  */
 public class JsTestDriverBuilder {
+  private static final List<JsTestDriverValidator> DEFAULT_VALIDATORS = 
+      Lists.<JsTestDriverValidator>newArrayList(new JsTestDriverValidator() {
+        @Override
+        public void validate(Injector injector) throws AssertionError {
+          Preconditions.checkArgument(injector.getInstance(Key.get(new TypeLiteral<Set<ResponseStreamFactory>>() {}))
+              .size() > 0);
+          Preconditions.checkArgument(
+              injector.getInstance(Key.get(new TypeLiteral<Set<ActionListProcessor>>() {})).size() > 0);
+          Preconditions.checkArgument(
+              injector.getInstance(Key.get(new TypeLiteral<Set<FileLoadPostProcessor>>() {}))
+                  .size() > 0);
+          injector.getInstance(ActionRunner.class);
+        }
+      });
 
   private BasePaths basePaths = new BasePaths();
   private List<Module> pluginModules = Lists.newArrayList();
@@ -41,9 +79,11 @@ public class JsTestDriverBuilder {
   private final List<TestResultListener> testListeners = Lists.newArrayList();
   private RunnerMode runnerMode = RunnerMode.QUIET;
   private String serverAddress;
+  private final List<JsTestDriverValidator> validators = Lists.newArrayList();
   private boolean raiseOnFailure = false;
-  final private List<Class<? extends PluginInitializer>> pluginInitializers =  Lists.newArrayList();
   private boolean preload = false;
+  private final List<Class<? extends PluginInitializer>> pluginInitializers =  Lists.newArrayList();
+  private final List<PluginInitializer> pluginInitializersInstances =  Lists.newArrayList();
   private FlagsParser flagsParser = new Args4jFlagsParser();
 
 
@@ -65,6 +105,24 @@ public class JsTestDriverBuilder {
     return this;
   }
 
+  /**
+   * Forces JsTestDriver to validate the runtime configuration. Used to ensure
+   * plugins are properly configured, and find early indications of problems.
+   * @param validate
+   * @return The builder.
+   */
+  public JsTestDriverBuilder shouldValidate(boolean validate, JsTestDriverValidator... extraValidators) {
+    if (validate) {
+      validators.addAll(DEFAULT_VALIDATORS);
+      for (JsTestDriverValidator jsTestDriverValidator : extraValidators) {
+        validators.add(jsTestDriverValidator);
+      }
+    } else {
+      validators.clear();
+    }
+    return this;
+  }
+  
   /**
    * @param port
    * @return The builder.
@@ -99,19 +157,25 @@ public class JsTestDriverBuilder {
   
 
   /**
-   * 
+   * Builds a configured JsTestDriver instance, and possibly validates the 
+   * configuration.
    */
-  public JsTestDriver build() {
+  public JsTestDriver build() throws AssertionError {
+    if (configuration == null) {
+      throw new ConfigurationException("A default configuration is required.");
+    }
     // TODO(corysmith): add check to resolve the serverAddress and port issues.
     List<Module> plugins = Lists.newArrayList(pluginModules);
     plugins.add(new ListenerBindingModule(serverListeners, testListeners));
-    List<Module> initializers = Lists.<Module>newArrayList(new PluginInitializerModule(pluginInitializers));
+    List<Module> initializers =
+        Lists.<Module>newArrayList(new PluginInitializerModule(pluginInitializers,
+            pluginInitializersInstances));
     initializers.addAll(pluginModules);
-    
+
     // merge basepaths
     basePaths.addAll(configuration.getBasePaths());
     configuration.getBasePaths().addAll(basePaths);
-    return new JsTestDriver(configuration,
+    JsTestDriverImpl jsTestDriver = new JsTestDriverImpl(configuration,
         pluginLoader,
         runnerMode,
         flags,
@@ -123,15 +187,31 @@ public class JsTestDriverBuilder {
         raiseOnFailure,
         preload,
         flagsParser);
+    if (!validators.isEmpty()) {
+      jsTestDriver.validate(
+          validators.toArray(new JsTestDriverValidator[validators.size()]));
+    }
+    return jsTestDriver;
   }
 
   /**
-   * @param plugin
-   * @return
+   * @param initializer The {@link PluginInitializer} class, used during initialization
+   *   to instal a plugin into the jstd system.
+   * @return The build instance.
    */
   public JsTestDriverBuilder withPluginInitializer(
         Class<? extends PluginInitializer> initializer) {
     pluginInitializers.add(initializer);
+    return this;
+  }
+  
+  /**
+   * @param plugin An instance of the initializer.
+   * @return The builder instance.
+   */
+  public JsTestDriverBuilder withPluginInitializer(
+      PluginInitializer initializer) {
+    pluginInitializersInstances.add(initializer);
     return this;
   }
 
@@ -205,16 +285,23 @@ public class JsTestDriverBuilder {
 
   private static final class PluginInitializerModule implements Module {
     private final List<Class<? extends PluginInitializer>> initializers;
+    private final List<PluginInitializer> instances;
 
-    public PluginInitializerModule(List<Class<? extends PluginInitializer>> initializers) {
+    public PluginInitializerModule(List<Class<? extends PluginInitializer>> initializers,
+        List<PluginInitializer> instances) {
       this.initializers = initializers;
+      this.instances = instances;
     }
 
+    @Override
     public void configure(Binder binder) {
       Multibinder<PluginInitializer> setBinder =
           Multibinder.newSetBinder(binder, PluginInitializer.class);
       for (Class<? extends PluginInitializer> initializer : initializers) {
         setBinder.addBinding().to(initializer);
+      }
+      for (PluginInitializer initializer : instances) {
+        setBinder.addBinding().toInstance(initializer);
       }
     }
   }

@@ -134,20 +134,15 @@ public class PathResolver {
       unreadable.add(
           new UnreadableFile(fileInfo.getFilePath(), sourceFile.getAbsolutePath()));
     } else {
-      try {
-        String absolutePath = sourceFile.getCanonicalPath();
-        String displayPath = sanitizer.sanitize(absolutePath, basePath);
+      String absolutePath = resolveRelativePathReferences(sourceFile.getAbsolutePath());
+      String displayPath = sanitizer.sanitize(absolutePath, basePath);
 
-        File resolvedFile = new File(absolutePath);
-        long timestamp = resolvedFile.lastModified();
+      File resolvedFile = new File(absolutePath);
+      long timestamp = resolvedFile.lastModified();
 
-        FileInfo newFileInfo = fileInfo.fromResolvedPath(absolutePath, displayPath, timestamp);
+      FileInfo newFileInfo = fileInfo.fromResolvedPath(absolutePath, displayPath, timestamp);
 
-        resolvedFiles.add(newFileInfo);
-      } catch (IOException e) {
-        // TODO(corysmith): Auto-generated catch block
-        e.printStackTrace();
-      }
+      resolvedFiles.add(newFileInfo);
     }
   }
 
@@ -199,7 +194,9 @@ public class PathResolver {
 
   /**
    * This function is needed to deal with removing ".." from a path.
-   * Java absolute paths  
+   * On a linux/unix based system, using the canonical file name can cause 
+   * some strange issues, as well as confusing debugging, as the file name
+   * may not match the users expectations.
    */
   private String resolveRelativePathReferences(String path) {
     Pattern pattern = Pattern.compile(Pattern.quote(File.separator));
