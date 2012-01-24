@@ -114,7 +114,7 @@ public class BrowserControl {
             browserId,
             Math.max(runner.getHeartbeatTimeout(), browserTimeout),
             runner.getUploadSize(),
-            Joiner.on(",").join(Lists.transform(testCases, TESTCASE_TO_ID)));
+            testCases.get(0).getId());
       }
       runner.startBrowser(url);
       long timeOut =
