@@ -25,7 +25,6 @@ import com.google.jstestdriver.config.ExecutionType;
 import com.google.jstestdriver.hooks.FileInfoScheme;
 import com.google.jstestdriver.hooks.ServerListener;
 import com.google.jstestdriver.model.HandlerPathPrefix;
-import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.server.JettyModule;
 import com.google.jstestdriver.server.JstdTestCaseStore;
 import com.google.jstestdriver.server.handlers.JstdHandlersModule;
@@ -123,7 +122,7 @@ public class JsTestDriverServerImpl implements JsTestDriverServer, Observer {
       // TODO(corysmith): Move this to the constructor when we are injecting
       // everything.
       timer = new Timer(true);
-      timer.schedule(new BrowserReaper(capturedBrowsers), browserTimeout * 2, browserTimeout * 2);
+      timer.schedule(new BrowserReaper(capturedBrowsers), browserTimeout, browserTimeout);
 
       server.start();
       logger.info("Started the JsTD server on {} with execution type {}", port, executionType);
@@ -215,6 +214,7 @@ public class JsTestDriverServerImpl implements JsTestDriverServer, Observer {
    */
   @Override
   public void update(Observable o, Object arg) {
+    logger.debug("Server Event {}, {}" + o, arg);
     // TODO(corysmith): Cleanup browser capture event.
     BrowserCaptureEvent event = (BrowserCaptureEvent) arg;
     final BrowserInfo info = event.getBrowser().getBrowserInfo();

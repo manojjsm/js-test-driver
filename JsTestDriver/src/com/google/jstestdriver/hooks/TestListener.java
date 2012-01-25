@@ -24,7 +24,7 @@ import com.google.jstestdriver.TestResult;
  * Receives test results during the test run.
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
  */
-public interface TestResultListener {
+public interface TestListener {
   /**
    * Called on the browser thread.
    */

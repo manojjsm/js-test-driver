@@ -15,6 +15,8 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view;
 
+import com.google.eclipse.javascript.jstestdriver.core.ServerController;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
 import com.google.eclipse.javascript.jstestdriver.core.model.Browser;
 import com.google.eclipse.javascript.jstestdriver.core.model.JstdServerListener;
 import com.google.eclipse.javascript.jstestdriver.ui.Activator;
@@ -66,34 +68,35 @@ public class BrowserButtonPanel extends Composite implements Observer {
     buttonGridData.horizontalAlignment = SWT.CENTER;
     buttonGridData.grabExcessHorizontalSpace = true;
     buttonGridData.minimumWidth = 42;
+    ServerController controller = ServiceLocator.getService(ServerController.class);
     ffIcon = new Button(this, SWT.FLAT);
     ffIcon.setImage(icons.getFirefoxDisabledIcon());
     ffIcon.addSelectionListener(new BrowserLaunchCapableSelectionListener(
-        preferenceStore, WorkbenchPreferencePage.FIREFOX_PATH));
+        preferenceStore, WorkbenchPreferencePage.FIREFOX_PATH, controller));
     ffIcon.setLayoutData(buttonGridData);
 
     chromeIcon = new Button(this, SWT.FLAT);
     chromeIcon.setImage(icons.getChromeDisabledIcon());
     chromeIcon.addSelectionListener(new BrowserLaunchCapableSelectionListener(
-        preferenceStore, WorkbenchPreferencePage.CHROME_PATH));
+        preferenceStore, WorkbenchPreferencePage.CHROME_PATH, controller));
     chromeIcon.setLayoutData(buttonGridData);
 
     safariIcon = new Button(this, SWT.FLAT);
     safariIcon.setImage(icons.getSafariDisabledIcon());
     safariIcon.addSelectionListener(new BrowserLaunchCapableSelectionListener(
-        preferenceStore, WorkbenchPreferencePage.SAFARI_PATH));
+        preferenceStore, WorkbenchPreferencePage.SAFARI_PATH, controller));
     safariIcon.setLayoutData(buttonGridData);
 
     ieIcon = new Button(this, SWT.FLAT);
     ieIcon.setImage(icons.getIEDisabledIcon());
     ieIcon.addSelectionListener(new BrowserLaunchCapableSelectionListener(
-        preferenceStore, WorkbenchPreferencePage.IE_PATH));
+        preferenceStore, WorkbenchPreferencePage.IE_PATH, controller));
     ieIcon.setLayoutData(buttonGridData);
 
     operaIcon = new Button(this, SWT.FLAT);
     operaIcon.setImage(icons.getOperaDisabledIcon());
     operaIcon.addSelectionListener(new BrowserLaunchCapableSelectionListener(
-        preferenceStore, WorkbenchPreferencePage.OPERA_PATH));
+        preferenceStore, WorkbenchPreferencePage.OPERA_PATH, controller));
     operaIcon.setLayoutData(buttonGridData);
   }
 
@@ -105,6 +108,7 @@ public class BrowserButtonPanel extends Composite implements Observer {
   public void update(Observable o, Object arg) {
     final JstdServerListener data = (JstdServerListener) arg;
     Display.getDefault().asyncExec(new Runnable() {
+      @Override
       public void run() {
         if (!ffIcon.isDisposed()) {
           ffIcon.setImage(getImage(Browser.FIREFOX.getImagePath(),

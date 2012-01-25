@@ -17,7 +17,7 @@ package com.google.jstestdriver;
 
 import com.google.gson.Gson;
 import com.google.jstestdriver.browser.BrowserPanicException;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 import java.util.Collection;
 
@@ -31,12 +31,12 @@ public class RunTestsActionResponseStream implements ResponseStream {
   private static final Logger logger = LoggerFactory.getLogger(RunTestsActionResponseStream.class);
 
   private final TestResultGenerator testResultGenerator;
-  private final TestResultListener listener;
+  private final TestListener listener;
   private final FailureAccumulator accumulator;
   private final Gson gson = new Gson();
 
   public RunTestsActionResponseStream(TestResultGenerator testResultGenerator,
-      TestResultListener listener, FailureAccumulator accumulator) {
+      TestListener listener, FailureAccumulator accumulator) {
     this.testResultGenerator = testResultGenerator;
     this.listener = listener;
     this.accumulator = accumulator;

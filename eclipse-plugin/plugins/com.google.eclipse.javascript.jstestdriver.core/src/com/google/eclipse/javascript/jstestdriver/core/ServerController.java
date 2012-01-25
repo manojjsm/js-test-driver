@@ -39,6 +39,9 @@ public class ServerController {
   }
 
   public void stopServer() {
+    if (Server.getInstance() == null) {
+      return;
+    }
     Server.getInstance().stop();
   }
 
@@ -63,10 +66,16 @@ public class ServerController {
   }
 
   public String getCaptureUrl() {
+    /*if (Server.getInstance() == null) {
+      return null;
+    }*/
     return Server.getInstance().getCaptureUrl();
   }
 
   public String getServerUrl() {
+    if (Server.getInstance() == null) {
+      return null;
+    }
     return Server.getInstance().getServerUrl();
   }
 }

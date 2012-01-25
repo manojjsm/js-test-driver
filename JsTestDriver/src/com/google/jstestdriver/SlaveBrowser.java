@@ -134,6 +134,10 @@ public class SlaveBrowser {
   public void forceUnlock() {
     lock.forceUnlock();
   }
+  
+  public boolean isLocked() {
+    return lock.isLocked();
+  }
 
   public void heartBeatLock(String sessionId) {
     if (Objects.equal(lock.getSessionId(), sessionId)) {
@@ -351,5 +355,4 @@ public class SlaveBrowser {
     }
     return false;
   }
-
 }

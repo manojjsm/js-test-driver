@@ -40,7 +40,7 @@ import com.google.jstestdriver.hooks.FileLoadPostProcessor;
 import com.google.jstestdriver.hooks.JsTestDriverValidator;
 import com.google.jstestdriver.hooks.PluginInitializer;
 import com.google.jstestdriver.hooks.ServerListener;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
@@ -76,7 +76,7 @@ public class JsTestDriverBuilder {
   private final PluginLoader pluginLoader = new PluginLoader();
   private int port = -1;
   private final List<ServerListener> serverListeners = Lists.newArrayList();
-  private final List<TestResultListener> testListeners = Lists.newArrayList();
+  private final List<TestListener> testListeners = Lists.newArrayList();
   private RunnerMode runnerMode = RunnerMode.QUIET;
   private String serverAddress;
   private final List<JsTestDriverValidator> validators = Lists.newArrayList();
@@ -228,7 +228,7 @@ public class JsTestDriverBuilder {
    * @param testTestResultsListener
    * @return
    */
-  public JsTestDriverBuilder addTestListener(TestResultListener testResultListener) {
+  public JsTestDriverBuilder addTestListener(TestListener testResultListener) {
     testListeners.add(testResultListener);
     return this;
   }
@@ -308,9 +308,9 @@ public class JsTestDriverBuilder {
 
   private static class ListenerBindingModule implements Module {
     private final List<? extends ServerListener> serverListeners;
-    private final List<? extends TestResultListener>testListeners;
+    private final List<? extends TestListener>testListeners;
     ListenerBindingModule(List<? extends ServerListener> serverListeners,
-        List<? extends TestResultListener> testListeners) {
+        List<? extends TestListener> testListeners) {
       this.serverListeners = serverListeners;
       this.testListeners = testListeners;
     }
@@ -322,9 +322,9 @@ public class JsTestDriverBuilder {
       for (ServerListener listener : serverListeners) {
         serverSetBinder.addBinding().toInstance(listener);
       }
-      Multibinder<TestResultListener> testSetBinder =
-        Multibinder.newSetBinder(binder, TestResultListener.class);
-      for (TestResultListener listener : testListeners) {
+      Multibinder<TestListener> testSetBinder =
+        Multibinder.newSetBinder(binder, TestListener.class);
+      for (TestListener listener : testListeners) {
         testSetBinder.addBinding().toInstance(listener);
       }
     }

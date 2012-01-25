@@ -28,16 +28,20 @@ import com.google.eclipse.javascript.jstestdriver.core.model.ResultModel;
 public class TestResultsTreeContentProvider implements
     IStructuredContentProvider, ITreeContentProvider {
 
+  @Override
   public Object[] getElements(Object inputElement) {
     return getChildren(inputElement);
   }
 
+  @Override
   public void dispose() {
   }
 
+  @Override
   public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
   }
 
+  @Override
   public Object[] getChildren(Object parentElement) {
     if (parentElement instanceof ResultModel) {
       return ((ResultModel) parentElement).getChildren().toArray();
@@ -45,6 +49,7 @@ public class TestResultsTreeContentProvider implements
     return null;
   }
 
+  @Override
   public Object getParent(Object element) {
     if (element instanceof ResultModel) {
       return ((ResultModel) element).getParent();
@@ -52,6 +57,7 @@ public class TestResultsTreeContentProvider implements
     return null;
   }
 
+  @Override
   public boolean hasChildren(Object element) {
     if (element instanceof ResultModel) {
       return ((ResultModel) element).hasChildren();

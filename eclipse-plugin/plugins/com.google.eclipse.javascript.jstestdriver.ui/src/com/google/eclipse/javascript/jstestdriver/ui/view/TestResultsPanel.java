@@ -140,6 +140,7 @@ public class TestResultsPanel extends Composite {
 
     testResultsTree.addSelectionChangedListener(new ISelectionChangedListener() {
 
+      @Override
       public void selectionChanged(SelectionChangedEvent event) {
         testDetailsText.setText("");
         TreeSelection selection = (TreeSelection) event.getSelection();
@@ -248,7 +249,6 @@ public class TestResultsPanel extends Composite {
       for (TestResult result : testResults) {
         ResultModel addedResult = testRunResult.addTestResult(result);
         messageConsoleStream.println(result.getLog());
-        System.out.println(result.getStack());
         if (!addedResult.passed()) {
           failedTests.add(addedResult);
         }

@@ -143,9 +143,9 @@
      </portSupplier>
    </extension>
    <extension
-         point="com.google.jstestdriver.output.TestResultListener">
+         point="com.google.jstestdriver.hooks.TestListener">
      <testResultListener
-        class="com.google.eclipse.javascript.jstestdriver.ui.runner.EclipseTestResultListener">
+         class="com.google.eclipse.javascript.jstestdriver.ui.runner.EclipseTestListener">
      </testResultListener>
    </extension>
    <extension

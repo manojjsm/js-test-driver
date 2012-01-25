@@ -54,6 +54,10 @@ public class Lock {
   public long getLastHeartBeat() {
     return lastHeartBeat;
   }
+  
+  public synchronized boolean isLocked() {
+    return locked;
+  }
 
   public synchronized void forceUnlock() {
     locked = false;

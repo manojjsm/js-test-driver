@@ -25,7 +25,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.google.jstestdriver.action.ConfigureGatewayAction;
 import com.google.jstestdriver.hooks.FileInfoScheme;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.output.MultiTestResultListener;
 import com.google.jstestdriver.output.XmlPrinter;
 import com.google.jstestdriver.output.XmlPrinterImpl;
@@ -75,8 +75,8 @@ public class IDEPluginActionBuilderTest extends TestCase {
                            .addBinding().to(HttpFileInfoScheme.class);
                        bind(Server.class).to(MyServer.class);
                        bind(XmlPrinter.class).to(XmlPrinterImpl.class);
-                       bind(TestResultListener.class).toInstance(
-                           new MultiTestResultListener(Collections.<TestResultListener>emptySet()));
+                       bind(TestListener.class).toInstance(
+                           new MultiTestResultListener(Collections.<TestListener>emptySet()));
                        bind(JsonArray.class).annotatedWith(Names.named("gateway"))
                            .toInstance(new JsonArray());
                        bind(ConfigureGatewayAction.Factory.class).toProvider(
@@ -106,8 +106,8 @@ public class IDEPluginActionBuilderTest extends TestCase {
                            .addBinding().to(HttpFileInfoScheme.class);
                        bind(Server.class).to(MyServer.class);
                        bind(XmlPrinter.class).to(XmlPrinterImpl.class);
-                       bind(TestResultListener.class)
-                           .toProvider(Providers.<TestResultListener>of(null));
+                       bind(TestListener.class)
+                           .toProvider(Providers.<TestListener>of(null));
                        bind(JsonArray.class).annotatedWith(Names.named("gateway"))
                            .toInstance(new JsonArray());
                        bind(ConfigureGatewayAction.Factory.class).toProvider(

@@ -40,7 +40,7 @@ public class BrowserReaper extends TimerTask {
   @Override
   public void run() {
     for (SlaveBrowser browser : capturedBrowsers.getSlaveBrowsers()) {
-      if (!browser.isAlive() && !browser.isCommandRunning()) {
+      if (!browser.isAlive() && !browser.isLocked()) {
         logger.debug("Reaping dead {}.", browser);
         capturedBrowsers.removeSlave(browser.getId());
       }

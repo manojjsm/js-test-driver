@@ -22,7 +22,7 @@ import com.google.jstestdriver.FileResult;
 import com.google.jstestdriver.ResponseStream;
 import com.google.jstestdriver.TestResult;
 import com.google.jstestdriver.TestResultGenerator;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 
 /**
@@ -31,7 +31,7 @@ import com.google.jstestdriver.hooks.TestResultListener;
  */
 public class CoverageResponseStreamFactoryTest extends TestCase {
 
-  public final class TestResultListenerStub implements TestResultListener {
+  public final class TestResultListenerStub implements TestListener {
     public TestResult testResult;
 
     public void finish() {
@@ -55,7 +55,7 @@ public class CoverageResponseStreamFactoryTest extends TestCase {
     }
   }
 
-  final TestResultListener listener = new TestResultListenerStub();
+  final TestListener listener = new TestResultListenerStub();
 
   public void testGetRunTestsActionResponseStream() throws Exception {
     CoverageResponseStreamFactory factory = new CoverageResponseStreamFactory(null, new TestResultGenerator());

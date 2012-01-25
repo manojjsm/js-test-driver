@@ -40,7 +40,7 @@ import com.google.jstestdriver.config.Initializer;
 import com.google.jstestdriver.config.UserConfigurationSource;
 import com.google.jstestdriver.config.YamlParser;
 import com.google.jstestdriver.hooks.JsTestDriverValidator;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.model.ConcretePathPrefix;
 import com.google.jstestdriver.model.HandlerPathPrefix;
@@ -56,29 +56,29 @@ import java.util.logging.LogManager;
 public class JsTestDriverImpl implements JsTestDriver {
 
   /**
-   * Used to bind a {@link TestResultListener} into the JsTestDriver framework.
+   * Used to bind a {@link TestListener} into the JsTestDriver framework.
    *
    * @author Cory Smith (corbinrsmith@gmail.com)
    */
   private static final class TestListenerModule implements Module {
-    private final TestResultListener listener;
+    private final TestListener listener;
 
     /**
-     * @param listener An instance of a {@link TestResultListener} to collect
+     * @param listener An instance of a {@link TestListener} to collect
      *    results during a run.
      */
-    private TestListenerModule(TestResultListener listener) {
+    private TestListenerModule(TestListener listener) {
       this.listener = listener;
     }
 
     @Override
     public void configure(Binder binder) {
-      Multibinder.newSetBinder(binder, TestResultListener.class).addBinding()
+      Multibinder.newSetBinder(binder, TestListener.class).addBinding()
           .toInstance(listener);
     }
   }
 
-  private static final class TestCaseCollector implements TestResultListener {
+  private static final class TestCaseCollector implements TestListener {
     private final List<TestCase> testCases = Lists.newLinkedList();
     
     @Override
@@ -106,7 +106,7 @@ public class JsTestDriverImpl implements JsTestDriver {
     }
   }
 
-  private static final class TestResultCollector implements TestResultListener {
+  private static final class TestResultCollector implements TestListener {
 
     private final List<TestResult> results = Lists.newLinkedList();
 

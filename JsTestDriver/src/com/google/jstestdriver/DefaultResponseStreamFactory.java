@@ -21,7 +21,7 @@ import com.google.inject.name.Named;
 import com.google.jstestdriver.DryRunAction.DryRunActionResponseStream;
 import com.google.jstestdriver.EvalAction.EvalActionResponseStream;
 import com.google.jstestdriver.ResetAction.ResetActionResponseStream;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 import java.io.PrintStream;
 
@@ -31,12 +31,12 @@ import java.io.PrintStream;
  */
 public class DefaultResponseStreamFactory implements ResponseStreamFactory {
 
-  private final Provider<TestResultListener> resultListener;
+  private final Provider<TestListener> resultListener;
   private final FailureAccumulator accumulator;
   private final PrintStream out;
 
   @Inject
-  public DefaultResponseStreamFactory(Provider<TestResultListener> responsePrinterFactory,
+  public DefaultResponseStreamFactory(Provider<TestListener> responsePrinterFactory,
                                       FailureAccumulator accumulator,
                                       @Named("outputStream") PrintStream out) {
     this.resultListener = responsePrinterFactory;
@@ -47,7 +47,7 @@ public class DefaultResponseStreamFactory implements ResponseStreamFactory {
   @Override
   public ResponseStream getRunTestsActionResponseStream(String browserId) {
 
-    TestResultListener listener = resultListener.get();
+    TestListener listener = resultListener.get();
 
     RunTestsActionResponseStream responseStream = new RunTestsActionResponseStream(
         new TestResultGenerator(), listener, accumulator);

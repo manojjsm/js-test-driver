@@ -22,4 +22,11 @@ public class BrowserCaptureEvent {
   public SlaveBrowser getBrowser() {
     return browser;
   }
+
+  @Override
+  public String toString() {
+    return "BrowserCaptureEvent [event=" + event + ", browser=" + browser + "]";
+  }
+  
+  
 }

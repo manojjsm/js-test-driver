@@ -8,7 +8,7 @@ import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfiguration
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
@@ -36,8 +36,8 @@ public class JstdTestRunner {
         .raiseExceptionOnTestFailure(false)
         .setDefaultConfiguration(new EclipseServerConfiguration());
 
-    for (TestResultListener listener : ServiceLocator.getExtensionPoints(TestResultListener.class,
-        "com.google.jstestdriver.output.TestResultListener")) {
+    for (TestListener listener : ServiceLocator.getExtensionPoints(TestListener.class,
+        "com.google.jstestdriver.hooks.TestListener")) {
       builder.addTestListener(listener);
     }
     return builder.build();

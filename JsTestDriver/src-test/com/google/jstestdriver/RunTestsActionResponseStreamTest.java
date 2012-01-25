@@ -21,14 +21,14 @@ import junit.framework.TestCase;
 
 import com.google.gson.Gson;
 import com.google.jstestdriver.Response.ResponseType;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 /**
  * @author corysmith@google.com (Cory Smith)
  */
 public class RunTestsActionResponseStreamTest extends TestCase {
 
-  private final class TestResultListenerStub implements TestResultListener {
+  private final class TestResultListenerStub implements TestListener {
     public boolean finished;
     public TestResult testResult;
 

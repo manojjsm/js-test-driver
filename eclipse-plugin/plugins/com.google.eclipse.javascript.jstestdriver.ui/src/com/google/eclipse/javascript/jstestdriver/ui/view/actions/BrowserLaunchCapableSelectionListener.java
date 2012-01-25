@@ -15,15 +15,15 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view.actions;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.eclipse.javascript.jstestdriver.core.ServerController;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 
-import com.google.eclipse.javascript.jstestdriver.core.Server;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Given the path to the browser, knows how to launch based on which OS is
@@ -38,10 +38,13 @@ public class BrowserLaunchCapableSelectionListener implements SelectionListener 
   private final IPreferenceStore preferenceStore;
   private final String browserName;
 
+  private final ServerController controller;
+
   public BrowserLaunchCapableSelectionListener(
-      IPreferenceStore preferenceStore, String browserName) {
+      IPreferenceStore preferenceStore, String browserName, ServerController controller) {
     this.preferenceStore = preferenceStore;
     this.browserName = browserName;
+    this.controller = controller;
   }
 
   @Override
@@ -55,7 +58,10 @@ public class BrowserLaunchCapableSelectionListener implements SelectionListener 
       if (pathToBrowser == null || "".equals(pathToBrowser.trim())) {
         return;
       }
-      String serverUrl = Server.getInstance().getCaptureUrl();
+      String serverUrl = controller.getCaptureUrl();
+      if (serverUrl == null) {
+        return;
+      }
       String os = System.getProperty("os.name");
       if (os.toLowerCase().contains("mac os")) {
         String[] cmd = new String[] { "open", "-a", pathToBrowser, serverUrl };

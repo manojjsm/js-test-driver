@@ -47,7 +47,7 @@ import com.google.jstestdriver.config.DefaultConfiguration;
 import com.google.jstestdriver.guice.BrowserActionProvider;
 import com.google.jstestdriver.guice.FlagsModule;
 import com.google.jstestdriver.hooks.ServerListener;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.output.MultiTestResultListener;
 
@@ -194,7 +194,7 @@ public class JsTestDriverModule extends AbstractModule {
     bind(BrowserControlFactory.class).toProvider(
         FactoryProvider.newFactory(BrowserControlFactory.class, BrowserControl.class));
 
-    bind(TestResultListener.class).to(MultiTestResultListener.class);
+    bind(TestListener.class).to(MultiTestResultListener.class);
     newSetBinder(binder(),
         ResponseStreamFactory.class).addBinding().to(DefaultResponseStreamFactory.class);
   }

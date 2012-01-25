@@ -17,7 +17,7 @@ package com.google.jstestdriver;
 
 import com.google.gson.Gson;
 import com.google.jstestdriver.browser.BrowserPanicException;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.model.JstdTestCase;
 import com.google.jstestdriver.model.RunData;
 import com.google.jstestdriver.protocol.BrowserLog;
@@ -41,9 +41,9 @@ public class DryRunAction implements BrowserAction {
 
     private final Gson gson = new Gson();
     private final PrintStream out;
-    private final TestResultListener listener;
+    private final TestListener listener;
 
-    public DryRunActionResponseStream(PrintStream out, TestResultListener testResultListener) {
+    public DryRunActionResponseStream(PrintStream out, TestListener testResultListener) {
       this.out = out;
       this.listener = testResultListener;
     }

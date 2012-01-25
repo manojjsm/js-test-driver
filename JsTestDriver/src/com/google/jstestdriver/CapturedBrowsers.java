@@ -21,6 +21,9 @@ import com.google.jstestdriver.browser.BrowserCaptureEvent;
 import com.google.jstestdriver.browser.BrowserCaptureEvent.Event;
 import com.google.jstestdriver.browser.BrowserIdStrategy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Singleton
 public class CapturedBrowsers extends Observable {
+  private static final Logger logger = LoggerFactory.getLogger(CapturedBrowsers.class);
 
   private final Map<String, SlaveBrowser> slaves = new ConcurrentHashMap<String, SlaveBrowser>();
   private final BrowserIdStrategy idStrategy;
@@ -70,7 +74,9 @@ public class CapturedBrowsers extends Observable {
   }
 
   public void removeSlave(String id) {
+    logger.debug("remove browser {}", id);
     SlaveBrowser slave = slaves.remove(id);
+    logger.debug("remove browser {}", slave);
     setChanged();
     notifyObservers(new BrowserCaptureEvent(Event.DISCONNECTED, slave));
   }

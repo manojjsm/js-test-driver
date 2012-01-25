@@ -25,7 +25,6 @@ public class ServiceLocator {
 
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> serviceClass) {
-    System.out.println("retrieving " + serviceClass);
     T service = (T) services.get(serviceClass);
     return service;
   }
@@ -34,7 +33,6 @@ public class ServiceLocator {
     if (services.containsKey(serviceClass)) {
       throw new IllegalStateException(serviceClass + " already registered to " + services.get(serviceClass));
     }
-    System.out.println("registering " + serviceClass);
     services.put(serviceClass, serviceInstance);
   }
   

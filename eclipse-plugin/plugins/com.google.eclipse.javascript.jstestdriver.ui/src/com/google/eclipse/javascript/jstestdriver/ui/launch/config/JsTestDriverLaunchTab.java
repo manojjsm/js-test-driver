@@ -255,7 +255,6 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
 
   private IProject getSelectedProject() {
     String projectName = getSelectedComboString(projectCombo);
-    System.out.println(projectName);
     if (projectName != null && !"".equals(projectName)) {
       return projectHelper.getProject(projectName);
     } else {

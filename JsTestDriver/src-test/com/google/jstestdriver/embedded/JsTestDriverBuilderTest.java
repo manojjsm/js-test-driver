@@ -27,7 +27,7 @@ import com.google.jstestdriver.config.CmdLineFlags;
 import com.google.jstestdriver.config.CmdLineFlag;
 import com.google.jstestdriver.config.Configuration;
 import com.google.jstestdriver.hooks.PluginInitializer;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.runner.RunnerMode;
 import com.google.jstestdriver.hooks.ServerListener;
 
@@ -65,7 +65,7 @@ public class JsTestDriverBuilderTest extends TestCase {
     }
   }
 
-  private static final class TestTestResultsListener implements TestResultListener {
+  private static final class TestTestResultsListener implements TestListener {
 
     public void onTestComplete(TestResult testResult) {
       // TODO Auto-generated method stub

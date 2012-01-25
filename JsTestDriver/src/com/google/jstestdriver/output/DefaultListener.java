@@ -23,7 +23,7 @@ import com.google.jstestdriver.FileResult;
 import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.TestResult;
 import com.google.jstestdriver.TestRunResult;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
  */
 @Singleton
-public class DefaultListener implements TestResultListener {
+public class DefaultListener implements TestListener {
 
   static final String NEW_LINE = System.getProperty("line.separator");
 

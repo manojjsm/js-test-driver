@@ -107,9 +107,27 @@ public class JstdServerListener extends Observable implements ServerListener {
 
   @Override
   public void browserPanicked(BrowserInfo browserInfo) {
-    System.out.println("browser lost " + browserInfo);
+    if (browserInfo.getName().contains("Firefox")) {
+      removeBrowser(Browser.FIREFOX, browserInfo);
+    } else if (browserInfo.getName().contains("Chrome")) {
+      removeBrowser(Browser.CHROME, browserInfo);
+    } else if (browserInfo.getName().contains("Safari")) {
+      removeBrowser(Browser.SAFARI, browserInfo);
+    } else if (browserInfo.getName().contains("Microsoft Internet Explorer")) {
+      removeBrowser(Browser.IE, browserInfo);
+    } else if (browserInfo.getName().contains("Opera")) {
+      removeBrowser(Browser.OPERA, browserInfo);
+    }
     setChanged();
-    slaves.removeAll(browserInfo);
+    notifyObservers(this);
+  }
+
+  /**
+   * @param firefox
+   * @param browserInfo
+   */
+  private void removeBrowser(Browser browser, BrowserInfo browserInfo) {
+    slaves.get(browser).remove(browserInfo);
   }
 
   @Override

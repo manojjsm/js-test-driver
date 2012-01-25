@@ -16,7 +16,7 @@ import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FileResult;
 import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.TestResult;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 /**
  * A data storage for test results. It listens on each browser for incoming test results,
@@ -26,7 +26,7 @@ import com.google.jstestdriver.hooks.TestResultListener;
  * @author alexeagle@google.com (Alex Eagle)
  */
 @Singleton
-public class TestResultHolder implements TestResultListener {
+public class TestResultHolder implements TestListener {
   private static final class LinkListSupplier<T> implements
       Supplier<Collection<T>> {
     public Collection<T> get() {

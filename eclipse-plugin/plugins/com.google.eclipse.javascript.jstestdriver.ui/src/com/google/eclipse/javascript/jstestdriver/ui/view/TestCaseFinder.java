@@ -63,6 +63,8 @@ public class TestCaseFinder {
   private final class TestCaseSearchRequestor extends TextSearchRequestor {
     private TestCaseFinder.TestCaseFinderResult result = new TestCaseFinderResult();
 
+    @SuppressWarnings("unused")
+    @Override
     public boolean acceptPatternMatch(TextSearchMatchAccess matchAccess) throws CoreException {
       result =
           new TestCaseFinderResult(matchAccess.getFile(), matchAccess.getMatchOffset() + 1,
@@ -70,6 +72,8 @@ public class TestCaseFinder {
       return false;
     }
 
+    @SuppressWarnings("unused")
+    @Override
     public boolean acceptFile(IFile file) throws CoreException {
       logger.debug("Searching through file: {}", file);
       return true;

@@ -133,6 +133,7 @@ public class ServerInfoPanel extends Composite implements Observer {
    */
   private void setServerUrl(final String serverUrl, final Color color) {
     Display.getDefault().asyncExec(new Runnable() {
+      @Override
       public void run() {
         serverUrlText.setRedraw(true);
         if (serverUrl != null) {

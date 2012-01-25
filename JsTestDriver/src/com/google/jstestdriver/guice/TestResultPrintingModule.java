@@ -24,7 +24,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.jstestdriver.Flags;
 import com.google.jstestdriver.config.Configuration;
 import com.google.jstestdriver.hooks.PluginInitializer;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 import com.google.jstestdriver.output.DefaultListener;
 import com.google.jstestdriver.output.TestResultHolder;
 
@@ -53,8 +53,8 @@ public class TestResultPrintingModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    Multibinder<TestResultListener> testResultListeners =
-        newSetBinder(binder(), TestResultListener.class);
+    Multibinder<TestListener> testResultListeners =
+        newSetBinder(binder(), TestListener.class);
 
     testResultListeners.addBinding().to(TestResultHolder.class);
     testResultListeners.addBinding().to(DefaultListener.class).in(Singleton.class);

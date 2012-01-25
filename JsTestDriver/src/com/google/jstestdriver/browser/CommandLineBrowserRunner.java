@@ -45,6 +45,7 @@ public class CommandLineBrowserRunner implements BrowserRunner {
     this.browserArgs = browserArgs;
   }
 
+  @Override
   public void startBrowser(String serverAddress) {
     try {
       String processArgs = "";
@@ -57,9 +58,20 @@ public class CommandLineBrowserRunner implements BrowserRunner {
         processArgs += serverAddress;
       }
       String[] args = processArgs.split(" ");
-      String[] finalArgs = new String[args.length + 1];
-      finalArgs[0] = browserPath;
-      System.arraycopy(args, 0, finalArgs, 1, args.length);
+      
+      String[] finalArgs;
+      String os = System.getProperty("os.name");
+      if (os.toLowerCase().contains("mac os")) {
+        finalArgs = new String[args.length + 3];
+        finalArgs[0] = "open";
+        finalArgs[1] = "-a";
+        finalArgs[2] = browserPath;
+        System.arraycopy(args, 0, finalArgs, 3, args.length);
+      } else {
+        finalArgs = new String[args.length + 1];
+        finalArgs[0] = browserPath;
+        System.arraycopy(args, 0, finalArgs, 1, args.length);
+      }
       process = processFactory.start(finalArgs);
     } catch (IOException e) {
       logger.error("Could not start: {} because {}", browserPath, e.toString());
@@ -67,6 +79,7 @@ public class CommandLineBrowserRunner implements BrowserRunner {
     }
   }
 
+  @Override
   public void stopBrowser() {
     try {
       process.destroy();
@@ -78,18 +91,22 @@ public class CommandLineBrowserRunner implements BrowserRunner {
     }
   }
 
+  @Override
   public int getTimeout() {
     return 30;
   }
 
+  @Override
   public int getNumStartupTries() {
-    return 3;
+    return 1;
   }
 
+  @Override
   public long getHeartbeatTimeout() {
     return SlaveBrowser.TIMEOUT;
   }
 
+  @Override
   public int getUploadSize() {
     return FileUploader.CHUNK_SIZE;
   }

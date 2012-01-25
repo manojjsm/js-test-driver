@@ -30,15 +30,15 @@ import com.google.jstestdriver.BrowserInfo;
 import com.google.jstestdriver.FileResult;
 import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.TestResult;
-import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.hooks.TestListener;
 
 /**
  * Listens for test results and updates the UI appropriately.
  *
  * @author Cory Smith (corbinrsmith@gmail.com)
  */
-public class EclipseTestResultListener implements TestResultListener {
-  private static final Logger logger = Logger.getLogger(EclipseTestResultListener.class.getName());
+public class EclipseTestListener implements TestListener {
+  private static final Logger logger = Logger.getLogger(EclipseTestListener.class.getName());
 
   /**
    * {@inheritDoc}
