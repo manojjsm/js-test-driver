@@ -31,4 +31,5 @@ public class LaunchConfigurationConstants {
   public static final String JSTD_LAUNCH_CONFIGURATION_TYPE =
     "com.google.eclipse.javascript.jstestdriver.ui.JstdTestDriverLaunchConfiguration";
   public static final String BASEPATH = "basePath";
+  public static final String CONF_NAME = "com.google.jstestdriver.eclipse.ui.confName";
 }

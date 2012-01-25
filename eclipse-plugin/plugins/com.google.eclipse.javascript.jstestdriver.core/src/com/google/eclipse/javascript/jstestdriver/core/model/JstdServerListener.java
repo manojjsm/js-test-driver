@@ -107,6 +107,7 @@ public class JstdServerListener extends Observable implements ServerListener {
 
   @Override
   public void browserPanicked(BrowserInfo browserInfo) {
+    System.out.println("browser lost " + browserInfo);
     setChanged();
     slaves.removeAll(browserInfo);
   }

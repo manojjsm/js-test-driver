@@ -1,16 +1,14 @@
 /*
  * Copyright 2009 Google Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package com.google.eclipse.javascript.jstestdriver.ui.launch.save;
@@ -35,13 +33,18 @@ import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfiguration
 import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
 
 /**
+ * Naively executes a test configuration on any resource change.
+ *
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
  */
+// TODO(corysmith): Make this a lot less naive. It's a huge resource hog at the moment.
 public class JavascriptOnSaveTestRunner implements IResourceChangeListener {
 
   public class ProjectFindingDeltaVisitor implements IResourceDeltaVisitor {
     String projectName = "";
 
+    @SuppressWarnings("unused")
+    @Override
     public boolean visit(IResourceDelta delta) throws CoreException {
       IResource resource = delta.getResource();
       if (resource != null && resource.getProject() != null) {
@@ -59,7 +62,8 @@ public class JavascriptOnSaveTestRunner implements IResourceChangeListener {
   private final Logger logger = Logger.getLogger(JavascriptOnSaveTestRunner.class.getName());
   private final JavascriptLaunchConfigurationHelper configurationHelper =
       new JavascriptLaunchConfigurationHelper();
-  
+
+  @Override
   public void resourceChanged(IResourceChangeEvent event) {
     try {
       ProjectFindingDeltaVisitor visitor = new ProjectFindingDeltaVisitor();
@@ -69,16 +73,14 @@ public class JavascriptOnSaveTestRunner implements IResourceChangeListener {
           configurationHelper.getLaunchConfiguration(projectName);
       if (launchConfiguration != null) {
         ILaunchConfigurationWorkingCopy workingCopy = launchConfiguration.getWorkingCopy();
-        workingCopy.setAttribute(
-            LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, true);
+        workingCopy.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, true);
         workingCopy.launch(ILaunchManager.RUN_MODE, null);
         Display.getDefault().asyncExec(new Runnable() {
 
+            @Override
           public void run() {
             IEditorPart activeEditor = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow()
-                .getActivePage()
-                .getActiveEditor();
+                .getActiveWorkbenchWindow().getActivePage().getActiveEditor();
             if (activeEditor != null) {
               activeEditor.setFocus();
             }

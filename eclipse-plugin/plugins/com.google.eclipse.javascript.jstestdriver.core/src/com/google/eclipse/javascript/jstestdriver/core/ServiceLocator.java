@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 
-import com.google.inject.internal.Lists;
+import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 import java.util.List;

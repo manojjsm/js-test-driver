@@ -19,3 +19,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Import-Package: org.eclipse.search.core.text,
  org.eclipse.ui.texteditor
+Export-Package: com.google.eclipse.javascript.jstestdriver.ui.launch

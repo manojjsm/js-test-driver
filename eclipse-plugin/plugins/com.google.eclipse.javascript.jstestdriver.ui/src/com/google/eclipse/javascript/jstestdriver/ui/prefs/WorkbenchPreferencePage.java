@@ -41,6 +41,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage
     super(GRID);
   }
 
+  @Override
   public void init(IWorkbench workbench) {
     setPreferenceStore(Activator.getDefault().getPreferenceStore());
     setDescription("JS Test Driver Preferences");

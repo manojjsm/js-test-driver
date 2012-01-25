@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="com.google.jstestdriver.output.TestResultListener" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="com.google.eclipse.javascript.jstestdriver.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="com.google.eclipse.javascript.jstestdriver.core" id="com.google.jstestdriver.output.TestResultListener" name="TestResultListener"/>
+         <meta.schema plugin="com.google.eclipse.javascript.jstestdriver.ui" id="com.google.eclipse.javascript.jstestdriver.ui.ILaunchValidator" name="launchValidator"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="testResultListener" minOccurs="1" maxOccurs="unbounded"/>
+            <element ref="launchValidator" minOccurs="1" maxOccurs="unbounded"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -39,15 +39,12 @@
                <documentation>
                   
                </documentation>
-               <appinfo>
-                  <meta.attribute translatable="true"/>
-               </appinfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
-   <element name="testResultListener">
+   <element name="launchValidator">
       <complexType>
          <attribute name="class" type="string" use="required">
             <annotation>
@@ -55,7 +52,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":com.google.jstestdriver.output.TestResultListener"/>
+                  <meta.attribute kind="java" basedOn=":com.google.eclipse.javascript.jstestdriver.ui.launch.ILaunchValidator"/>
                </appinfo>
             </annotation>
          </attribute>

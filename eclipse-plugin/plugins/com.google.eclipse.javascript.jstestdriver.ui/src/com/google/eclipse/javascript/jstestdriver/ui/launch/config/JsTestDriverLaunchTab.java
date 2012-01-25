@@ -15,21 +15,26 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.launch.config;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.eclipse.javascript.jstestdriver.core.ConfigurationData;
+import com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider;
+import com.google.eclipse.javascript.jstestdriver.core.ProjectHelper;
+import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
+import com.google.eclipse.javascript.jstestdriver.ui.Activator;
+import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -43,16 +48,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.eclipse.javascript.jstestdriver.core.ConfigurationData;
-import com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider;
-import com.google.eclipse.javascript.jstestdriver.core.ProjectHelper;
-import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
-import com.google.eclipse.javascript.jstestdriver.ui.Activator;
-import com.google.eclipse.javascript.jstestdriver.ui.launch.JavascriptLaunchConfigurationHelper;
-import com.google.inject.internal.Maps;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * UI elements for the Js Test Driver Launch Configuration Tab, along with information on what 
@@ -62,6 +67,13 @@ import com.google.inject.internal.Maps;
  */
 public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
 
+  private final class ProjectToName implements Function<IProject, String> {
+    @Override
+    public String apply(IProject project) {
+      return project.getName();
+    }
+  }
+
   private static final String EXPECTED_FILENAME = "JsTestdriver.conf";
   private final Logger logger =
       Logger.getLogger(JsTestDriverLaunchTab.class.getName());
@@ -70,8 +82,10 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   private Button runOnEverySaveCheckbox;
   private JavascriptLaunchConfigurationHelper configurationHelper =
       new JavascriptLaunchConfigurationHelper();
+
   private final Map<String, ConfigurationData> projectPathToAbsolutePath = Maps.newHashMap();
   private final JsTestDriverConfigurationProvider configurationProvider;
+  private final ProjectHelper projectHelper = new ProjectHelper();
 
   /**
    * 
@@ -95,23 +109,46 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     createJstdPropreties(jstdPropertiesControl);
     setUpProjectCombo();
   }
+  
+  private static interface GetConfigurationFilesCallback {
+    void done(String [] fileNames);
+  }
 
-  private String[] getConfigurationFiles(final IProject project) {
-    synchronized (projectPathToAbsolutePath) {
-      projectPathToAbsolutePath.clear();
-      try {
-        projectPathToAbsolutePath.putAll(configurationProvider.getConfigurations(project));
-      } catch (CoreException e) {
-        IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString());
-        ErrorDialog.openError(Display.getCurrent().getActiveShell(), "JS Test Driver",
-            "JsTestDriver Error", status);
-      }
+  private void getConfigurationFiles(final IProject project, final GetConfigurationFilesCallback callback) {
+    try {
+      PlatformUI.getWorkbench().getProgressService().run(true, false, new IRunnableWithProgress() {
+        @SuppressWarnings("unused")
+        @Override
+        public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+          monitor.beginTask("Retrieving configuration files for " + project.getName(), IProgressMonitor.UNKNOWN);
+          synchronized (projectPathToAbsolutePath) {
+            projectPathToAbsolutePath.clear();
+            try {
+              projectPathToAbsolutePath.putAll(configurationProvider.getConfigurations(project));
+              
+              Set<String> displayPaths = projectPathToAbsolutePath.keySet();
+              final String[] paths = displayPaths.toArray(new String[displayPaths.size()]);
+              Arrays.sort(paths);
+              monitor.done();
+              Display.getDefault().asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                  callback.done(paths);
+                }
+              });
+            } catch (CoreException e) {
+              IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString());
+              ErrorDialog.openError(Display.getCurrent().getActiveShell(), "JS Test Driver",
+                  "JsTestDriver Error", status);
+            }
+          }
+        }
+      });
+    } catch (InvocationTargetException e1) {
+      e1.printStackTrace();
+    } catch (InterruptedException e1) {
+      e1.printStackTrace();
     }
-
-    Set<String> displayPaths = projectPathToAbsolutePath.keySet();
-    String[] paths = displayPaths.toArray(new String[displayPaths.size()]);
-    Arrays.sort(paths);
-    return paths;
   }
 
   private void createJstdPropreties(Composite control) {
@@ -123,9 +160,11 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     projectCombo.setLayoutData(projectGridData);
     projectCombo.addKeyListener(new KeyListener() {
 
+      @Override
       public void keyPressed(KeyEvent e) {
       }
 
+      @Override
       public void keyReleased(KeyEvent e) {
         setTabDirty();
       }
@@ -133,9 +172,11 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
 
     projectCombo.addSelectionListener(new SelectionListener() {
 
+      @Override
       public void widgetDefaultSelected(SelectionEvent e) {
       }
 
+      @Override
       public void widgetSelected(SelectionEvent e) {
         setUpConfFileCombo();
         setTabDirty();
@@ -150,9 +191,11 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     confFileCombo.setLayoutData(confFileGridData);
     confFileCombo.addKeyListener(new KeyListener() {
 
+      @Override
       public void keyPressed(KeyEvent e) {
       }
 
+      @Override
       public void keyReleased(KeyEvent e) {
         setTabDirty();
       }
@@ -160,9 +203,11 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
 
     confFileCombo.addSelectionListener(new SelectionListener() {
 
+      @Override
       public void widgetDefaultSelected(SelectionEvent e) {
       }
 
+      @Override
       public void widgetSelected(SelectionEvent e) {
         setTabDirty();
       }
@@ -175,25 +220,22 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     runOnEverySaveCheckbox.setText("Run on Every Save");
     runOnEverySaveCheckbox.addSelectionListener(new SelectionListener() {
       
+      @Override
       public void widgetSelected(SelectionEvent e) {
         setTabDirty();
       }
       
+      @Override
       public void widgetDefaultSelected(SelectionEvent e) {
       }
     });
   }
 
   private void setUpProjectCombo() {
-    IProject[] projects = new ProjectHelper().getAllProjects();
+    IProject[] projects = projectHelper.getAllProjects();
     if (projects != null) {
       String[] projectNames = Lists.transform(Arrays.asList(projects),
-          new Function<IProject, String>() {
-        @Override
-        public String apply(IProject project) {
-          return project.getName();
-        }
-      }).toArray(new String[projects.length]);
+          new ProjectToName()).toArray(new String[projects.length]);
       Arrays.sort(projectNames);
       projectCombo.setItems(projectNames);
     }
@@ -202,14 +244,20 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   private void setUpConfFileCombo() {
     IProject project = getSelectedProject();
     if (project != null) {
-      confFileCombo.setItems(getConfigurationFiles(project));
+      getConfigurationFiles(project, new GetConfigurationFilesCallback() {
+        @Override
+        public void done(String[] fileNames) {
+          confFileCombo.setItems(fileNames);
+        }
+      });
     }
   }
 
   private IProject getSelectedProject() {
     String projectName = getSelectedComboString(projectCombo);
+    System.out.println(projectName);
     if (projectName != null && !"".equals(projectName)) {
-      return new ProjectHelper().getProject(projectName);
+      return projectHelper.getProject(projectName);
     } else {
       return null;
     }
@@ -220,6 +268,7 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     updateLaunchConfigurationDialog();
   }
 
+  @Override
   public String getName() {
     return "JsTestDriver";
   }
@@ -244,7 +293,7 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
   }
 
   @Override
-  public void initializeFrom(ILaunchConfiguration configuration) {
+  public void initializeFrom(final ILaunchConfiguration configuration) {
     try {
       String initProjectName = configuration.getAttribute(LaunchConfigurationConstants.PROJECT_NAME, "");
       if (initProjectName != null && !"".equals(initProjectName.trim())) {
@@ -259,19 +308,25 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
         }
 
         // initialize configuration files combo
-        String[] configurationFiles = getConfigurationFiles(project);
-        confFileCombo.setItems(configurationFiles);
-        String initConfFileName = configuration.getAttribute(LaunchConfigurationConstants.CONF_FILENAME, (String)null);
-        if (initConfFileName==null) {
-          ConfigurationFileSelectHelper helper = new ConfigurationFileSelectHelper(EXPECTED_FILENAME);
-           initConfFileName = helper.findSuitableConfigurationFile(configurationFiles);
-        }
-        selectComboItem(confFileCombo, initConfFileName);
-        
+        final String initConfFileName =
+            configuration.getAttribute(LaunchConfigurationConstants.CONF_FILENAME, (String) null);
+        getConfigurationFiles(project, new GetConfigurationFilesCallback() {
+
+          @Override
+          public void done(String[] fileNames) {
+            confFileCombo.setItems(fileNames);
+            String confFileName = initConfFileName;
+            if (initConfFileName == null) {
+              ConfigurationFileSelectHelper helper =
+                  new ConfigurationFileSelectHelper(EXPECTED_FILENAME);
+              confFileName = helper.findSuitableConfigurationFile(fileNames);
+            }
+            selectComboItem(confFileCombo, confFileName);
+          }
+        });
         // initialize run on every save checkbox
-        runOnEverySaveCheckbox.setSelection(
-            configuration.getAttribute(
-                LaunchConfigurationConstants.RUN_ON_EVERY_SAVE,false));
+        runOnEverySaveCheckbox.setSelection(configuration.getAttribute(
+            LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, false));
       }
 
 
@@ -292,25 +347,31 @@ public class JsTestDriverLaunchTab extends AbstractLaunchConfigurationTab {
     return "";
   }
 
+  @Override
   public void performApply(ILaunchConfigurationWorkingCopy configuration) {
     if (getSelectedProject() != null) {
-      configuration.setAttribute(LaunchConfigurationConstants.PROJECT_NAME, getSelectedComboString(projectCombo));
-      configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME, getSelectedComboString(confFileCombo));
       ConfigurationData data = projectPathToAbsolutePath.get(getSelectedComboString(confFileCombo));
+      configuration.setAttribute(LaunchConfigurationConstants.PROJECT_NAME, getSelectedComboString(projectCombo));
       
       if (data != null) {
+        configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME, data.getName());
         configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH,
-            data.configurationPath);
-        configuration.setAttribute(LaunchConfigurationConstants.BASEPATH,
-            data.basePath);
+            data.getConfigurationPath());
+        int i = 0;
+        for (File path : data.getBasePaths()) {
+          configuration.setAttribute(
+              String.format("%s_%s", LaunchConfigurationConstants.BASEPATH, i++),
+              path.getAbsolutePath());
+        }
       }
-      
       configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, runOnEverySaveCheckbox.getSelection());
     }
   }
 
+  @Override
   public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(LaunchConfigurationConstants.PROJECT_NAME, "");
+    configuration.setAttribute(LaunchConfigurationConstants.CONF_NAME, "");
     configuration.setAttribute(LaunchConfigurationConstants.CONF_FILENAME, "");
     configuration.setAttribute(LaunchConfigurationConstants.CONF_FULLPATH, "");
     configuration.setAttribute(LaunchConfigurationConstants.RUN_ON_EVERY_SAVE, false);
@@ -348,19 +409,18 @@ class ConfigurationFileSelectHelper {
     if (c1ending == c2ending) {
       return shorterString(candidate1, candidate2);
     }
-    
-    if (c1ending)
+
+    if (c1ending) {
       return candidate1;
-    
+    }
+
     return candidate2;
   }
 
   private String shorterString(String candidate1, String candidate2) {
-    if (candidate1.length() <= candidate2.length())
+    if (candidate1.length() <= candidate2.length()) {
       return candidate1;
-    
+    }
     return candidate2;
   }
-
-
 }

@@ -15,17 +15,42 @@
  */
 package com.google.eclipse.javascript.jstestdriver.core;
 
+import com.google.jstestdriver.model.BasePaths;
+
+/**
+ * Represents an entry for a configuration file in the workspace.
+ * @author corysmith@google.com (Cory Smith)
+ *
+ */
 public final class ConfigurationData {
-  public final String configurationPath;
-  public final String basePath;
+  private final String configurationPath;
+  private final BasePaths basePaths;
+  private final String name;
+
+  public ConfigurationData(String name, String configurationPath, BasePaths basePaths) {
+    this.name = name;
+    this.configurationPath = configurationPath;
+    this.basePaths = basePaths;
+  }
 
   /**
-   * @param configurationPath 
-   * @param basePath 
-   * 
+   * @return the configurationPath
    */
-  public ConfigurationData(String configurationPath, String basePath) {
-    this.configurationPath = configurationPath;
-    this.basePath = basePath;
+  public String getConfigurationPath() {
+    return configurationPath;
+  }
+
+  /**
+   * @return the basePaths
+   */
+  public BasePaths getBasePaths() {
+    return basePaths;
+  }
+
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
   }
 }

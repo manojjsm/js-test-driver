@@ -1,16 +1,14 @@
 /*
  * Copyright 2009 Google Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package com.google.eclipse.javascript.jstestdriver.ui.launch;
@@ -48,11 +46,13 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
+import com.google.eclipse.javascript.jstestdriver.core.JstdTestRunner;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 
 /**
  * Launcher which knows how to run from a specific editor window.
- * 
+ *
  * @author shyamseshadri@gmail.com (Shyam Seshadri)
  */
 public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
@@ -60,8 +60,8 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
   private final Logger logger = Logger.getLogger(JsTestDriverLaunchShortcut.class.getName());
   public static final String LAUNCH_CONFIG_CREATORS =
       "com.google.jstestdrvier.eclipse.ui.launchConfigCreator";
-  
-  
+
+
   /**
    * 
    */
@@ -120,9 +120,9 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
           updateTestCasesFromFile(editor, testCases);
         }
       }
-      
+
       runTests(projectName, testCases);
-      
+
     } catch (CoreException e) {
       logger.log(Level.SEVERE, "", e);
     } catch (IOException e) {
@@ -130,7 +130,8 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
     }
   }
 
-  private void updateTestCasesFromFile(IEditorPart editor, List<String> testCases) throws IOException {
+  private void updateTestCasesFromFile(IEditorPart editor, List<String> testCases)
+      throws IOException {
     IFileEditorInput editorInput = (IFileEditorInput) editor.getEditorInput();
     File jsFile = editorInput.getFile().getLocation().toFile();
     testCases.addAll(finder.getTestCases(jsFile));
@@ -146,8 +147,8 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
     return startLine;
   }
 
-  private void updateTestCasesFromCurrentLine(List<String> testCases,
-      AbstractTextEditor textEditor, int startLine) {
+  private void updateTestCasesFromCurrentLine(
+      List<String> testCases, AbstractTextEditor textEditor, int startLine) {
     IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
     try {
       IRegion region = document.getLineInformation(startLine);
@@ -160,29 +161,35 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
 
   private void runTests(String projectName, List<String> testCases) throws CoreException {
     ILaunchConfiguration launchConfiguration = getExistingJstdLaunchConfiguration(projectName);
-    if (launchConfiguration==null) {
+    if (launchConfiguration == null) {
       runFromNewLaunchConfiguration(projectName, testCases);
     } else {
       runFromExistingLaunchConfiguration(launchConfiguration, testCases);
     }
   }
 
-  private void runFromNewLaunchConfiguration(String projectName, List<String> testCases) throws CoreException {
-      createJstdLaunchConfiguration(projectName, testCases);
+  private void runFromNewLaunchConfiguration(String projectName, List<String> testCases) {
+    createJstdLaunchConfiguration(projectName, testCases);
   }
 
-  private void runFromExistingLaunchConfiguration(ILaunchConfiguration launchConfiguration, final List<String> testCases) throws CoreException {
-    final ILaunchConfigurationWorkingCopy workingCopy = launchConfiguration.copy("new run").getWorkingCopy();
+  private void runFromExistingLaunchConfiguration(
+      ILaunchConfiguration launchConfiguration, final List<String> testCases) throws CoreException {
+    final ILaunchConfigurationWorkingCopy workingCopy =
+        launchConfiguration.copy("new run").getWorkingCopy();
     workingCopy.setAttribute(TESTS_TO_RUN, testCases);
     final ILaunchConfiguration configuration = workingCopy.doSave();
-    
-    Job job = new EclipseTestRunnerJob(configuration, testCases);
+
+    Job job = new EclipseTestRunnerJob(configuration, testCases, ServiceLocator.getService(
+        JstdTestRunner.class), ServiceLocator.getExtensionPoints(
+        ILaunchValidator.class, ILaunchValidator.class.getName()));
     job.schedule();
   }
 
-  private ILaunchConfiguration getExistingJstdLaunchConfiguration(String projectName) throws CoreException {
+  private ILaunchConfiguration getExistingJstdLaunchConfiguration(String projectName)
+      throws CoreException {
     ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-    ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(JSTD_LAUNCH_CONFIGURATION_TYPE);
+    ILaunchConfigurationType type =
+        launchManager.getLaunchConfigurationType(JSTD_LAUNCH_CONFIGURATION_TYPE);
     ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(type);
     for (ILaunchConfiguration configuration : launchConfigurations) {
       if (configuration.getAttribute(PROJECT_NAME, "").equals(projectName)) {
@@ -194,19 +201,23 @@ public class JsTestDriverLaunchShortcut implements ILaunchShortcut {
 
   private void createJstdLaunchConfiguration(String projectName, List<String> testCases) {
     ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-    ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(JSTD_LAUNCH_CONFIGURATION_TYPE);
+    ILaunchConfigurationType type =
+        launchManager.getLaunchConfigurationType(JSTD_LAUNCH_CONFIGURATION_TYPE);
     try {
       // create and initialize a new launch configuration
-      ILaunchConfigurationWorkingCopy newLauchConfiguration = type.newInstance(null, launchManager.generateLaunchConfigurationName(projectName));
+      ILaunchConfigurationWorkingCopy newLauchConfiguration = type.newInstance(
+          null, launchManager.generateLaunchConfigurationName(projectName));
       newLauchConfiguration.setAttribute(PROJECT_NAME, projectName);
       newLauchConfiguration.setAttribute(LaunchConfigurationConstants.TESTS_TO_RUN, testCases);
-      
+
       // let user edit/run/cancel the configuraion
-      int result = DebugUITools.openLaunchConfigurationDialog(Display.getCurrent().getActiveShell(), newLauchConfiguration, "org.eclipse.debug.ui.launchGroup.run", null);
-      if (result==Window.OK) {
-        
-        //we do not want to save tests subset into main launch configuration forever 
-        newLauchConfiguration.setAttribute(LaunchConfigurationConstants.TESTS_TO_RUN, new ArrayList<String>());
+      int result = DebugUITools.openLaunchConfigurationDialog(
+          Display.getCurrent().getActiveShell(), newLauchConfiguration,
+          "org.eclipse.debug.ui.launchGroup.run", null);
+      if (result == Window.OK) {
+        // we do not want to save tests subset into main launch configuration forever
+        newLauchConfiguration.setAttribute(
+            LaunchConfigurationConstants.TESTS_TO_RUN, new ArrayList<String>());
         newLauchConfiguration.doSave();
       }
     } catch (CoreException e) {

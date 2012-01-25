@@ -15,12 +15,10 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui;
 
+import com.google.eclipse.javascript.jstestdriver.ui.prefs.WorkbenchPreferencePage;
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-
-import com.google.eclipse.javascript.jstestdriver.core.ServerController;
-import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
-import com.google.eclipse.javascript.jstestdriver.ui.prefs.WorkbenchPreferencePage;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -57,7 +55,9 @@ public class Activator extends AbstractUIPlugin {
   }
 
   /**
-   * Returns the shared instance
+   * Provides access to the Activator for the plugin.
+   * 
+   * (yuck. static.)
    *
    * @return the shared instance
    */

@@ -2,16 +2,21 @@
 
 package com.google.eclipse.javascript.jstestdriver.core;
 
+import com.google.common.collect.Lists;
+import com.google.eclipse.javascript.jstestdriver.core.model.JstdLaunchConfiguration;
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 import com.google.jstestdriver.JsTestDriver;
 import com.google.jstestdriver.TestCase;
 import com.google.jstestdriver.embedded.JsTestDriverBuilder;
 import com.google.jstestdriver.hooks.TestResultListener;
+import com.google.jstestdriver.model.BasePaths;
 import com.google.jstestdriver.runner.RunnerMode;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,12 +26,13 @@ import java.util.List;
  * @author corysmith@google.com (Cory Smith)
  */
 public class JstdTestRunner {
+  ProjectHelper helper = new ProjectHelper();
 
-  private JsTestDriver getJstd() throws CoreException {
-    
+  private JsTestDriver getJstd(BasePaths basePaths) throws CoreException {
     JsTestDriverBuilder builder = new JsTestDriverBuilder()
         .setServer(ServiceLocator.getService(ServerController.class).getServerUrl())
         .setRunnerMode(RunnerMode.DEBUG)
+        .addBasePaths(basePaths)
         .raiseExceptionOnTestFailure(false)
         .setDefaultConfiguration(new EclipseServerConfiguration());
 
@@ -37,31 +43,40 @@ public class JstdTestRunner {
     return builder.build();
   }
 
-  public void runAllTests(ILaunchConfiguration configuration) throws CoreException {
-    getJstd().runAllTests(getConfigurationPath(configuration));
+  public void runAllTests(JstdLaunchConfiguration launchConfiguration) throws CoreException {
+    getJstd(launchConfiguration.getBasePaths()).runAllTests(launchConfiguration.getConfigurationPath());
   }
 
-  public void runTests(List<String> tests, ILaunchConfiguration configuration) throws CoreException {
-    getJstd().runTests(getConfigurationPath(configuration), tests);
+  private BasePaths getBasePaths(ILaunchConfiguration configuration) throws CoreException {
+    List<File> paths = Lists.newArrayList();
+    for (int j = 0;; j++) {
+      String path = configuration.getAttribute(
+          String.format("%s_%s", LaunchConfigurationConstants.BASEPATH, j),
+          "NULL");
+      if ("NULL".equals(path)) {
+        break;
+      }
+      paths.add(new File(path));
+    }
+    return new BasePaths(paths);
+  }
+
+  public void runTests(List<String> tests, JstdLaunchConfiguration launchConfiguration) throws CoreException {
+    getJstd(launchConfiguration.getBasePaths()).runTests(launchConfiguration.getConfigurationPath(), tests);
   }
 
   public Collection<TestCase> getTestCases(ILaunchConfiguration configuration) throws CoreException {
-    return getJstd().getTestCasesFor(getConfigurationPath(configuration));
+    return getJstd(getBasePaths(configuration)).getTestCasesFor(getConfigurationPath(configuration));
   }
 
-  /**
-   * @param configuration
-   * @return
-   * @throws CoreException
-   */
   private String getConfigurationPath(ILaunchConfiguration configuration) throws CoreException {
-    return configuration.getAttribute(LaunchConfigurationConstants.CONF_FULLPATH, "");
+    String path = configuration.getAttribute(LaunchConfigurationConstants.CONF_FULLPATH, "");
+    IProject project = helper.getProject(configuration.getAttribute(LaunchConfigurationConstants.PROJECT_NAME, ""));
+    return project.getFile(path).getLocation().toOSString();
   }
 
-  /**
-   * @param lastLaunchConfiguration
-   */
+
   public void resetTest(ILaunchConfiguration configuration) throws CoreException {
-    getJstd().reset();
+    getJstd(getBasePaths(configuration)).reset();
   } 
 }

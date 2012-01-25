@@ -44,9 +44,11 @@ public class BrowserLaunchCapableSelectionListener implements SelectionListener 
     this.browserName = browserName;
   }
 
+  @Override
   public void widgetDefaultSelected(SelectionEvent e) {
   }
 
+  @Override
   public void widgetSelected(SelectionEvent e) {
     try {
       String pathToBrowser = preferenceStore.getString(browserName);

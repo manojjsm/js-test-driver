@@ -37,6 +37,7 @@ import com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfiguration
 public class JsTestDriverLaunchTabGroup extends AbstractLaunchConfigurationTabGroup {
 
 
+  @Override
   public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
     try {
       setTabs(new ILaunchConfigurationTab[] {

@@ -1,16 +1,14 @@
 /*
  * Copyright 2011 Google Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package com.google.eclipse.javascript.jstestdriver.ui.runner;
@@ -35,23 +33,24 @@ import com.google.jstestdriver.TestResult;
 import com.google.jstestdriver.hooks.TestResultListener;
 
 /**
+ * Listens for test results and updates the UI appropriately.
  *
- *
- * @author Cory Smith (corbinrsmith@gmail.com) 
+ * @author Cory Smith (corbinrsmith@gmail.com)
  */
 public class EclipseTestResultListener implements TestResultListener {
   private static final Logger logger = Logger.getLogger(EclipseTestResultListener.class.getName());
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onTestComplete(final TestResult testResult) {
     Display.getDefault().asyncExec(new Runnable() {
-
+        @Override
       public void run() {
-        IWorkbenchPage page = PlatformUI.getWorkbench()
-            .getActiveWorkbenchWindow().getActivePage();
+        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         try {
-          JsTestDriverView view = (JsTestDriverView) page
-              .showView(JsTestDriverView.ID);
+          JsTestDriverView view = (JsTestDriverView) page.showView(JsTestDriverView.ID);
           TestResultsPanel panel = view.getTestResultsPanel();
           panel.addTestResults(Lists.newArrayList(testResult));
         } catch (PartInitException e) {
@@ -61,17 +60,16 @@ public class EclipseTestResultListener implements TestResultListener {
     });
   }
 
-  /* (non-Javadoc)
-   * @see com.google.jstestdriver.output.TestResultListener#finish()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void finish() {
-    // TODO Auto-generated method stub
-
+    // NOOP
   }
 
-  /* (non-Javadoc)
-   * @see com.google.jstestdriver.hooks.TestResultListener#onFileLoad(com.google.jstestdriver.BrowserInfo, com.google.jstestdriver.FileResult)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void onFileLoad(BrowserInfo browserInfo, FileResult fileResult) {
@@ -80,12 +78,11 @@ public class EclipseTestResultListener implements TestResultListener {
     library.addTestCaseSource(fileResult.getFileSource());
   }
 
-  /* (non-Javadoc)
-   * @see com.google.jstestdriver.hooks.TestResultListener#onTestRegistered(com.google.jstestdriver.BrowserInfo, com.google.jstestdriver.TestCase)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void onTestRegistered(BrowserInfo browser, TestCase testCase) {
     logger.info(testCase.toString());
   }
-
 }

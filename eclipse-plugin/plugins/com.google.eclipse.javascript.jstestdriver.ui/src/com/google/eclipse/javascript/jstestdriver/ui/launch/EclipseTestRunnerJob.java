@@ -16,11 +16,11 @@
 
 package com.google.eclipse.javascript.jstestdriver.ui.launch;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.eclipse.javascript.jstestdriver.core.JstdTestRunner;
+import com.google.eclipse.javascript.jstestdriver.core.model.JstdLaunchConfiguration;
+import com.google.eclipse.javascript.jstestdriver.ui.Activator;
+import com.google.jstestdriver.TestCase;
+import com.google.jstestdriver.browser.BrowserPanicException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,16 +29,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 
-import com.google.eclipse.javascript.jstestdriver.core.JstdTestRunner;
-import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
-import com.google.eclipse.javascript.jstestdriver.ui.Activator;
-import com.google.eclipse.javascript.jstestdriver.ui.view.JsTestDriverView;
-import com.google.eclipse.javascript.jstestdriver.ui.view.TestResultsPanel;
-import com.google.jstestdriver.TestCase;
-import com.google.jstestdriver.browser.BrowserPanicException;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Handles the execution of jstd tests into a background thread.
@@ -56,27 +51,26 @@ public class EclipseTestRunnerJob extends Job {
   private final ILaunchConfiguration configuration;
   private final List<String> testsToRun;
 
-  private final LaunchValidator validator = new LaunchValidator();
+  private final Collection<ILaunchValidator> validators;
 
-  public EclipseTestRunnerJob(ILaunchConfiguration configuration) {
-    this(configuration, new ArrayList<String>());
-  }
-
-  public EclipseTestRunnerJob(ILaunchConfiguration configuration, List<String> testsToRun) {
+  public EclipseTestRunnerJob(ILaunchConfiguration configuration, List<String> testsToRun,
+      JstdTestRunner runner, Collection<ILaunchValidator> validators) {
     super(JOB_NAME);
     this.configuration = configuration;
     this.testsToRun = testsToRun;
-
-    runner = ServiceLocator.getService(JstdTestRunner.class);
+    this.runner = runner;
+    this.validators = validators;
   }
 
   @Override
   protected IStatus run(IProgressMonitor monitor) {
     try {
-      
-      if (!validator.preLaunchCheck()) {
-        //we do not want to report this as an error to job scheduler
-        return Status.OK_STATUS;
+      JstdLaunchConfiguration launchConfiguration = new JstdLaunchConfiguration(configuration);
+      for (ILaunchValidator validator : validators) {
+        if (!validator.preLaunchCheck(launchConfiguration, monitor)) {
+          //we do not want to report this as an error to job scheduler
+          return Status.OK_STATUS;
+        }
       }
 
       // initialize JsTestDriverView; this needs to be done in UI thread
@@ -84,9 +78,9 @@ public class EclipseTestRunnerJob extends Job {
           new BeforeTestsViewInitialization(getTestsNumber(), configuration, logger));
 
       if (testsToRun.isEmpty()) {
-        runner.runAllTests(configuration);
+        runner.runAllTests(launchConfiguration);
       } else {
-        runner.runTests(testsToRun, configuration);
+        runner.runTests(testsToRun, launchConfiguration);
       }
 
     } catch (CoreException e) {
@@ -115,31 +109,5 @@ public class EclipseTestRunnerJob extends Job {
       result += testCase.getTests().size();
     }
     return result;
-  }
-
-
-  static class BeforeTestsViewInitialization implements Runnable {
-    private final Logger logger;
-    private final int testsNumber;
-    private final ILaunchConfiguration configuration;
-
-    BeforeTestsViewInitialization(int testsNumber, ILaunchConfiguration configuration, Logger logger) {
-      this.logger = logger;
-      this.configuration = configuration;
-      this.testsNumber = testsNumber;
-    }
-
-    @Override
-    public void run() {
-      IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-      try {
-        JsTestDriverView view = (JsTestDriverView) page.showView(JsTestDriverView.ID);
-        TestResultsPanel panel = view.getTestResultsPanel();
-        panel.setupForNextTestRun(configuration);
-        panel.addNumberOfTests(testsNumber);
-      } catch (CoreException e) {
-        logger.log(Level.SEVERE, "", e);
-      }
-    }
   }
 }

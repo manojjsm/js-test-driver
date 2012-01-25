@@ -33,6 +33,8 @@ import org.eclipse.debug.core.Launch;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import com.google.eclipse.javascript.jstestdriver.core.JstdLaunchListener;
+import com.google.eclipse.javascript.jstestdriver.core.JstdTestRunner;
+import com.google.eclipse.javascript.jstestdriver.core.ServiceLocator;
 import com.google.eclipse.javascript.jstestdriver.core.model.LaunchConfigurationConstants;
 import com.google.eclipse.javascript.jstestdriver.ui.Activator;
 
@@ -47,11 +49,11 @@ public class JsTestDriverLaunchConfigurationDelegate extends LaunchConfiguration
 
   @Override
   public void launch(final ILaunchConfiguration configuration, String mode, final ILaunch launch, IProgressMonitor monitor) throws CoreException {
-    
+
     if (!isRunMode(mode)) {
       throw new IllegalStateException("Can only launch JS Test Driver configuration from Run mode");
     }
-    
+
     @SuppressWarnings("unchecked")
     final List<String> testsToRun = configuration.getAttribute(LaunchConfigurationConstants.TESTS_TO_RUN, new ArrayList<String>());
 
@@ -60,7 +62,9 @@ public class JsTestDriverLaunchConfigurationDelegate extends LaunchConfiguration
     // The eclipse test runner job does also a validation. It was moved
     // because EclipseTestRunnerJob is called from multiple places
     // (shortcut) and I wanted to avoid functionality duplication.
-    Job job = new EclipseTestRunnerJob(configuration, testsToRun);
+    Job job = new EclipseTestRunnerJob(configuration, testsToRun, ServiceLocator.getService(JstdTestRunner.class),
+        ServiceLocator.getExtensionPoints(ILaunchValidator.class,
+            "com.google.eclipse.javascript.jstestdriver.ui.ILaunchValidator"));
     job.schedule();
   }
   

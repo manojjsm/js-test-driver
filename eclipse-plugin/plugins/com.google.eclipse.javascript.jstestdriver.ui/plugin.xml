@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider" name="com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider" schema="schema/com.google.eclipse.javascript.jstestdriver.core.JsTestDriverConfigurationProvider.exsd"/>
+   <extension-point id="com.google.eclipse.javascript.jstestdriver.ui.ILaunchValidator" name="com.google.eclipse.javascript.jstestdriver.ui.ILaunchValidator" schema="schema/com.google.eclipse.javascript.jstestdriver.ui.ILaunchValidator.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -146,5 +147,13 @@
      <testResultListener
         class="com.google.eclipse.javascript.jstestdriver.ui.runner.EclipseTestResultListener">
      </testResultListener>
+   </extension>
+   <extension
+         id="com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchValidator"
+         name="com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchValidator"
+         point="com.google.eclipse.javascript.jstestdriver.ui.ILaunchValidator">
+     <launchValidator
+        class="com.google.eclipse.javascript.jstestdriver.ui.launch.LaunchValidator">
+     </launchValidator>
    </extension>
 </plugin>

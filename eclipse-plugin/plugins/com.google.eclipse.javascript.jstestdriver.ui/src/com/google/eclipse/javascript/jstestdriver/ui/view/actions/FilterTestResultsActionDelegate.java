@@ -41,12 +41,14 @@ public class FilterTestResultsActionDelegate implements IViewActionDelegate {
     this.filter = filter;
   }
 
+  @Override
   public void init(IViewPart view) {
     if (view instanceof JsTestDriverView) {
       this.view = ((JsTestDriverView) view).getTestResultsPanel();
     }
   }
 
+  @Override
   public void run(IAction action) {
     if (!shouldFilter) {
       shouldFilter = true;
@@ -57,6 +59,7 @@ public class FilterTestResultsActionDelegate implements IViewActionDelegate {
     }
   }
 
+  @Override
   public void selectionChanged(IAction action, ISelection selection) {
   }
 
