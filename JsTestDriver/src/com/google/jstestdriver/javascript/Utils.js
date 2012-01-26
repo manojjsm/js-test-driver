@@ -208,21 +208,25 @@ jstestdriver.utils.serializeObjectToArray =
    function(obj, opt_out){
   var out = opt_out || out;
   if (obj instanceof Array) {
-      out.push('[');
-      var arr = /** @type {Array.<Object>} */
-      obj;
-      for ( var i = 0; i < arr.length; i++) {
-        this.serializeObjectToArray(arr[i], out);
-        if (i < arr.length - 1) {
-          out.push(',');
-        }
+    out.push('[');
+    var arr = /** @type {Array.<Object>} */ obj;
+    for ( var i = 0; i < arr.length; i++) {
+      this.serializeObjectToArray(arr[i], out);
+      if (i < arr.length - 1) {
+        out.push(',');
       }
-      out.push(']');
-    } else {
-      out.push(jstestdriver.angular.toJson(obj));
     }
-    return out;
-  };
+    out.push(']');
+  } else {
+    var serial = jstestdriver.angular.toJson(obj);
+    if (!serial.length) {
+      serial = '["Bad serialization of ' + String(obj) + ':' +
+          Object.prototype.toString.call(obj) + '"]';
+    }
+    out.push(serial);
+  }
+  return out;
+};
 
 
 jstestdriver.utils.serializePropertyOnObject = function(name, obj, out) {
