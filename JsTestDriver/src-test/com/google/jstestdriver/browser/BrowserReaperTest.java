@@ -50,7 +50,7 @@ public class BrowserReaperTest extends TestCase {
     assertEquals(1, browsers.getBrowsers().size());
   }
 
-  public void testDontReapDeadBrowserWithCommandRunning() throws Exception {
+  public void testDontReapDeadBrowserWithLock() throws Exception {
     final CapturedBrowsers browsers = new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0)));
     final MockTime time = new MockTime(1);
     final SlaveBrowser browserOne =
@@ -64,8 +64,7 @@ public class BrowserReaperTest extends TestCase {
     final BrowserReaper browserReaper = new BrowserReaper(browsers);
     time.add(40);
     browserOne.heartBeat();
-    browserTwo.createCommand("foo");
-    browserTwo.dequeueCommand();
+    browserTwo.tryLock("locked");
     browserReaper.run();
     assertEquals(2, browsers.getBrowsers().size());
   }
