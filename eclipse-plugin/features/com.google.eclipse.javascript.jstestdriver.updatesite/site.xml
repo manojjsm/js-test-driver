@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.google.eclipse.javascript.jstestdriver.feature_1.3.3.a.jar" id="com.google.eclipse.javascript.jstestdriver.feature" version="1.3.3.a"/>
+   <description name="JsTestDriver Eclipse Plugin" url="http://js-test-driver.googlecode.com/svn/update">
+      Simplified javascript testing. Hopefully.
+      
+      Rather &quot;Code Fast, test young, and leave a good looking corpus.&quot;
+      
+      Please bring usage issues to http://groups.google.com/group/js-test-driver?pli=1
+      
+      Please file bugs at http://code.google.com/p/js-test-driver/issues/list.
+   </description>
+   <feature url="features/com.google.eclipse.javascript.jstestdriver.feature_1.3.3.a.jar" id="com.google.eclipse.javascript.jstestdriver.feature" version="1.3.3.a">
+      <category name="JavascriptTesting"/>
+   </feature>
+   <category-def name="JavascriptTesting" label="Javascript Testing">
+      <description>
+         Tools for testing Javascript.
+      </description>
+   </category-def>
 </site>

@@ -15,6 +15,8 @@
  */
 package com.google.eclipse.javascript.jstestdriver.ui.view;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
@@ -23,8 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.search.core.text.TextSearchEngine;
 import org.eclipse.search.core.text.TextSearchMatchAccess;
 import org.eclipse.search.core.text.TextSearchRequestor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 
 
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 // TODO(corysmith): Merge with TestCaseNameFinder.
 public class TestCaseFinder {
-  private static final Logger logger = LoggerFactory.getLogger(TestCaseFinder.class);
+  private static final Logger logger = Logger.getLogger(TestCaseFinder.class.getName());
 
   public TestCaseFinderResult find(IFile[] loadedFiles, String testCaseName,
       String testName) {
@@ -75,7 +76,9 @@ public class TestCaseFinder {
     @SuppressWarnings("unused")
     @Override
     public boolean acceptFile(IFile file) throws CoreException {
-      logger.debug("Searching through file: {}", file);
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine("Searching through file:" + file);
+      }
       return true;
     }
 
