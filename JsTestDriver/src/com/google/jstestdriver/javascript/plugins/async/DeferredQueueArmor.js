@@ -30,6 +30,7 @@ goog.require('jstestdriver');
  * Constructs a DeferredQueueArmor.
  * @param {function(Object)} toJson a function to convert objects to JSON.
  * @constructor
+ * @export
  */
 jstestdriver.plugins.async.DeferredQueueArmor = function(toJson) {
   this.toJson_ = toJson;
@@ -53,6 +54,7 @@ jstestdriver.plugins.async.DeferredQueueArmor.prototype.setQueue = function(
  * @param {string|Function} description The description or function.
  * @param {Function=} operation The function.
  * @return {jstestdriver.plugins.async.DeferredQueueArmor} This.
+ * @export
  */
 jstestdriver.plugins.async.DeferredQueueArmor.prototype.call = function(
     description, operation) {
@@ -97,6 +99,7 @@ jstestdriver.plugins.async.DeferredQueueArmor.prototype.nextDescription_ =
  * @param {string|Function} description The description or function.
  * @param {Function=} operation The function.
  * @deprecated Use DeferredQueueArmor#call().
+ * @export
  */
 jstestdriver.plugins.async.DeferredQueueArmor.prototype.defer =
     jstestdriver.plugins.async.DeferredQueueArmor.prototype.call;

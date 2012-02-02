@@ -30,6 +30,7 @@ goog.require('jstestdriver');
  * Constructs a CallbackPoolArmor.
  * @param {jstestdriver.plugins.async.CallbackPool} pool The pool.
  * @constructor
+ * @export
  */
 jstestdriver.plugins.async.CallbackPoolArmor = function(pool) {
   this.pool_ = pool;
@@ -44,6 +45,7 @@ jstestdriver.plugins.async.CallbackPoolArmor = function(pool) {
  * @param {number=} opt_timeout The timeout in milliseconds.
  * @param {string=} opt_description The callback description.
  * @return {Function} The wrapped callback.
+ * @export
  */
 jstestdriver.plugins.async.CallbackPoolArmor.prototype.addCallback = function(
     callback, opt_n, opt_timeout, opt_description) {
@@ -68,6 +70,7 @@ jstestdriver.plugins.async.CallbackPoolArmor.prototype.addCallback = function(
  * @return {Function} An errback function to attach to an asynchronous system so
  *     that the test runner can be notified in the event of error.
  * @param {string} message A message to report to the user upon error.
+ * @export
  */
 jstestdriver.plugins.async.CallbackPoolArmor.prototype.addErrback = function(
     message) {
@@ -82,6 +85,7 @@ jstestdriver.plugins.async.CallbackPoolArmor.prototype.addErrback = function(
  *     be called.
  * @return {Function} The wrapped callback.
  * @deprecated Use CallbackPoolArmor#addCallback().
+ * @export
  */
 jstestdriver.plugins.async.CallbackPoolArmor.prototype.add =
     jstestdriver.plugins.async.CallbackPoolArmor.prototype.addCallback;
@@ -95,6 +99,7 @@ jstestdriver.plugins.async.CallbackPoolArmor.prototype.add =
  * @param {number=} opt_timeout The timeout in milliseconds.
  * @param {string=} opt_description The description.
  * @return {Function} A noop callback.
+ * @export
  */
 jstestdriver.plugins.async.CallbackPoolArmor.prototype.noop = function(
     opt_n, opt_timeout, opt_description) {
