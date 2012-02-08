@@ -28,6 +28,7 @@ import com.google.inject.servlet.RequestScoped;
 import com.google.jstestdriver.annotations.RequestProtocol;
 import com.google.jstestdriver.annotations.ResponseWriter;
 import com.google.jstestdriver.server.gateway.GatewayRequestHandler;
+import com.google.jstestdriver.server.gateway.MockRequestHandler;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -95,6 +96,9 @@ public abstract class RequestHandlersModule extends AbstractModule {
     bind(GatewayRequestHandler.Factory.class).toProvider(
         FactoryProvider.newFactory(
             GatewayRequestHandler.Factory.class, GatewayRequestHandler.class));
+    bind(MockRequestHandler.Factory.class).toProvider(
+        FactoryProvider.newFactory(
+            MockRequestHandler.Factory.class, MockRequestHandler.class));
     bind(GatewayConfiguration.class).in(Singleton.class);
   }
 

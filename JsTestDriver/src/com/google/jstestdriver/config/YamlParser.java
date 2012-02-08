@@ -22,6 +22,8 @@ import com.google.jstestdriver.Plugin;
 import com.google.jstestdriver.browser.DocType;
 import com.google.jstestdriver.browser.DocTypeParser;
 import com.google.jstestdriver.model.BasePaths;
+import com.google.jstestdriver.requesthandlers.GatewayConfiguration;
+import com.google.jstestdriver.server.gateway.MockResponse;
 
 import org.jvyaml.YAML;
 
@@ -31,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 
@@ -108,22 +111,10 @@ public class YamlParser implements ConfigurationParser {
       }
     }
     if (data.containsKey("proxy")) {
-      for (Map<String, String> value :
-          (List<Map<String, String>>) data.get("proxy")) {
-        JsonObject entry = new JsonObject();
-        entry.addProperty("matcher", value.get("matcher"));
-        entry.addProperty("server", value.get("server"));
-        gatewayConfig.add(entry);
-      }
+      copyDataToGatewayConfig(data, "proxy", gatewayConfig);
     }
     if (data.containsKey("gateway")) {
-      for (Map<String, String> value :
-          (List<Map<String, String>>) data.get("gateway")) {
-        JsonObject entry = new JsonObject();
-        entry.addProperty("matcher", value.get("matcher"));
-        entry.addProperty("server", value.get("server"));
-        gatewayConfig.add(entry);
-      }
+      copyDataToGatewayConfig(data, "gateway", gatewayConfig);
     }
 
     return new ParsedConfiguration(resolvedFilesLoad,
@@ -135,6 +126,45 @@ public class YamlParser implements ConfigurationParser {
                                    Lists.newArrayList(testFiles),
                                    gatewayConfig,
                                    doctype);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void copyDataToGatewayConfig(
+      Map<Object, Object> data, String key, JsonArray gatewayConfig) {
+    for (Map<Object, Object> value :
+        (List<Map<Object, Object>>) data.get(key)) {
+      JsonObject entry = new JsonObject();
+      if (value.containsKey(GatewayConfiguration.MATCHER)) {
+        entry.addProperty(GatewayConfiguration.MATCHER,
+            (String) value.get(GatewayConfiguration.MATCHER));
+      }
+      if (value.containsKey(GatewayConfiguration.SERVER)) {
+        entry.addProperty(GatewayConfiguration.SERVER,
+            (String) value.get(GatewayConfiguration.SERVER));
+      }
+      if (value.containsKey(MockResponse.STATUS)) {
+        entry.addProperty(MockResponse.STATUS,
+            (Number) value.get(MockResponse.STATUS));
+      }
+      if (value.containsKey(MockResponse.RESPONSE_HEADERS)) {
+        Map<String, String> responseHeaders =
+            (Map<String, String>) value.get(MockResponse.RESPONSE_HEADERS);
+        JsonObject jsonHeaders = new JsonObject();
+        for (Entry<String, String> jsonEntry : responseHeaders.entrySet()) {
+          jsonHeaders.addProperty(jsonEntry.getKey(), jsonEntry.getValue());
+        }
+        entry.add(MockResponse.RESPONSE_HEADERS, jsonHeaders);
+      }
+      if (value.containsKey(MockResponse.CONTENT_TYPE)) {
+        entry.addProperty(MockResponse.CONTENT_TYPE,
+            (String) value.get(MockResponse.CONTENT_TYPE));
+      }
+      if (value.containsKey(MockResponse.RESPONSE_TEXT)) {
+        entry.addProperty(MockResponse.RESPONSE_TEXT,
+            (String) value.get(MockResponse.RESPONSE_TEXT));
+      }
+      gatewayConfig.add(entry);
+    }
   }
 
   private List<String> createArgsList(String args) {

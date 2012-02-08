@@ -15,6 +15,17 @@
  */
 package com.google.jstestdriver.config;
 
+import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.jstestdriver.FileInfo;
+import com.google.jstestdriver.Plugin;
+import com.google.jstestdriver.model.BasePaths;
+import com.google.jstestdriver.requesthandlers.GatewayConfiguration;
+import com.google.jstestdriver.server.gateway.MockResponse;
+
+import junit.framework.TestCase;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -24,15 +35,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import junit.framework.TestCase;
-
-import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.jstestdriver.FileInfo;
-import com.google.jstestdriver.Plugin;
-import com.google.jstestdriver.model.BasePaths;
 
 /**
  * @author jeremiele@google.com (Jeremie Lenfant-Engelmann)
@@ -227,23 +229,52 @@ public class YamlParserTest extends TestCase {
     String configFile =
         "gateway:\n"
       + " - {matcher: /asdf*, server: \"http://www.google.com\"}\n"
-      + " - {matcher: /two, server: \"http://docs.google.com\"}\n";
+      + " - {matcher: /two, status: 200}\n"
+      + " - {matcher: /three, responseHeaders: {X-0: \"0\", X-1: \"1\"}}\n"
+      + " - {matcher: /four, contentType: \"text/plain\"}\n"
+      + " - {matcher: /five, responseText: \"hello world\"}\n";
     ByteArrayInputStream bias = new ByteArrayInputStream(configFile.getBytes());
     ConfigurationParser parser = new YamlParser();
 
     Configuration config = parser.parse(new InputStreamReader(bias), null);
     JsonArray gatewayConfig = config.getGatewayConfiguration();
-    assertEquals(2, gatewayConfig.size());
+    assertEquals(5, gatewayConfig.size());
+
     JsonObject first = gatewayConfig.get(0).getAsJsonObject();
-    assertTrue(first.has("matcher"));
-    assertEquals("/asdf*", first.get("matcher").getAsString());
-    assertTrue(first.has("server"));
-    assertEquals("http://www.google.com", first.get("server").getAsString());
+    assertTrue(first.has(GatewayConfiguration.MATCHER));
+    assertEquals("/asdf*", first.get(GatewayConfiguration.MATCHER).getAsString());
+    assertTrue(first.has(GatewayConfiguration.SERVER));
+    assertEquals("http://www.google.com", first.get(GatewayConfiguration.SERVER).getAsString());
+
     JsonObject second = gatewayConfig.get(1).getAsJsonObject();
-    assertTrue(second.has("matcher"));
-    assertEquals("/two", second.get("matcher").getAsString());
-    assertTrue(second.has("server"));
-    assertEquals("http://docs.google.com", second.get("server").getAsString());
+    assertTrue(second.has(GatewayConfiguration.MATCHER));
+    assertEquals("/two", second.get(GatewayConfiguration.MATCHER).getAsString());
+    assertTrue(second.has(MockResponse.STATUS));
+    assertEquals(200, second.get(MockResponse.STATUS).getAsInt());
+
+    JsonObject third = gatewayConfig.get(2).getAsJsonObject();
+    assertTrue(third.has(GatewayConfiguration.MATCHER));
+    assertEquals("/three", third.get(GatewayConfiguration.MATCHER).getAsString());
+    assertTrue(third.has(MockResponse.RESPONSE_HEADERS));
+
+    JsonObject responseHeaders = third.get(MockResponse.RESPONSE_HEADERS).getAsJsonObject();
+    assertEquals(2, responseHeaders.entrySet().size());
+    assertTrue(responseHeaders.has("X-0"));
+    assertEquals("0", responseHeaders.get("X-0").getAsString());
+    assertTrue(responseHeaders.has("X-1"));
+    assertEquals("1", responseHeaders.get("X-1").getAsString());
+
+    JsonObject fourth = gatewayConfig.get(3).getAsJsonObject();
+    assertTrue(fourth.has(GatewayConfiguration.MATCHER));
+    assertEquals("/four", fourth.get(GatewayConfiguration.MATCHER).getAsString());
+    assertTrue(fourth.has(MockResponse.CONTENT_TYPE));
+    assertEquals("text/plain", fourth.get(MockResponse.CONTENT_TYPE).getAsString());
+
+    JsonObject fifth = gatewayConfig.get(4).getAsJsonObject();
+    assertTrue(fifth.has(GatewayConfiguration.MATCHER));
+    assertEquals("/five", fifth.get(GatewayConfiguration.MATCHER).getAsString());
+    assertTrue(fifth.has(MockResponse.RESPONSE_TEXT));
+    assertEquals("hello world", fifth.get(MockResponse.RESPONSE_TEXT).getAsString());
   }
 
   public void testParseGatewayConfiguration_empty() throws Exception {

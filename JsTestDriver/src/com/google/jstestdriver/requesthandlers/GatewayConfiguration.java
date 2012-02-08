@@ -26,6 +26,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.jstestdriver.server.gateway.GatewayRequestHandler;
+import com.google.jstestdriver.server.gateway.MockRequestHandler;
+import com.google.jstestdriver.server.gateway.MockResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +61,11 @@ public class GatewayConfiguration {
   public static final String SERVER = "server";
 
   private final GatewayRequestHandler.Factory gatewayFactory;
+  private final MockRequestHandler.Factory mockFactory;
 
   private JsonArray gatewayConfig = new JsonArray();
   private List<RequestMatcher> matchers;
+  private Map<RequestMatcher, MockResponse> mockResponses;
   private Map<RequestMatcher, String> destinations;
 
   /**
@@ -70,8 +74,11 @@ public class GatewayConfiguration {
    * @param gatewayFactory A Guice {@link Provider} of {@link GatewayRequestHandler}s.
    */
   @Inject
-  public GatewayConfiguration(GatewayRequestHandler.Factory gatewayFactory) {
+  public GatewayConfiguration(
+      GatewayRequestHandler.Factory gatewayFactory,
+      MockRequestHandler.Factory mockFactory) {
     this.gatewayFactory = gatewayFactory;
+    this.mockFactory = mockFactory;
     clearConfiguration();
   }
 
@@ -90,9 +97,19 @@ public class GatewayConfiguration {
    * @return A suitable {@link RequestHandler}.
    */
   public synchronized RequestHandler getRequestHandler(RequestMatcher matcher) {
+    MockResponse mockResponse = mockResponses.get(matcher);
+
+    if (mockResponse != null) {
+      return mockFactory.create(mockResponse);
+    }
+
     String destination = destinations.get(matcher);
-    return destination == null ? new NullRequestHandler()
-        : gatewayFactory.create(destination, matcher.getPrefix());
+
+    if (destination != null) {
+      return gatewayFactory.create(destination, matcher.getPrefix());
+    }
+
+    return new NullRequestHandler();
   }
 
   public synchronized JsonArray getGatewayConfig() {
@@ -109,17 +126,23 @@ public class GatewayConfiguration {
   public synchronized void updateConfiguration(JsonArray configuration)
       throws ServletException {
     gatewayConfig = configuration;
-    ImmutableList.Builder<RequestMatcher> listBuilder = ImmutableList.builder();
-    ImmutableMap.Builder<RequestMatcher, String> mapBuilder = ImmutableMap.builder();
+    ImmutableList.Builder<RequestMatcher> matchersBuilder = ImmutableList.builder();
+    ImmutableMap.Builder<RequestMatcher, MockResponse> mockResponsesBuilder = ImmutableMap.builder();
+    ImmutableMap.Builder<RequestMatcher, String> destinationsBuilder = ImmutableMap.builder();
     for (JsonElement element : configuration) {
       JsonObject entry = element.getAsJsonObject();
       RequestMatcher matcher =
           new RequestMatcher(ANY, entry.get(MATCHER).getAsString());
-      listBuilder.add(matcher);
-      mapBuilder.put(matcher, entry.get(SERVER).getAsString());
+      matchersBuilder.add(matcher);
+      if (MockResponse.entryDescribesMockResponse(entry)) {
+        mockResponsesBuilder.put(matcher, MockResponse.buildFromEntry(entry));
+      } else {
+        destinationsBuilder.put(matcher, entry.get(SERVER).getAsString());
+      }
     }
-    this.matchers = listBuilder.build();
-    this.destinations = mapBuilder.build();
+    this.matchers = matchersBuilder.build();
+    this.mockResponses = mockResponsesBuilder.build();
+    this.destinations = destinationsBuilder.build();
   }
 
   /**
@@ -128,6 +151,7 @@ public class GatewayConfiguration {
    */
   public synchronized void clearConfiguration() {
     this.matchers = ImmutableList.of();
+    this.mockResponses = ImmutableMap.of();
     this.destinations = ImmutableMap.of();
   }
 }
