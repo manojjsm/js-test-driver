@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses failures.
@@ -46,6 +48,8 @@ public class FailureParser {
     String message = "";
     List<Failure> failures;
     String stackStripPrefix = pathPrefix.prefixPath("/static/");
+    Pattern stackStripPattern = Pattern.compile("http://[^/]*/*" + stackStripPrefix,
+        Pattern.CASE_INSENSITIVE);
     try {
       Collection<JsException> exceptions =
           gson.fromJson(failure, new TypeToken<Collection<JsException>>() {}.getType());
@@ -61,7 +65,7 @@ public class FailureParser {
 
         final List<String> stack = Lists.newLinkedList();
         for (String l : lines) {
-          if (!l.contains(stackStripPrefix)) {
+          if (!stackStripPattern.matcher(l).find()) {
             stack.add(l);
           }
         }
