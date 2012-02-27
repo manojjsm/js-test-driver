@@ -2,7 +2,7 @@
 <feature
       id="com.google.eclipse.javascript.jstestdriver.feature"
       label="JS Test Driver"
-      version="1.3.3.a"
+      version="1.3.4.a"
       provider-name="Google, Inc.">
 
    <description url="http://code.google.com/p/js-test-driver">

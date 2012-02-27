@@ -9,7 +9,7 @@
       
       Please file bugs at http://code.google.com/p/js-test-driver/issues/list.
    </description>
-   <feature url="features/com.google.eclipse.javascript.jstestdriver.feature_1.3.3.a.jar" id="com.google.eclipse.javascript.jstestdriver.feature" version="1.3.3.a">
+   <feature url="features/com.google.eclipse.javascript.jstestdriver.feature_1.3.4.a.jar" id="com.google.eclipse.javascript.jstestdriver.feature" version="1.3.4sq.a">
       <category name="JavascriptTesting"/>
    </feature>
    <category-def name="JavascriptTesting" label="Javascript Testing">

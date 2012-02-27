@@ -121,7 +121,7 @@ public class TestRunner {
     };
   }
 
-  private IDEPluginActionBuilder makeActionBuilder(ResponseStreamFactory responseStreamFactory) {
+  private JsTestDriver makeActionBuilder(ResponseStreamFactory responseStreamFactory) {
     try {
       FileReader fileReader = new FileReader(settingsFile);
       ConfigurationParser configurationParser = new ConfigurationParser(baseDirectory, fileReader,
