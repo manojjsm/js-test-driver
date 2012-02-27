@@ -25,11 +25,4 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>lib/JsTestDriver.jar</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/JsTestDriver/target/bin/JsTestDriver.jar</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

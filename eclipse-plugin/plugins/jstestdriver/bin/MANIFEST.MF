@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jstestdriver
 Bundle-SymbolicName: com.google.javascript.jstestdriver
-Bundle-Version: 1.3.3.b
+Bundle-Version: 1.3.4.e
 Bundle-Vendor: GOOGLE
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.google.common.annotations,
