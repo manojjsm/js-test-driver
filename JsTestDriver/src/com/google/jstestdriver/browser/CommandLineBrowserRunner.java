@@ -36,13 +36,22 @@ public class CommandLineBrowserRunner implements BrowserRunner {
   private final String browserArgs;
   private final ProcessFactory processFactory;
   private Process process;
+  private final String os;
 
   public CommandLineBrowserRunner(String browserPath,
                                   String browserArgs,
                                   ProcessFactory processFactory) {
+    this(browserPath, browserArgs, processFactory, System.getProperty("os.name"));
+  }
+  
+  public CommandLineBrowserRunner(String browserPath,
+                                  String browserArgs,
+                                  ProcessFactory processFactory,
+                                  String os) {
     this.browserPath = browserPath;
     this.processFactory = processFactory;
     this.browserArgs = browserArgs;
+    this.os = os;
   }
 
   @Override
@@ -58,9 +67,9 @@ public class CommandLineBrowserRunner implements BrowserRunner {
         processArgs += serverAddress;
       }
       String[] args = processArgs.split(" ");
-      
+
       String[] finalArgs;
-      String os = System.getProperty("os.name");
+
       if (os.toLowerCase().contains("mac os")) {
         finalArgs = new String[args.length + 3];
         finalArgs[0] = "open";

@@ -19,7 +19,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
 
     FakeProcessFactory processFactory = new FakeProcessFactory();
     CommandLineBrowserRunner runner =
-        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory);
+        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory, "not os x");
 
     runner.startBrowser(url);
     assertEquals(1, processFactory.processStubs.size());
@@ -36,7 +36,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
 
     FakeProcessFactory processFactory = new FakeProcessFactory();
     CommandLineBrowserRunner runner =
-        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory);
+        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory, "not os x");
 
     runner.startBrowser(url);
     assertEquals(1, processFactory.processStubs.size());
@@ -53,7 +53,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
 
     FakeProcessFactory processFactory = new FakeProcessFactory();
     CommandLineBrowserRunner runner =
-        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory);
+        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory, "not os x");
 
     runner.startBrowser(url);
     assertEquals(1, processFactory.processStubs.size());
