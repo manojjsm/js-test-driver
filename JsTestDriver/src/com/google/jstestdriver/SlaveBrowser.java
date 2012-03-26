@@ -213,8 +213,7 @@ public class SlaveBrowser {
    *         heartbeat has been received.
    */
   public double getSecondsSinceLastHeartbeat() {
-    return !receivedHeartbeat() ? -1
-        : ((time.now().getMillis() - lastHeartbeat.get().getMillis()) / 1000.0);
+    return (time.now().getMillis() - lastHeartbeat.get().getMillis()) / 1000.0;
   }
 
   public synchronized void addFiles(Collection<FileInfo> fileSet, LoadedFiles loadedFiles) {
@@ -283,8 +282,7 @@ public class SlaveBrowser {
   }
 
   public boolean isAlive() {
-    boolean alive = receivedHeartbeat()
-        && ((time.now().getMillis() - lastHeartbeat.get().getMillis() < timeout) || timeout == -1);
+    boolean alive = (time.now().getMillis() - lastHeartbeat.get().getMillis() < timeout) || timeout == -1;
     if (!alive) {
       state.set(BrowserState.DEAD);
       LOGGER.debug("Browser dead: {}", toString());

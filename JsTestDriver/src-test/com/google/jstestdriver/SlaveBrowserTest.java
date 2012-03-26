@@ -48,9 +48,6 @@ public class SlaveBrowserTest extends TestCase {
         CaptureHandler.QUIRKS,
         RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
-    assertEquals(new Instant(0), browser.getLastHeartbeat());
-    assertEquals(-1.0, browser.getSecondsSinceLastHeartbeat());
-
     mockTime.add(5);
     browser.heartBeat();
     assertEquals(5L, browser.getLastHeartbeat().getMillis());

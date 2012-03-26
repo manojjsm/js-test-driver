@@ -45,6 +45,7 @@ public class RunnerPage implements Page {
 
   @Override
   public void render(HtmlWriter writer, SlavePageRequest request) throws IOException {
+    logger.debug("Debug: " + debug);
     writer.startHead()
       .writeTitle("Console Runner")
       .writeScript("var start = new Date().getTime();")
