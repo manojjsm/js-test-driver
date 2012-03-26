@@ -199,7 +199,7 @@ public class SlaveBrowser {
 
   /** @return true if at least one heartbeat was received from the browser. */
   public boolean receivedHeartbeat() {
-    return lastHeartbeat.get().getMillis() != 0;
+    return !BrowserState.CAPTURED.equals(state.get()); 
   }
   
   /** Changes the BrowserState to ready */

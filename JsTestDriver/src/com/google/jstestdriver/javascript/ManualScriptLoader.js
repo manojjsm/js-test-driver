@@ -35,6 +35,7 @@ jstestdriver.ManualScriptLoader.prototype.beginLoad = function(file, onFileLoade
   this.win_.onerror = this.errorHandler_;
   this.started_ = this.now_();
   this.onFileLoaded_ = onFileLoaded;
+  jstestdriver.log('loading ' + file.fileSrc);
 };
 
 

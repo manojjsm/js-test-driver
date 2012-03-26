@@ -70,7 +70,7 @@ class BrowserLoggingHandler implements RequestHandler {
             browserLogger.debug(message);
             break;
           case 3:
-            browserLogger.info(message);
+            browserLogger.info("[" + log.getTimestamp() + "]" + message);
             break;
           case 4:
             browserLogger.warn(message);

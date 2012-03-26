@@ -116,6 +116,7 @@ public class CaptureHandler implements RequestHandler {
     SlaveBrowser slaveBrowser =
         browserHunter.captureBrowser(id, parser.getName(), parser.getVersion(), parser.getOs(),
             timeout, mode, runnerType, uploadSize);
+    
     return slaveBrowser.getCaptureUrl();
   }
 }

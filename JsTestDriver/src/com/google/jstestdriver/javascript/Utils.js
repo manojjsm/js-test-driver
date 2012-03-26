@@ -185,16 +185,20 @@ jstestdriver.utils.serializeErrors = function(errors) {
 };
 
 jstestdriver.utils.serializeErrorToArray = function(error, out) {
-  out.push('{');
-  out.push('"message":');
-  this.serializeObjectToArray(error.message, out);
-  this.serializePropertyOnObject('name', error, out);
-  this.serializePropertyOnObject('description', error, out);
-  this.serializePropertyOnObject('fileName', error, out);
-  this.serializePropertyOnObject('lineNumber', error, out);
-  this.serializePropertyOnObject('number', error, out);
-  this.serializePropertyOnObject('stack', error, out);
-  out.push('}');
+  if (String(Object.prototype.toString(error)).toLowerCase() == 'error') {
+    out.push('{');
+    out.push('"message":');
+    this.serializeObjectToArray(error.message, out);
+    this.serializePropertyOnObject('name', error, out);
+    this.serializePropertyOnObject('description', error, out);
+    this.serializePropertyOnObject('fileName', error, out);
+    this.serializePropertyOnObject('lineNumber', error, out);
+    this.serializePropertyOnObject('number', error, out);
+    this.serializePropertyOnObject('stack', error, out);
+    out.push('}');
+  } else {
+    out.push(jstestdriver.utils.serializeObject(error));
+  }
 };
 
 jstestdriver.utils.serializeObject = function(obj) {
@@ -247,7 +251,12 @@ jstestdriver.log = function(message) {
 
       jstestdriver.log = function(message) {
         try {
-          var stack = new Error().stack.split('\n');
+          var traceError = new Error();
+          var stack = [];
+          if (traceError.stack) {            
+            stack = traceError.stack.split('\n');
+          }
+ 
           var smallStack = [];
 
           for (var i = 0; stack[i]; i++) {
@@ -256,10 +265,12 @@ jstestdriver.log = function(message) {
               smallStack.push(stack[i].substr(0,end).trim());
             }
           }
+          smallStack = smallStack.length ? smallStack : ['No stack available'];
           jstestdriver.jQuery.ajax({
             'async' : true,
             data : 'logs=' + jstestdriver.utils.serializeObject([{
               'source' : 'jstestdriver.browser_' + id,
+              'timestamp': new Date().toString(),
               'message' : jstestdriver.utils.serializeObject(message),
               'stack' : jstestdriver.utils.serializeObject(encodeURI(smallStack.toString())),
               'browser' : browserInfo,

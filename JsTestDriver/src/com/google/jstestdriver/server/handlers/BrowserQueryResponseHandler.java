@@ -173,6 +173,8 @@ class BrowserQueryResponseHandler implements RequestHandler {
           logger.error("Recieved Unknown: " + response);
           browser.addResponse(res, done);
           break;
+        case BROWSER_PANIC:
+          logger.debug("Browser panic for {}", res.toString());
         default:
           browser.addResponse(res, done);
           break;

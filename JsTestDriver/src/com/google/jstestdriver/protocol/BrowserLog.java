@@ -28,6 +28,12 @@ public class BrowserLog {
   String source = "";
   String message = "";
   String stack = "";
+  String timestamp = "";
+
+  public String getTimestamp() {
+    return timestamp;
+  }
+
   int level = 1;
   BrowserInfo browser = null;
 

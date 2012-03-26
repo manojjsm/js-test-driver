@@ -211,6 +211,7 @@ jstestdriver.CommandExecutor.prototype.listen = function(loadResults) {
                                   true);
     jstestdriver.log('Runner reset: ' + window.location.href);
   } else {
+    jstestdriver.log('Listen: ' + window.location.href);
     response =
         new jstestdriver.Response(jstestdriver.RESPONSE_TYPES.BROWSER_READY,
                                   '{"loadedFiles":' + JSON.stringify(loadResults) + '}',
