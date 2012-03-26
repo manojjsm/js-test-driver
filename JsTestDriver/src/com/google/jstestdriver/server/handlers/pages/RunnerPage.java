@@ -22,6 +22,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.jstestdriver.util.HtmlWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 /**
@@ -30,6 +33,7 @@ import java.io.IOException;
  * @author corbinrsmith@gmail.com (Cory Smith)
  */
 public class RunnerPage implements Page {
+  private static final Logger logger = LoggerFactory.getLogger(RunnerPage.class);
   private final TestFileUtil testFileUtil;
   private final Boolean debug;
 
@@ -72,5 +76,8 @@ public class RunnerPage implements Page {
       .startBody()
       .finishBody()
       .flush();
+    if (request.getBrowser() != null) {
+      logger.debug("finished runner page for " + request.getBrowser().getId());
+    }
   }
 }

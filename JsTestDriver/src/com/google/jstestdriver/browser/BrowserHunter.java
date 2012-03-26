@@ -84,7 +84,7 @@ public class BrowserHunter {
     long computedBrowserTimeout = computeTimeout(browserTimeout);
     SlaveBrowser slave =
         new SlaveBrowser(time, id.toString(), browserInfo, computedBrowserTimeout, prefix, mode,
-            type, BrowserState.CAPTURED);
+            type, BrowserState.CAPTURED, time.now());
 
     capturedBrowsers.addSlave(slave);
     logger.debug("Browser Captured: {}", slave);

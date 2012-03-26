@@ -39,15 +39,19 @@ public class CaptureHandlerTest extends TestCase {
     CaptureHandler handler = new CaptureHandler(
         null,
         null,
-        new BrowserHunter(
-            capturedBrowsers,
-            SlaveBrowser.TIMEOUT,
-            new NullPathPrefix(),
-            null),
+        createBrowserHunter(capturedBrowsers),
         null);
 
     assertEquals("/slave/id/1/page/CONSOLE/mode/quirks/timeout/-1/upload_size/10/rt/CLIENT", handler.service("Chrome/2.0",
         CaptureHandler.QUIRKS, null, RunnerType.CLIENT, -1l, 10));
+  }
+
+  private BrowserHunter createBrowserHunter(CapturedBrowsers capturedBrowsers) {
+    return new BrowserHunter(
+        capturedBrowsers,
+        SlaveBrowser.TIMEOUT,
+        new NullPathPrefix(),
+        new MockTime(0l));
   }
 
   public void testRedirectStrictUrl() throws Exception {
@@ -55,11 +59,7 @@ public class CaptureHandlerTest extends TestCase {
     CaptureHandler handler = new CaptureHandler(
         null,
         null,
-        new BrowserHunter(
-            capturedBrowsers,
-            SlaveBrowser.TIMEOUT,
-            new NullPathPrefix(),
-            null),
+        createBrowserHunter(capturedBrowsers),
         null);
 
     assertEquals("/slave/id/1/page/CONSOLE/mode/strict/timeout/-1/upload_size/10/rt/CLIENT", handler.service("Chrome/2.0",
@@ -72,11 +72,7 @@ public class CaptureHandlerTest extends TestCase {
     CaptureHandler handler = new CaptureHandler(
         null,
         null,
-        new BrowserHunter(
-            capturedBrowsers,
-            SlaveBrowser.TIMEOUT,
-            new NullPathPrefix(),
-            null),
+        createBrowserHunter(capturedBrowsers),
         null);
 
     assertEquals("/slave/id/" + id + "/page/CONSOLE/mode/strict/timeout/-1/upload_size/10/rt/CLIENT", handler.service("Chrome/2.0",

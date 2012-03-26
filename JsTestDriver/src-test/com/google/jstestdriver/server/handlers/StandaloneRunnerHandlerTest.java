@@ -33,6 +33,8 @@ import com.google.jstestdriver.runner.RunnerType;
 
 import junit.framework.TestCase;
 
+import org.joda.time.Instant;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,9 +63,15 @@ public class StandaloneRunnerHandlerTest extends TestCase {
     CapturedBrowsers capturedBrowsers = new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0)));
     BrowserInfo browserInfo = new BrowserInfo();
     browserInfo.setUploadSize(50);
-    SlaveBrowser slaveBrowser =
-        new SlaveBrowser(new MockTime(10), "1", browserInfo, 1200, null,
-            CaptureHandler.QUIRKS, RunnerType.CLIENT, BrowserState.CAPTURED);
+    SlaveBrowser slaveBrowser = new SlaveBrowser(new MockTime(10),
+        "1",
+        browserInfo,
+        1200,
+        null,
+        CaptureHandler.QUIRKS,
+        RunnerType.CLIENT,
+        BrowserState.CAPTURED,
+        new Instant(0));
     capturedBrowsers.addSlave(slaveBrowser);
     StandaloneRunnerHandler handler =
         new StandaloneRunnerHandler(null, null, new SlaveResourceService(""),

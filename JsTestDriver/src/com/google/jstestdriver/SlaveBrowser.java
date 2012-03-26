@@ -103,7 +103,7 @@ public class SlaveBrowser {
   private ConcurrentMap<FileResult, Boolean> fileResults = new ConcurrentHashMap<FileResult, Boolean>();
 
   public SlaveBrowser(Time time, String id, BrowserInfo browserInfo, long timeout,
-      HandlerPathPrefix prefix, String mode, RunnerType type, BrowserState state) {
+      HandlerPathPrefix prefix, String mode, RunnerType type, BrowserState state, Instant lastHeartbeat) {
     this.time = time;
     this.timeout = timeout;
     this.id = id;
@@ -112,7 +112,7 @@ public class SlaveBrowser {
     this.mode = mode;
     this.type = type;
     this.state = new AtomicReference<BrowserState>(state);
-    lastHeartbeat = new AtomicReference<Instant>(new Instant(0));
+    this.lastHeartbeat = new AtomicReference<Instant>(lastHeartbeat);
   }
 
   public String getId() {
@@ -185,8 +185,6 @@ public class SlaveBrowser {
     this.dequeueTimeout = dequeueTimeout;
     this.timeUnit = timeUnit;
   }
-
-  
   
   public synchronized void heartBeat() {
     lastHeartbeat.set(time.now());

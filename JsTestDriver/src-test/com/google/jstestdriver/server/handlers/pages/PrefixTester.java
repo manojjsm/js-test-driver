@@ -23,6 +23,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.jstestdriver.CapturedBrowsers;
+import com.google.jstestdriver.MockTime;
+import com.google.jstestdriver.SlaveBrowser;
+import com.google.jstestdriver.browser.BrowserIdStrategy;
 import com.google.jstestdriver.model.ConcretePathPrefix;
 import com.google.jstestdriver.model.HandlerPathPrefix;
 import com.google.jstestdriver.runner.RunnerType;
@@ -42,13 +46,14 @@ public class PrefixTester {
    */
   public void testPrefixes(Page page) throws IOException {
     Map<String, String> parameters = ImmutableMap.<String, String>builder()
-    .put(SlavePageRequest.ID, "1")
-    .put(CaptureHandler.RUNNER_TYPE, RunnerType.CLIENT.toString())
-    
-    .build();
+      .put(SlavePageRequest.ID, "1")
+      .put(CaptureHandler.RUNNER_TYPE, RunnerType.CLIENT.toString())
+      .build();
     String jstd = "jstd";
     HandlerPathPrefix prefix = new ConcretePathPrefix(jstd);
-    SlavePageRequest request = new SlavePageRequest(parameters, null, prefix, null);
+    CapturedBrowsers capturedBrowsers = new CapturedBrowsers(new BrowserIdStrategy(new MockTime(0l)));
+    capturedBrowsers.addSlave(new SlaveBrowser(new MockTime(0l), "123", null, 0l, prefix, null, null, null, null));
+    SlavePageRequest request = new SlavePageRequest(parameters, null, prefix, capturedBrowsers);
     CharArrayWriter writer = new CharArrayWriter();
     final HtmlWriter htmlWriter =
       new HtmlWriter(writer, prefix);

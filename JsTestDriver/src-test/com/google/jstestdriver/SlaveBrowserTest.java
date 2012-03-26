@@ -46,7 +46,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     assertEquals(new Instant(0), browser.getLastHeartbeat());
     assertEquals(-1.0, browser.getSecondsSinceLastHeartbeat());
@@ -67,7 +67,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         new NullPathPrefix(),
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     assertEquals(
         "/slave/id/1/page/CONSOLE/mode/quirks/timeout/" + SlaveBrowser.TIMEOUT + "/upload_size/"
@@ -82,7 +82,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     String sessionId = "foo";
     browser.tryLock(sessionId);
     browser.createCommand("json command");
@@ -100,7 +100,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     assertFalse(browser.inUse());
   }
 
@@ -112,7 +112,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     String sessionId = "foo";
     assertTrue(browser.tryLock(sessionId));
     browser.createCommand("json command");
@@ -129,7 +129,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     String sessionId = "foo";
     assertTrue(browser.tryLock(sessionId));
     assertTrue(browser.inUse());
@@ -143,7 +143,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     FileSource fileSource = new FileSource("/foo.js", "/foo/bar.js", 10, 100);
     browser.addFileResults(Lists.newArrayList(new FileResult(fileSource, true, "")));
     assertTrue(browser.getFileSet().contains(fileSource.toFileInfo(null)));
@@ -158,7 +158,7 @@ public class SlaveBrowserTest extends TestCase {
         SlaveBrowser.TIMEOUT,
         null,
         CaptureHandler.QUIRKS,
-        RunnerType.CLIENT, BrowserState.CAPTURED);
+        RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     FileSource fileSource = new FileSource("/foo.js", "/foo/bar.js", 10, 100);
     browser.addFileResults(Lists.newArrayList(new FileResult(fileSource, false, "")));
     assertTrue(browser.getFileSet().contains(fileSource.toFileInfo(null)));

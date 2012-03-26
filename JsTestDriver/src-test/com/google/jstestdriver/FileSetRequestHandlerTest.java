@@ -30,6 +30,8 @@ import com.google.jstestdriver.servlet.fileset.TestCaseUpload;
 
 import junit.framework.TestCase;
 
+import org.joda.time.Instant;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -58,7 +60,7 @@ public class FileSetRequestHandlerTest extends TestCase {
     browserInfo.setName("firefox");
     final SlaveBrowser browser =
         new SlaveBrowser(new MockTime(0), "1", browserInfo, 100, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     browser.addFiles(Lists.newArrayList(createFile(fileOne, 1), createFile(fileTwo, 1),
         createFile(fileThree, 1)), new LoadedFiles());
     browsers.addSlave(browser);

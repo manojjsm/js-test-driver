@@ -28,6 +28,8 @@ import com.google.jstestdriver.runner.RunnerType;
 
 import junit.framework.TestCase;
 
+import org.joda.time.Instant;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -42,7 +44,15 @@ public class FileSetGetHandlerTest extends TestCase {
   public void testQueueingSingleThreaded() throws Exception {
     String browserId = "foo";
     MockTime time = new MockTime(System.currentTimeMillis());
-    SlaveBrowser browser = new SlaveBrowser(time, browserId, new BrowserInfo(), 10000, new NullPathPrefix(), "quirks", RunnerType.CLIENT, BrowserState.READY);
+    SlaveBrowser browser = new SlaveBrowser(time,
+        browserId,
+        new BrowserInfo(),
+        10000,
+        new NullPathPrefix(),
+        "quirks",
+        RunnerType.CLIENT,
+        BrowserState.READY,
+        new Instant(0));
     CapturedBrowsers capturedBrowsers = new CapturedBrowsers(
         new BrowserIdStrategy(time));
     capturedBrowsers.addSlave(browser);
@@ -71,7 +81,7 @@ public class FileSetGetHandlerTest extends TestCase {
     MockTime time = new MockTime(System.currentTimeMillis());
     SlaveBrowser browser =
         new SlaveBrowser(time, browserId, new BrowserInfo(), 10000, new NullPathPrefix(), "quirks",
-            RunnerType.CLIENT, BrowserState.READY);
+            RunnerType.CLIENT, BrowserState.READY, new Instant(0));
     CapturedBrowsers capturedBrowsers = new CapturedBrowsers(new BrowserIdStrategy(time));
     capturedBrowsers.addSlave(browser);
 

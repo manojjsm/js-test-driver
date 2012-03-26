@@ -56,7 +56,7 @@ public class CommandGetHandlerTest extends TestCase {
     browserInfo.setId(1L);
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), "1", browserInfo, 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     capturedBrowsers.addSlave(slave);
     CommandGetHandler handler = new CommandGetHandler(null, null, new Gson(), capturedBrowsers);
@@ -90,7 +90,7 @@ public class CommandGetHandlerTest extends TestCase {
         i += 100;
         return new Instant(i);
       }
-    }, "1", browserInfo, 0, null, CaptureHandler.QUIRKS, RunnerType.CLIENT, BrowserState.CAPTURED);
+    }, "1", browserInfo, 0, null, CaptureHandler.QUIRKS, RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     slave.addResponse(new Response(ResponseType.LOG.name(), "", browserInfo, "", -1), true);
     capturedBrowsers.addSlave(slave);
     Gson gson = new Gson();

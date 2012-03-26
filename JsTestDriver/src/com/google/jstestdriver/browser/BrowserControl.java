@@ -124,6 +124,7 @@ public class BrowserControl {
       // TODO(corysmith): replace this with a stream from the client on browser
       // updates.
       try {
+        logger.debug(String.format("Browser timeout %s for %s", timeOut, browserId));
         stopWatch.start("Capturing browser", browserId);
         while (!isBrowserCaptured(browserId, client)) {
           Thread.sleep(50);

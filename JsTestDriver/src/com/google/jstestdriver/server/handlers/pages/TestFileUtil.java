@@ -95,7 +95,7 @@ public class TestFileUtil {
         // better safe than sorry.
         break;
       }
-      logger.debug("Writing " + fileSource.getFileSrc());
+      logger.trace("Writing " + fileSource.getFileSrc());
       String fileJson = gson.toJson(fileSource).replace("\\", "\\\\");
       writer.writeScript(format("jstestdriver.manualResourceTracker.startResourceLoad('%s')",
           fileJson));

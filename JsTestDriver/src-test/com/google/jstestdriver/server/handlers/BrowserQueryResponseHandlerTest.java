@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
+import org.joda.time.Instant;
+
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.jstestdriver.BrowserInfo;
@@ -66,7 +68,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     String id = "1";
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), id, new BrowserInfo(), 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     String data = "hello";
 
     slave.createCommand(data);
@@ -83,7 +85,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     String id = "1";
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), id, new BrowserInfo(), 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     browsers.addSlave(slave);
     BrowserQueryResponseHandler handler =
@@ -113,7 +115,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), id, new BrowserInfo(), 20, null,
             CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     slave.setDequeueTimeout(0L, TimeUnit.NANOSECONDS);
     browsers.addSlave(slave);
@@ -130,7 +132,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     MockTime time = new MockTime(42L);
     SlaveBrowser slave =
         new SlaveBrowser(time, id, new BrowserInfo(), 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
     String data = "hello";
 
     slave.createCommand(data);
@@ -158,7 +160,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     String id = "1";
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), id, new BrowserInfo(), 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     browsers.addSlave(slave);
     BrowserQueryResponseHandler handler =
@@ -187,7 +189,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     String id = "1";
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), id, new BrowserInfo(), 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.CAPTURED);
+            RunnerType.CLIENT, BrowserState.CAPTURED, new Instant(0));
 
     browsers.addSlave(slave);
     BrowserQueryResponseHandler handler =
@@ -232,7 +234,7 @@ public class BrowserQueryResponseHandlerTest extends TestCase {
     String id = "1";
     SlaveBrowser slave =
         new SlaveBrowser(new TimeImpl(), id, new BrowserInfo(), 20, null, CaptureHandler.QUIRKS,
-            RunnerType.CLIENT, BrowserState.READY);
+            RunnerType.CLIENT, BrowserState.READY, new Instant(0));
 
     browsers.addSlave(slave);
     BrowserQueryResponseHandler handler =
