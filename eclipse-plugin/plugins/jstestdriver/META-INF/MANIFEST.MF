@@ -94,7 +94,6 @@ Export-Package: com.google.common.annotations,
    com.google.jstestdriver.config,
    com.google.jstestdriver,
    com.google.inject",
- com.google.jstestdriver.directoryscanner,
  com.google.jstestdriver.embedded;
   uses:="com.google.jstestdriver.hooks,
    com.google.jstestdriver.output,
