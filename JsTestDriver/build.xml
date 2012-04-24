@@ -186,7 +186,7 @@
 
 	<target name="build-js" depends="concat-libs">
 		<concat destfile="${destdir}/${javascript-resources}/jstestdrivernamespace.js">
-			<filelist dir="${destdir}/${javascript-resources}" files="Namespace.js,Utils.js,Console.js,JsTDEnvironment.js" />
+			<filelist dir="${destdir}/${javascript-resources}" files="Namespace.js,Utils.js,Console.js,JsTDEnvironment.js,BrowserLogger.js,browserloggerinit.js" />
 		</concat>
 		<concat destfile="${destdir}/${javascript-resources}/runner.js">
 			<filelist dir="${destdir}/${javascript-resources}" files="${jscorefiles}" />
@@ -267,7 +267,8 @@
 
 		</concat>
 		<concat destfile="${destdir}/${javascript-resources}/heartbeatclient.js">
-			<filelist dir="${destdir}/${javascript-resources}" files="Utils.js,
+			<filelist dir="${destdir}/${javascript-resources}" files="
+				         Utils.js,
                  Heartbeat.js,
                  heartbeatinit.js" />
 		</concat>

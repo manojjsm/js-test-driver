@@ -171,6 +171,21 @@ jstestdriver.createSynchPost = function(jQuery) {
 
 jstestdriver.utils = {};
 
+/**
+ * Checks to see if an object is a a certain native type.
+ * @param instance An instance to check.
+ * @param nativeType A string of the type expected.
+ * @returns True if of that type.
+ */
+jstestdriver.utils.isNative = function(instance, nativeType) {
+  try {
+    var typeString = String(Object.prototype.toString.apply(instance));
+    return typeString.toLowerCase().indexOf(nativeType.toLowerCase()) != -1;
+  } catch (e) {
+    return false;
+  }
+};
+
 jstestdriver.utils.serializeErrors = function(errors) {
   var out = [];
   out.push('[');
@@ -185,7 +200,7 @@ jstestdriver.utils.serializeErrors = function(errors) {
 };
 
 jstestdriver.utils.serializeErrorToArray = function(error, out) {
-  if (String(Object.prototype.toString(error)).toLowerCase() == 'error') {
+  if (jstestdriver.utils.isNative(error, 'Error')) {
     out.push('{');
     out.push('"message":');
     this.serializeObjectToArray(error.message, out);
@@ -211,7 +226,7 @@ jstestdriver.utils.serializeObject = function(obj) {
 jstestdriver.utils.serializeObjectToArray =
    function(obj, opt_out){
   var out = opt_out || out;
-  if (obj instanceof Array) {
+  if (jstestdriver.utils.isNative(obj, 'Array')) {
     out.push('[');
     var arr = /** @type {Array.<Object>} */ obj;
     for ( var i = 0; i < arr.length; i++) {
@@ -240,54 +255,3 @@ jstestdriver.utils.serializePropertyOnObject = function(name, obj, out) {
     this.serializeObjectToArray(obj[name], out);
   }
 };
-
-jstestdriver.log = function(message) {
-  if (jstestdriver.runConfig && jstestdriver.runConfig.debug) {
-      var basePath = top.location.toString();
-      var id = parseInt(jstestdriver.extractId(basePath));
-      var browserInfo =  new jstestdriver.BrowserInfo(id);
-      var prefix = basePath.match(/^(.*)\/(slave|runner|bcr)\//)[1];
-      var url = prefix + '/log';
-
-      jstestdriver.log = function(message) {
-        try {
-          var traceError = new Error();
-          var stack = [];
-          if (traceError.stack) {            
-            stack = traceError.stack.split('\n');
-          }
- 
-          var smallStack = [];
-
-          for (var i = 0; stack[i]; i++) {
-            var end = stack[i].indexOf('(');
-            if (end > -1) {
-              smallStack.push(stack[i].substr(0,end).trim());
-            }
-          }
-          smallStack = smallStack.length ? smallStack : ['No stack available'];
-          jstestdriver.jQuery.ajax({
-            'async' : true,
-            data : 'logs=' + jstestdriver.utils.serializeObject([{
-              'source' : 'jstestdriver.browser_' + id,
-              'timestamp': new Date().toString(),
-              'message' : jstestdriver.utils.serializeObject(message),
-              'stack' : jstestdriver.utils.serializeObject(encodeURI(smallStack.toString())),
-              'browser' : browserInfo,
-              'level' : 3
-            }]),
-            'type' : 'POST',
-            'url' : url
-          });
-        } catch (e) {
-          if (window.console && window.console.log) {
-            window.console.log(e);
-            window.console.log(message);
-          }
-          throw e;
-        }
-      }
-      jstestdriver.log(message);
-  }
-};
-

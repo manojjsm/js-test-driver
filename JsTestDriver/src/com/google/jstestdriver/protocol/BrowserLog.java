@@ -17,25 +17,28 @@ package com.google.jstestdriver.protocol;
 
 import com.google.jstestdriver.BrowserInfo;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 /**
  * Represents a log message from a browser.
  *
  * @author corbinrsmith@gmail.com
- *
  */
 public class BrowserLog {
   String source = "";
   String message = "";
   String stack = "";
   String timestamp = "";
+  int level = 1;
+  BrowserInfo browser = null;
+  
 
   public String getTimestamp() {
     return timestamp;
   }
-
-  int level = 1;
-  BrowserInfo browser = null;
 
   public String getSource() {
     return source;
@@ -46,7 +49,7 @@ public class BrowserLog {
   }
 
   public String getMessage() {
-    return message;
+    return String.format("\t[%s]\n[%s] %s", source, timestamp, message);
   }
 
   public void setMessage(String message) {

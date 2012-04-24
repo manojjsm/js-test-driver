@@ -74,7 +74,6 @@ jstestdriver.CommandResponse = function (done, response) {
 };
 
 
-
 /**
  * Represents the information about the browser.
  * @param {Number} id The unique id of this browser.
@@ -83,16 +82,3 @@ jstestdriver.CommandResponse = function (done, response) {
 jstestdriver.BrowserInfo = function(id) {
   this.id = id;
 };
-
-
-/**
- * Coincides with java class com.google.jstestdriver.protocol.BrowserLog.
- * @param {Number} level 1-5, the level of the message.
- * @constructor
- */
-jstestdriver.BrowserLog = function(level, source, message, browser) {
-  this.level = level;
-  this.source = source;
-  this.message = message;
-  this.browser = browser;
-}

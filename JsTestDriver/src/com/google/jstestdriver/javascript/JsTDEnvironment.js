@@ -74,9 +74,19 @@ jstestdriver.clearInterval = function() {
   return jstestdriver.globalClearInterval(arguments[0]);
 };
 
+
+jstestdriver.browserLogger = {
+  log : function(src, lvl, msg) {},
+  debug : function(src, msg) {},
+  info : function(src, msg) {},
+  warn : function(src, msg) {},
+  error : function(src, msg) {}
+};
+
+
 jstestdriver.log = function(message) {
   if (jstestdriver.runConfig && jstestdriver.runConfig.debug) {
-    window.console.log(message);
+    jstestdriver.browserLogger.debug('log', message);
   }
 }
 
@@ -86,3 +96,24 @@ document.write = function(str) {
 
 
 var noop = jstestdriver.EMPTY_FUNC = function() {};
+
+// TODO(corysmith): We need to be able to log early for debugging,
+// but this really doesn't belong here. Need to reorg the js.
+/**
+ * A log message.
+ * Corresponds with the com.google.jstestdriver.protocol.BrowserLog.
+ * @param {String} source
+ * @param {int} level
+ * @param {String} message
+ * @param {Object} browser The browser info object.
+ * @param {String} stack Stack of where this was logged.
+ * @param {String} timestamp
+ */
+jstestdriver.BrowserLog = function(source, level, message, browser, stack, timestamp) {
+  this.source = source;
+  this.level = level;
+  this.message = message;
+  this.browser = browser
+  this.stack = stack;
+  this.timestamp = timestamp;
+};

@@ -17,13 +17,44 @@
 /**
  * This is a simple logger implementation, that posts messages to the server.
  * Will most likely be expanded later.
- * @param {jstestdriver.NetService} netService Service for communicating with
- *     the server.
- * @param {jstestdriver.BrowserInfo} 
+ * @param {Function} sendToServer Function to send information to the server,
+ *     of signature function(logs):void
+ * @param {int} 
  */
-jstestdriver.BrowserLogger = function(netService, browser) {
-  this.netService_ = netService;
-  this.browser_ = browser;
+jstestdriver.BrowserLogger = function(sendToServer, id) {
+  this.sendToServer_ = sendToServer;
+  this.id_ = id;
+};
+
+
+/**
+ * 
+ * @param location String location of the browser.
+ * @param ajax jQuery ajax function.
+ * @returns jstestdriver.BrowserLogger.
+ */
+jstestdriver.BrowserLogger.create = function(location, ajax) {
+  var id = parseInt(jstestdriver.extractId(location));
+  var prefix = location.match(/^(.*)\/(slave|runner|bcr)\//)[1];
+  var url = prefix + '/log';
+  return new jstestdriver.BrowserLogger(function(logs) {
+    ajax({
+        'async' : true,
+        'data' : 'logs=' + JSON.stringify(logs),
+        'type' : 'POST',
+        'url' : url
+    });
+  }, id);
+};
+
+jstestdriver.BrowserLogger.prototype.isEnabled_ = function() {
+  // TODO(corysmith): Refactor to allow the runConfig to be available before
+  // load.
+  var enabled = jstestdriver.runConfig && jstestdriver.runConfig.debug;
+  this.isEnabled_ = function () {
+    return enabled;
+  };
+  return enabled;
 };
 
 
@@ -34,8 +65,50 @@ jstestdriver.BrowserLogger = function(netService, browser) {
  * @param {String} message The log message.
  */
 jstestdriver.BrowserLogger.prototype.log = function(source, level, message) {
-  this.netService_.stream('logs',
-      new jstestdriver.BrowserLog(source, level, message, this.browser_));
+  if (this.isEnabled_()) {
+    // TODO(corysmith): replace with a cross browser stack methodology.
+    var traceError = new Error();
+    var stack = traceError.stack ? traceError.stack.split('\n') : [];
+
+    var smallStack = [];
+
+    for (var i = 0; stack[i]; i++) {
+      var end = stack[i].indexOf('(');
+      if (end > -1) {
+        smallStack.push(stack[i].substr(0,end).trim());
+      }
+    }
+    smallStack = smallStack.length ? smallStack : ['No stack available'];
+    this.sendToServer_([
+          new jstestdriver.BrowserLog(
+              source,
+              level,
+              encodeURI(message),
+              {"id": this.id_},
+              encodeURI(smallStack.toString()),
+              new Date())
+        ]);
+  }
+};
+
+
+jstestdriver.BrowserLogger.prototype.debug = function(source, message) {
+  this.log(source, jstestdriver.BrowserLogger.LEVEL.DEBUG, message);
+};
+
+
+jstestdriver.BrowserLogger.prototype.info = function(source, message) {
+  this.log(source, jstestdriver.BrowserLogger.LEVEL.INFO, message);
+};
+
+
+jstestdriver.BrowserLogger.prototype.warn = function(source, message) {
+  this.log(source, jstestdriver.BrowserLogger.LEVEL.WARN, message);
+};
+
+
+jstestdriver.BrowserLogger.prototype.error = function(source, message) {
+  this.log(source, jstestdriver.BrowserLogger.LEVEL.ERROR, message);
 };
 
 
@@ -49,16 +122,4 @@ jstestdriver.BrowserLogger.LEVEL = {
   INFO : 3,
   WARN : 4,
   ERROR : 5
-};
-
-
-/**
- * A log message.
- * Corresponds with the com.google.jstestdriver.protocol.BrowserLog.
- * @param {String} source
- */
-jstestdriver.BrowserLog = function(source, level, message) {
-  this.source = source;
-  this.level = level;
-  this.message = message;
 };

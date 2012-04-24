@@ -16,6 +16,7 @@
 package com.google.jstestdriver.server.handlers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.jstestdriver.protocol.BrowserLog;
@@ -26,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,7 +43,7 @@ class BrowserLoggingHandler implements RequestHandler {
   private static final Logger logger =
       LoggerFactory.getLogger(BrowserLoggingHandler.class);
 
-  final private Gson gson = new Gson();
+  final private Gson gson = new GsonBuilder().create();
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
@@ -60,8 +63,8 @@ class BrowserLoggingHandler implements RequestHandler {
         gson.fromJson(request.getParameter("logs"),
             new TypeToken<Collection<BrowserLog>>() {}.getType());
       for (BrowserLog log : logs) {
-        Logger browserLogger = LoggerFactory.getLogger(log.getSource());
-        String message = gson.fromJson(log.getMessage(), String.class);
+        Logger browserLogger = LoggerFactory.getLogger("com.google.jstestdriver." + log.getSource());
+        String message = log.getMessage();
         switch(log.getLevel()) {
           case 1:
             browserLogger.trace(message);
@@ -70,7 +73,7 @@ class BrowserLoggingHandler implements RequestHandler {
             browserLogger.debug(message);
             break;
           case 3:
-            browserLogger.info("[" + log.getTimestamp() + "]" + message);
+            browserLogger.info(message);
             break;
           case 4:
             browserLogger.warn(message);
@@ -85,7 +88,7 @@ class BrowserLoggingHandler implements RequestHandler {
       response.setStatus(HttpStatus.ORDINAL_200_OK);
     } catch (RuntimeException e) {
       response.setStatus(HttpStatus.ORDINAL_500_Internal_Server_Error);
-      logger.error("Error during BrowserLog write: |" + Arrays.toString(request.getParameterValues("logs")) + "|", e);
+      logger.error("Error during BrowserLog write: |" + request.getParameter("logs") + "|", e);
     } finally {
       response.getOutputStream().flush();
     }
