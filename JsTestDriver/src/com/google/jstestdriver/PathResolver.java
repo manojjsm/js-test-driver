@@ -30,8 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -109,7 +111,9 @@ public class PathResolver {
     for (File basePath : basePaths) {
         File file = new File(basePath, filePath);
         File absoluteDir = file.getParentFile().getAbsoluteFile();
-
+        if (absoluteDir.getName().equals("**")) {
+        	absoluteDir = absoluteDir.getParentFile();
+        }
         // Get all files for the current FileInfo. This will return one file
         // if the FileInfo doesn't represent a glob
         String[] expandedFileNames =
@@ -213,8 +217,9 @@ public class PathResolver {
   }
 
   private String[] expandGlob(String filePath, String fileNamePattern, File dir) {
-    String[] filteredFiles = dir.list(new GlobFilenameFilter(
-        fileNamePattern, GlobCompiler.DEFAULT_MASK | GlobCompiler.CASE_INSENSITIVE_MASK));
+	  FilenameFilter fileFilter = new GlobFilenameFilter(fileNamePattern,
+		        GlobCompiler.DEFAULT_MASK | GlobCompiler.CASE_INSENSITIVE_MASK);
+	  String[] filteredFiles = expandDeepDirectoryGlobPaths(dir, fileFilter, "").toArray(new String[0]);
 
     if (filteredFiles == null || filteredFiles.length == 0) {
         return null;
@@ -222,6 +227,26 @@ public class PathResolver {
     Arrays.sort(filteredFiles, String.CASE_INSENSITIVE_ORDER);
     return filteredFiles;
   }
+  
+  private Set<String> expandDeepDirectoryGlobPaths( File rootDir, FilenameFilter fileFilter, String basePath ) {
+	  Set<String> foundFiles = new LinkedHashSet<String>();
+	  
+	  if (!rootDir.isDirectory()) return foundFiles;
+	  
+	  File[] children = rootDir.listFiles();
+	  for (File child : children) {
+		  foundFiles.addAll( expandDeepDirectoryGlobPaths(child, fileFilter, basePath + "/" + child.getName()) );
+	  }
+	  
+	  String[] childFiles = rootDir.list(fileFilter);
+	  for (String childFilename : childFiles) {
+		foundFiles.add(basePath + "/" + childFilename);
+	  }
+	  
+	  return foundFiles;
+  }
+  
+  
 
   public List<Plugin> resolve(List<Plugin> plugins) {
     List<UnreadableFile> unreadable = Lists.newLinkedList();
