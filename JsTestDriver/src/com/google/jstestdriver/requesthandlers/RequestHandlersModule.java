@@ -32,7 +32,10 @@ import com.google.jstestdriver.server.gateway.MockRequestHandler;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +106,8 @@ public abstract class RequestHandlersModule extends AbstractModule {
   }
 
   @Provides @Singleton HttpClient provideHttpClient() {
+    Protocol.registerProtocol("https",
+        new Protocol("https", (ProtocolSocketFactory) new EasySSLProtocolSocketFactory(), 443));
     MultiThreadedHttpConnectionManager manager = new MultiThreadedHttpConnectionManager();
     manager.getParams().setDefaultMaxConnectionsPerHost(20);
     manager.getParams().setMaxTotalConnections(200);
