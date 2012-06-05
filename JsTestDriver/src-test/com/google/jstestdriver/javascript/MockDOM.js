@@ -49,7 +49,6 @@ jstestdriver.MockDOM.prototype.getElementsByTagName = function(tagName) {
 jstestdriver.MockNode = function(name) {
   this.nodeName = name;
   this.childNodes = [];
-  fail('error')
 };
 
 
