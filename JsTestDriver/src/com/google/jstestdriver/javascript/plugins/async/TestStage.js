@@ -25,7 +25,7 @@ goog.provide('jstestdriver.plugins.async.TestStage.Builder');
 
 goog.require('jstestdriver');
 goog.require('jstestdriver.setTimeout');
-goog.require('jstestdriver.plugins.async.DeferredQueueArmor');
+goog.require('jstestdriver.plugins.async.DeferredQueueDelegate');
 goog.require('jstestdriver.plugins.async.DeferredQueue');
 
 /**
@@ -41,7 +41,8 @@ goog.require('jstestdriver.plugins.async.DeferredQueue');
  * @param {function(Object)} toJson a function to convert objects to JSON.
  * @param {Object} opt_argument An argument to pass to the test method.
  * @param {boolean} opt_pauseForHuman Whether to pause for debugging.
- * @param {Function} opt_armorConstructor The constructor of DeferredQueueArmor.
+ * @param {Function} opt_queueDelegateConstructor The constructor of
+ * DeferredQueueDelegate.
  * @param {Function} opt_queueConstructor The constructor of DeferredQueue.
  * @param {Function} opt_setTimeout The setTimeout function or suitable
  *     replacement.
@@ -49,7 +50,7 @@ goog.require('jstestdriver.plugins.async.DeferredQueue');
  */
 jstestdriver.plugins.async.TestStage = function(
     onError, onStageComplete, testCase, testMethod, toJson, opt_argument,
-    opt_pauseForHuman, opt_armorConstructor, opt_queueConstructor,
+    opt_pauseForHuman, opt_queueDelegateConstructor, opt_queueConstructor,
     opt_setTimeout) {
   this.onError_ = onError;
   this.onStageComplete_ = onStageComplete;
@@ -58,8 +59,8 @@ jstestdriver.plugins.async.TestStage = function(
   this.toJson_ = toJson;
   this.argument_ = opt_argument;
   this.pauseForHuman_ = !!opt_pauseForHuman;
-  this.armorConstructor_ = opt_armorConstructor ||
-      jstestdriver.plugins.async.DeferredQueueArmor;
+  this.queueDelegateConstructor_ = opt_queueDelegateConstructor ||
+      jstestdriver.plugins.async.DeferredQueueDelegate;
   this.queueConstructor_ = opt_queueConstructor ||
       jstestdriver.plugins.async.DeferredQueue;
   this.setTimeout_ = opt_setTimeout || jstestdriver.setTimeout;
@@ -70,14 +71,14 @@ jstestdriver.plugins.async.TestStage = function(
  * Executes this TestStage.
  */
 jstestdriver.plugins.async.TestStage.prototype.execute = function() {
-  var armor = new (this.armorConstructor_)(this.toJson_);
+  var delegate = new (this.queueDelegateConstructor_)(this.toJson_);
   var queue = new (this.queueConstructor_)(this.setTimeout_, this.testCase_,
-      this.onStageComplete_, armor, this.pauseForHuman_);
-  armor.setQueue(queue);
+      this.onStageComplete_, delegate, this.pauseForHuman_);
+  delegate.setQueue(queue);
 
   if (this.testMethod_) {
     try {
-      this.testMethod_.call(this.testCase_, armor, this.argument_);
+      this.testMethod_.call(this.testCase_, delegate, this.argument_);
     } catch (e) {
       this.onError_(e);
     }
@@ -102,7 +103,8 @@ jstestdriver.plugins.async.TestStage.Builder = function() {
   this.toJson_ = null;
   this.opt_argument_ = null;
   this.opt_pauseForHuman_ = null;
-  this.opt_armorConstructor_ = jstestdriver.plugins.async.DeferredQueueArmor;
+  this.opt_queueDelegateConstructor_ =
+      jstestdriver.plugins.async.DeferredQueueDelegate;
   this.opt_queueConstructor_ = jstestdriver.plugins.async.DeferredQueue;
   this.opt_setTimeout_ = jstestdriver.setTimeout;
 };
@@ -159,9 +161,9 @@ jstestdriver.plugins.async.TestStage.Builder.prototype.setPauseForHuman =
 };
 
 
-jstestdriver.plugins.async.TestStage.Builder.prototype.setArmorConstructor =
-    function(armorConstructor) {
-  this.opt_armorConstructor_ = armorConstructor;
+jstestdriver.plugins.async.TestStage.Builder.prototype.
+    setQueueDelegateConstructor = function(queueDelegateConstructor) {
+  this.opt_queueDelegateConstructor_ = queueDelegateConstructor;
   return this;
 };
 
@@ -184,6 +186,6 @@ jstestdriver.plugins.async.TestStage.Builder.prototype.build = function() {
   return new jstestdriver.plugins.async.TestStage(
       this.onError_, this.onStageComplete_, this.testCase_, this.testMethod_,
       this.toJson_, this.opt_argument_, this.opt_pauseForHuman_,
-      this.opt_armorConstructor_, this.opt_queueConstructor_,
+      this.opt_queueDelegateConstructor_, this.opt_queueConstructor_,
       this.opt_setTimeout_);
 };

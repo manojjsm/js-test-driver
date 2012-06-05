@@ -16,23 +16,23 @@
 
 
 /**
- * @fileoverview Defines the DeferredQueueArmor class. Encapsulates a
+ * @fileoverview Defines the DeferredQueueInterface class. Encapsulates a
  * DeferredQueue behind a narrower interface. Also, validates arguments.
  *
  * @author rdionne@google.com (Robert Dionne)
  */
 
-goog.provide('jstestdriver.plugins.async.DeferredQueueArmor');
+goog.provide('jstestdriver.plugins.async.DeferredQueueDelegate');
 
 goog.require('jstestdriver');
 
 /**
- * Constructs a DeferredQueueArmor.
+ * Constructs a DeferredQueueDelegate.
  * @param {function(Object)} toJson a function to convert objects to JSON.
  * @constructor
  * @export
  */
-jstestdriver.plugins.async.DeferredQueueArmor = function(toJson) {
+jstestdriver.plugins.async.DeferredQueueDelegate = function(toJson) {
   this.toJson_ = toJson;
   this.q_ = null;
   this.step_ = 1;
@@ -43,7 +43,7 @@ jstestdriver.plugins.async.DeferredQueueArmor = function(toJson) {
  * Sets the current queue instance.
  * @param {jstestdriver.plugins.async.DeferredQueue} queue The queue.
  */
-jstestdriver.plugins.async.DeferredQueueArmor.prototype.setQueue = function(
+jstestdriver.plugins.async.DeferredQueueDelegate.prototype.setQueue = function(
     queue) {
   this.q_ = queue;
 };
@@ -53,10 +53,10 @@ jstestdriver.plugins.async.DeferredQueueArmor.prototype.setQueue = function(
  * Adds a function to the queue to call later.
  * @param {string|Function} description The description or function.
  * @param {Function=} operation The function.
- * @return {jstestdriver.plugins.async.DeferredQueueArmor} This.
+ * @return {jstestdriver.plugins.async.DeferredQueueDelegate} This.
  * @export
  */
-jstestdriver.plugins.async.DeferredQueueArmor.prototype.call = function(
+jstestdriver.plugins.async.DeferredQueueDelegate.prototype.call = function(
     description, operation) {
   if (!this.q_) {
     throw new Error('Queue undefined!');
@@ -88,7 +88,7 @@ jstestdriver.plugins.async.DeferredQueueArmor.prototype.call = function(
 /**
  * @return {string} A description for the next step.
  */
-jstestdriver.plugins.async.DeferredQueueArmor.prototype.nextDescription_ =
+jstestdriver.plugins.async.DeferredQueueDelegate.prototype.nextDescription_ =
     function() {
   return '#' + this.step_;
 };
@@ -98,8 +98,8 @@ jstestdriver.plugins.async.DeferredQueueArmor.prototype.nextDescription_ =
  * Adds a function to the queue to call later.
  * @param {string|Function} description The description or function.
  * @param {Function=} operation The function.
- * @deprecated Use DeferredQueueArmor#call().
+ * @deprecated Use DeferredQueueDelegate#call().
  * @export
  */
-jstestdriver.plugins.async.DeferredQueueArmor.prototype.defer =
-    jstestdriver.plugins.async.DeferredQueueArmor.prototype.call;
+jstestdriver.plugins.async.DeferredQueueDelegate.prototype.defer =
+    jstestdriver.plugins.async.DeferredQueueDelegate.prototype.call;

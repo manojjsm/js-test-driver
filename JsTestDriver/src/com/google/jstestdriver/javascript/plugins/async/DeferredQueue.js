@@ -24,41 +24,41 @@
 goog.provide('jstestdriver.plugins.async.DeferredQueue');
 
 goog.require('jstestdriver');
-goog.require('jstestdriver.plugins.async.DeferredQueueArmor');
+goog.require('jstestdriver.plugins.async.DeferredQueueDelegate');
 goog.require('jstestdriver.plugins.async.CallbackPool');
-goog.require('jstestdriver.plugins.async.CallbackPoolArmor');
+goog.require('jstestdriver.plugins.async.CallbackPoolDelegate');
 
 /**
  * Constructs a DeferredQueue.
  * @param {Function} setTimeout The setTimeout function.
  * @param {Object} testCase The test case that owns this queue.
  * @param {Function} onQueueComplete The queue complete callback.
- * @param {jstestdriver.plugins.async.DeferredQueueArmor} armor The armor
- *     wrapping all DeferredQueues for this test run0.
+ * @param {jstestdriver.plugins.async.DeferredQueueDelegate} delegate The
+ *     delegate wrapping all DeferredQueues for this test run0.
  * @param {boolean} opt_pauseForHuman Whether or not to pause for debugging.
  * @param {Function} opt_queueConstructor The DeferredQueue constructor.
- * @param {Function} opt_queueArmorConstructor The DeferredQueueArmor
+ * @param {Function} opt_queueDelegateConstructor The DeferredQueueDelegate
  *     constructor.
  * @param {Function} opt_poolConstructor The CallbackPool constructor.
- * @param {Function} opt_poolArmorConstructor The CallbackPoolArmor constructor.
+ * @param {Function} opt_poolDelegateConstructor The CallbackPoolDelegate constructor.
  * @constructor
  */
 jstestdriver.plugins.async.DeferredQueue = function(setTimeout, testCase,
-    onQueueComplete, armor, opt_pauseForHuman, opt_queueConstructor,
-    opt_queueArmorConstructor, opt_poolConstructor, opt_poolArmorConstructor) {
+    onQueueComplete, delegate, opt_pauseForHuman, opt_queueConstructor,
+    opt_queueDelegateConstructor, opt_poolConstructor, opt_poolDelegateConstructor) {
   this.setTimeout_ = setTimeout;
   this.testCase_ = testCase;
   this.onQueueComplete_ = onQueueComplete;
-  this.armor_ = armor;
+  this.delegate_ = delegate;
   this.pauseForHuman_ = !!opt_pauseForHuman;
   this.queueConstructor_ = opt_queueConstructor ||
       jstestdriver.plugins.async.DeferredQueue;
-  this.queueArmorConstructor_ = opt_queueArmorConstructor ||
-      jstestdriver.plugins.async.DeferredQueueArmor;
+  this.queueDelegateConstructor_ = opt_queueDelegateConstructor ||
+      jstestdriver.plugins.async.DeferredQueueDelegate;
   this.poolConstructor_ = opt_poolConstructor ||
       jstestdriver.plugins.async.CallbackPool;
-  this.poolArmorConstructor_ = opt_poolArmorConstructor ||
-      jstestdriver.plugins.async.CallbackPoolArmor;
+  this.poolDelegateConstructor_ = opt_poolDelegateConstructor ||
+      jstestdriver.plugins.async.CallbackPoolDelegate;
   this.descriptions_ = [];
   this.operations_ = [];
   this.errors_ = [];
@@ -74,19 +74,19 @@ jstestdriver.plugins.async.DeferredQueue = function(setTimeout, testCase,
 jstestdriver.plugins.async.DeferredQueue.prototype.execute_ = function(
     description, operation, onQueueComplete) {
   var queue = new (this.queueConstructor_)(this.setTimeout_,
-      this.testCase_, onQueueComplete, this.armor_, this.pauseForHuman_);
-  this.armor_.setQueue(queue);
+      this.testCase_, onQueueComplete, this.delegate_, this.pauseForHuman_);
+  this.delegate_.setQueue(queue);
 
   var onPoolComplete = function(errors) {
     queue.finishStep_(errors);
   };
   var pool = new (this.poolConstructor_)(
       this.setTimeout_, this.testCase_, onPoolComplete, description, this.pauseForHuman_);
-  var poolArmor = new (this.poolArmorConstructor_)(pool);
+  var poolDelegate = new (this.poolDelegateConstructor_)(pool);
 
   if (operation) {
     try {
-      operation.call(this.testCase_, poolArmor, this.armor_);
+      operation.call(this.testCase_, poolDelegate, this.delegate_);
     } catch (e) {
       pool.onError(e);
     }

@@ -41,9 +41,9 @@ goog.require('jstestdriver.setTimeout');
 goog.require('jstestdriver.TestCaseInfo');
 goog.require('jstestdriver.TestResult');
 goog.require('jstestdriver.plugins.async.CallbackPool');
-goog.require('jstestdriver.plugins.async.CallbackPoolArmor');
+goog.require('jstestdriver.plugins.async.CallbackPoolDelegate');
 goog.require('jstestdriver.plugins.async.DeferredQueue');
-goog.require('jstestdriver.plugins.async.DeferredQueueArmor');
+goog.require('jstestdriver.plugins.async.DeferredQueueDelegate');
 goog.require('jstestdriver.plugins.async.TestStage');
 goog.require('jstestdriver.plugins.async.TestStage.Builder');
 
@@ -57,13 +57,13 @@ goog.require('jstestdriver.plugins.async.TestStage.Builder');
  * @param {Function} opt_setTimeout window.setTimeout replacement.
  * @param {Function} opt_queueConstructor a constructor for obtaining new
  *     DeferredQueues.
- * @param {Function} opt_armorConstructor a constructor for obtaining new
- *     DeferredQueueArmors.
+ * @param {Function} opt_queueDelegateConstructor a constructor for obtaining new
+ *     DeferredQueueDelegates.
  * @constructor
  */
 jstestdriver.plugins.async.AsyncTestRunnerPlugin = function(dateObj, clearBody,
       toJson, opt_pauseForHuman, opt_setTimeout, opt_queueConstructor,
-      opt_armorConstructor) {
+      opt_queueDelegateConstructor) {
   this.name = "AsyncTestRunnerPlugin";
   this.dateObj_ = dateObj;
   this.clearBody_ = clearBody;
@@ -71,7 +71,8 @@ jstestdriver.plugins.async.AsyncTestRunnerPlugin = function(dateObj, clearBody,
   this.pauseForHuman_ = !!opt_pauseForHuman;
   this.setTimeout_ = opt_setTimeout || jstestdriver.setTimeout;
   this.queueConstructor_ = opt_queueConstructor || jstestdriver.plugins.async.DeferredQueue;
-  this.armorConstructor_ = opt_armorConstructor || jstestdriver.plugins.async.DeferredQueueArmor;
+  this.queueDelegateConstructor_ = opt_queueDelegateConstructor ||
+      jstestdriver.plugins.async.DeferredQueueDelegate;
   this.testRunConfiguration_ = null;
   this.testCaseInfo_ = null;
   this.onTestDone_ = null;
@@ -157,7 +158,7 @@ jstestdriver.plugins.async.AsyncTestRunnerPlugin.prototype.execute_ = function(
       setTestCase(this.testCase_).
       setTestMethod(invokeMethod).
       setPauseForHuman(this.pauseForHuman_).
-      setArmorConstructor(this.armorConstructor_).
+      setQueueDelegateConstructor(this.queueDelegateConstructor_).
       setQueueConstructor(this.queueConstructor_).
       setTimeoutSetter(this.setTimeout_).
       setToJson(this.toJson_).

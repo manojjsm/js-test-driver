@@ -14,11 +14,11 @@
  * the License.
  */
 
-var deferredQueueArmorTest = TestCase('deferredQueueArmorTest');
+var deferredQueueDelegateTest = TestCase('deferredQueueDelegateTest');
 
 
-deferredQueueArmorTest.prototype.testWithNullQueue = function() {
-  var q = new jstestdriver.plugins.async.DeferredQueueArmor();
+deferredQueueDelegateTest.prototype.testWithNullQueue = function() {
+  var q = new jstestdriver.plugins.async.DeferredQueueDelegate();
   try {
     q.defer(function() {});
     fail('should throw exception');
@@ -26,13 +26,13 @@ deferredQueueArmorTest.prototype.testWithNullQueue = function() {
 };
 
 
-deferredQueueArmorTest.prototype.testDeferWithoutName = function() {
+deferredQueueDelegateTest.prototype.testDeferWithoutName = function() {
   var delegate = {};
   var capturedDescription;
   delegate.defer = function(description, operation) {
     capturedDescription = description;
   };
-  var q = new jstestdriver.plugins.async.DeferredQueueArmor();
+  var q = new jstestdriver.plugins.async.DeferredQueueDelegate();
   q.setQueue(delegate);
 
   q.defer(function() {});
@@ -49,13 +49,13 @@ deferredQueueArmorTest.prototype.testDeferWithoutName = function() {
 };
 
 
-deferredQueueArmorTest.prototype.testDeferWithName = function() {
+deferredQueueDelegateTest.prototype.testDeferWithName = function() {
   var delegate = {};
   var capturedDescription;
   delegate.defer = function(description, operation) {
     capturedDescription = description;
   };
-  var q = new jstestdriver.plugins.async.DeferredQueueArmor();
+  var q = new jstestdriver.plugins.async.DeferredQueueDelegate();
   q.setQueue(delegate);
 
   q.defer('A', function() {});
@@ -72,13 +72,13 @@ deferredQueueArmorTest.prototype.testDeferWithName = function() {
 };
 
 
-deferredQueueArmorTest.prototype.testDeferWithUndefinedOperation = function() {
+deferredQueueDelegateTest.prototype.testDeferWithUndefinedOperation = function() {
   var delegate = {};
   var capturedDescription;
   delegate.defer = function(description, operation) {
     capturedDescription = description;
   };
-  var q = new jstestdriver.plugins.async.DeferredQueueArmor();
+  var q = new jstestdriver.plugins.async.DeferredQueueDelegate();
   q.setQueue(delegate);
 
   q.defer();
@@ -91,13 +91,13 @@ deferredQueueArmorTest.prototype.testDeferWithUndefinedOperation = function() {
 };
 
 
-deferredQueueArmorTest.prototype.testChainedDeferCalls = function() {
+deferredQueueDelegateTest.prototype.testChainedDeferCalls = function() {
   var delegate = {};
   var capturedDescriptions = [];
   delegate.defer = function(description, operation) {
     capturedDescriptions.push(description);
   };
-  var q = new jstestdriver.plugins.async.DeferredQueueArmor();
+  var q = new jstestdriver.plugins.async.DeferredQueueDelegate();
   q.setQueue(delegate);
 
   q.defer(function() {})

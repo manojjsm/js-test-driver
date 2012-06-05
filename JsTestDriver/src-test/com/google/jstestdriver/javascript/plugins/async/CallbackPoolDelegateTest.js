@@ -14,10 +14,10 @@
  * the License.
  */
 
-var callbackPoolArmorTest = TestCase('callbackPoolArmorTest');
+var callbackPoolDelegateTest = TestCase('callbackPoolDelegateTest');
 
 
-callbackPoolArmorTest.prototype.testAddCallback = function() {
+callbackPoolDelegateTest.prototype.testAddCallback = function() {
   var delegate = {};
   var capturedCallback;
   var capturedOptN;
@@ -26,7 +26,7 @@ callbackPoolArmorTest.prototype.testAddCallback = function() {
     capturedOptN = opt_n;
     return wrapped;
   };
-  var pool = new jstestdriver.plugins.async.CallbackPoolArmor(delegate);
+  var pool = new jstestdriver.plugins.async.CallbackPoolDelegate(delegate);
 
   var callback = function() {};
   var result = pool.add(callback);
@@ -41,13 +41,13 @@ callbackPoolArmorTest.prototype.testAddCallback = function() {
 };
 
 
-callbackPoolArmorTest.prototype.testAddUndefinedCallback = function() {
+callbackPoolDelegateTest.prototype.testAddUndefinedCallback = function() {
   var delegate = {};
   var delegateCalled = false;
   delegate.add = function(wrapped, opt_n) {
     delegateCalled = true;
   };
-  var pool = new jstestdriver.plugins.async.CallbackPoolArmor(delegate);
+  var pool = new jstestdriver.plugins.async.CallbackPoolDelegate(delegate);
 
   pool.add();
 
@@ -55,12 +55,12 @@ callbackPoolArmorTest.prototype.testAddUndefinedCallback = function() {
 };
 
 
-callbackPoolArmorTest.prototype.testAddErrback = function() {
+callbackPoolDelegateTest.prototype.testAddErrback = function() {
   var delegate = {};
   delegate.addErrback = function() {
     return 'errback';
   };
-  var pool = new jstestdriver.plugins.async.CallbackPoolArmor(delegate);
+  var pool = new jstestdriver.plugins.async.CallbackPoolDelegate(delegate);
 
   var result = pool.addErrback();
 
@@ -68,7 +68,7 @@ callbackPoolArmorTest.prototype.testAddErrback = function() {
 };
 
 
-callbackPoolArmorTest.prototype.testNoop = function() {
+callbackPoolDelegateTest.prototype.testNoop = function() {
   var delegate = {};
   var capturedCallback;
   var capturedOptN;
@@ -80,7 +80,7 @@ callbackPoolArmorTest.prototype.testNoop = function() {
   delegate.noop = function() {
     return jstestdriver.EMPTY_FUNC;
   };
-  var pool = new jstestdriver.plugins.async.CallbackPoolArmor(delegate);
+  var pool = new jstestdriver.plugins.async.CallbackPoolDelegate(delegate);
 
   var result = pool.noop();
 

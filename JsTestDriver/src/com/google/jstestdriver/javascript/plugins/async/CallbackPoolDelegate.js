@@ -16,23 +16,23 @@
 
 
 /**
- * @fileoverview Defines the CallbackPoolArmor class. Encapsulates a
+ * @fileoverview Defines the CallbackPoolDelegate class. Encapsulates a
  * CallbackPool behind a narrower interface. Also, validates arguments.
  *
  * @author rdionne@google.com (Robert Dionne)
  */
 
-goog.provide('jstestdriver.plugins.async.CallbackPoolArmor');
+goog.provide('jstestdriver.plugins.async.CallbackPoolDelegate');
 
 goog.require('jstestdriver');
 
 /**
- * Constructs a CallbackPoolArmor.
+ * Constructs a CallbackPoolDelegate.
  * @param {jstestdriver.plugins.async.CallbackPool} pool The pool.
  * @constructor
  * @export
  */
-jstestdriver.plugins.async.CallbackPoolArmor = function(pool) {
+jstestdriver.plugins.async.CallbackPoolDelegate = function(pool) {
   this.pool_ = pool;
 };
 
@@ -47,7 +47,7 @@ jstestdriver.plugins.async.CallbackPoolArmor = function(pool) {
  * @return {Function} The wrapped callback.
  * @export
  */
-jstestdriver.plugins.async.CallbackPoolArmor.prototype.addCallback = function(
+jstestdriver.plugins.async.CallbackPoolDelegate.prototype.addCallback = function(
     callback, opt_n, opt_timeout, opt_description) {
   if (typeof callback == 'object') {
     var params = callback;
@@ -72,7 +72,7 @@ jstestdriver.plugins.async.CallbackPoolArmor.prototype.addCallback = function(
  * @param {string} message A message to report to the user upon error.
  * @export
  */
-jstestdriver.plugins.async.CallbackPoolArmor.prototype.addErrback = function(
+jstestdriver.plugins.async.CallbackPoolDelegate.prototype.addErrback = function(
     message) {
   return this.pool_.addErrback(message);
 };
@@ -84,11 +84,11 @@ jstestdriver.plugins.async.CallbackPoolArmor.prototype.addErrback = function(
  * @param {Number} opt_n An optional number of times to wait for the callback to
  *     be called.
  * @return {Function} The wrapped callback.
- * @deprecated Use CallbackPoolArmor#addCallback().
+ * @deprecated Use CallbackPoolDelegate#addCallback().
  * @export
  */
-jstestdriver.plugins.async.CallbackPoolArmor.prototype.add =
-    jstestdriver.plugins.async.CallbackPoolArmor.prototype.addCallback;
+jstestdriver.plugins.async.CallbackPoolDelegate.prototype.add =
+    jstestdriver.plugins.async.CallbackPoolDelegate.prototype.addCallback;
 
 
 /**
@@ -101,7 +101,7 @@ jstestdriver.plugins.async.CallbackPoolArmor.prototype.add =
  * @return {Function} A noop callback.
  * @export
  */
-jstestdriver.plugins.async.CallbackPoolArmor.prototype.noop = function(
+jstestdriver.plugins.async.CallbackPoolDelegate.prototype.noop = function(
     opt_n, opt_timeout, opt_description) {
   if (typeof opt_n == 'object') {
     var params = opt_n;
