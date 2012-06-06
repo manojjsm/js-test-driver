@@ -15,8 +15,6 @@
  */
 package com.google.jstestdriver.util;
 
-import com.google.inject.Inject;
-
 import java.io.File;
 
 /**
