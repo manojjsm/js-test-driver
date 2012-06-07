@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -134,7 +135,8 @@ public class FlagsImpl implements Flags {
         browserArgs = splitBrowser[1].replace(";", " ");
       }
       this.browser.add(
-          new CommandLineBrowserRunner(splitBrowser[0], browserArgs, new SimpleProcessFactory()));
+          new CommandLineBrowserRunner(splitBrowser[0],
+            browserArgs, new SimpleProcessFactory()));
     }
   }
 

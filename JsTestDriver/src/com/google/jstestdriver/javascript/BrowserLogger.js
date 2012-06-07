@@ -83,9 +83,9 @@ jstestdriver.BrowserLogger.prototype.log = function(source, level, message) {
           new jstestdriver.BrowserLog(
               source,
               level,
-              encodeURI(message),
+              message,
               {"id": this.id_},
-              encodeURI(smallStack.toString()),
+              smallStack.toString(),
               new Date())
         ]);
   }
