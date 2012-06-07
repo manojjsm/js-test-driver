@@ -15,6 +15,7 @@
  */
 package com.google.jstestdriver.server.handlers;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.jstestdriver.BrowserInfo;
@@ -24,12 +25,14 @@ import com.google.jstestdriver.Response;
 import com.google.jstestdriver.SlaveBrowser;
 import com.google.jstestdriver.StreamMessage;
 import com.google.jstestdriver.requesthandlers.RequestHandler;
+import com.google.jstestdriver.runner.RunnerType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +73,13 @@ class CommandGetHandler implements RequestHandler {
   }
 
   public String listBrowsers() {
-    return gson.toJson(capturedBrowsers.getBrowsers());
+    List<BrowserInfo> browsers = Lists.newArrayList();
+    for (SlaveBrowser browser : capturedBrowsers.getSlaveBrowsers()) {
+      if (browser.getRunnerType() != RunnerType.BROWSER) {
+        browsers.add(browser.getBrowserInfo());
+      }
+    }
+    return gson.toJson(browsers);
   }
 
   private void streamResponse(String id, PrintWriter writer) {
