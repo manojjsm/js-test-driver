@@ -469,6 +469,7 @@
 			<exclude name="**/coverage/**" />
 			<exclude name="**/token/**" />
 			<exclude name="**/testisolation/**" />
+                        <exclude name="**/org/apache/**" />
 		</jar>
 	</target>
 
@@ -653,6 +654,7 @@
 			</fileset>
 			<exclude name="**/coverage/**" />
 			<exclude name="**/token/**" />
+                        <exclude name="**/org/apache/**" />
 		</jar>
 	</target>
 
