@@ -15,15 +15,18 @@
  */
 package com.google.jstestdriver.browser;
 
-import com.google.jstestdriver.FileUploader;
-import com.google.jstestdriver.ProcessFactory;
-import com.google.jstestdriver.SlaveBrowser;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.jstestdriver.FileUploader;
+import com.google.jstestdriver.ProcessFactory;
+import com.google.jstestdriver.SlaveBrowser;
 
 /**
  * Runs a browser from the command line.
@@ -36,22 +39,24 @@ public class CommandLineBrowserRunner implements BrowserRunner {
   private final String browserArgs;
   private final ProcessFactory processFactory;
   private Process process;
-  private final String os;
+  private LogReader logReader = new NullLogReader();
 
   public CommandLineBrowserRunner(String browserPath,
                                   String browserArgs,
                                   ProcessFactory processFactory) {
-    this(browserPath, browserArgs, processFactory, System.getProperty("os.name"));
+    this(browserPath,
+         browserArgs,
+         processFactory,
+         Executors.newCachedThreadPool());
   }
   
   public CommandLineBrowserRunner(String browserPath,
                                   String browserArgs,
                                   ProcessFactory processFactory,
-                                  String os) {
+                                  ExecutorService executor) {
     this.browserPath = browserPath;
     this.processFactory = processFactory;
     this.browserArgs = browserArgs;
-    this.os = os;
   }
 
   @Override
@@ -69,19 +74,12 @@ public class CommandLineBrowserRunner implements BrowserRunner {
       String[] args = processArgs.split(" ");
 
       String[] finalArgs;
-
-      if (os.toLowerCase().contains("mac os")) {
-        finalArgs = new String[args.length + 3];
-        finalArgs[0] = "open";
-        finalArgs[1] = "-a";
-        finalArgs[2] = browserPath;
-        System.arraycopy(args, 0, finalArgs, 3, args.length);
-      } else {
-        finalArgs = new String[args.length + 1];
-        finalArgs[0] = browserPath;
-        System.arraycopy(args, 0, finalArgs, 1, args.length);
-      }
+      finalArgs = new String[args.length + 1];
+      finalArgs[0] = browserPath;
+      System.arraycopy(args, 0, finalArgs, 1, args.length);
       process = processFactory.start(finalArgs);
+      logReader = new LogReaderImpl(process.getErrorStream(),
+                    process.getInputStream());
     } catch (IOException e) {
       logger.error("Could not start: {} because {}", browserPath, e.toString());
       throw new RuntimeException(e);
@@ -91,9 +89,11 @@ public class CommandLineBrowserRunner implements BrowserRunner {
   @Override
   public void stopBrowser() {
     try {
+      logReader.stop();
       process.destroy();
       if (process.exitValue() != 0) {
-        logger.warn("Unexpected shutdown " + process + " " + process.exitValue());
+        logger.warn("Unexpected shutdown " + process + " "
+          + process.exitValue() + "\nLogs:" + getLog());
       }
     } catch (IllegalThreadStateException e) {
       logger.warn("Process refused to exit [" + browserPath +" ]: "+ process);
@@ -152,30 +152,77 @@ public class CommandLineBrowserRunner implements BrowserRunner {
   }
 
   private String getLog() {
-    StringBuilder log = new StringBuilder("error:\n");
-    if (process == null) {
-      return "no process log";
+   return logReader.getLog();
+  }
+
+  interface LogReader {
+
+    public abstract void stop();
+
+    public abstract String getLog();
+
+    public abstract void run();
+
+  }
+
+  private static class NullLogReader implements LogReader {
+
+    @Override
+    public void stop() {
     }
-    InputStream errorStream = process.getErrorStream();
-    InputStream outputStream = process.getInputStream();
-    byte[] buffer = new byte[512];
-    try {
-      while(errorStream.available() > 0) {
-        errorStream.read(buffer);
-        log.append(buffer);
+
+    @Override
+    public String getLog() {
+      return "Not Started";
+    }
+
+    @Override
+    public void run() {
+    }
+  }
+
+  private static class LogReaderImpl implements Runnable, LogReader {
+    private final InputStream errorStream;
+    private final InputStream inputStream;
+    private AtomicBoolean stream = new AtomicBoolean(true);
+    private StringBuffer errLog = new StringBuffer();
+    private StringBuffer outLog  = new StringBuffer();
+
+    public LogReaderImpl(InputStream errorStream, InputStream inputStream) {
+      this.errorStream = errorStream;
+      this.inputStream = inputStream;
+      
+    }
+    @Override
+    public void stop() {
+      stream.set(false);
+    }
+    @Override
+    public String getLog() {
+      String out = "error:\n" + errLog + "\nout:\n" + outLog;
+      errLog.delete(0, errLog.length());
+      outLog.delete(0, outLog.length());
+      return out;
+    }
+
+    @Override
+    public void run() {
+      byte[] errBuffer = new byte[512];
+      byte[] stdOutBuffer = new byte[512];
+      try {
+        while (stream.get()) {
+          while (errorStream.available() > 0) {
+            errorStream.read(errBuffer);
+            errLog.append(errBuffer);
+          }
+          while (inputStream.available() > 0) {
+            inputStream.read(stdOutBuffer);
+            outLog.append(errBuffer);
+          }
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-    } catch (IOException e) {
-      log.append("io exception reading error");
     }
-    log.append("\ninput:\n");
-    try {
-      while(outputStream.available() > 0) {
-        outputStream.read(buffer);
-        log.append(buffer);
-      }
-    } catch (IOException e) {
-      log.append("io exception reading input");
-    }
-    return log.toString();
   }
 }

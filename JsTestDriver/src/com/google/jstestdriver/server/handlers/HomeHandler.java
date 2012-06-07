@@ -55,6 +55,14 @@ class HomeHandler implements RequestHandler {
   public void handleIt() throws IOException {
     response.setContentType("text/html");
     writer.write("<html><head><title>JsTestDriver</title>");
+    writer.write("<script>");
+    writer.write("function getEl(id){return document.getElementById(id);}");
+    writer.write("function toggle(id) {\n");
+    writer.write("if (getEl(id).style.display=='block') {");
+    writer.write("getEl(id).style.display='none';");
+    writer.write("} else {");
+    writer.write("getEl(id).style.display='block';}");
+    writer.write("}</script>");
     writer.write("</head><body>");
     writer.write("<a href=\"/capture\">Capture This Browser</a><br/>");
     writer.write("<a href=\"/capture?strict\">Capture This Browser in strict mode</a><br/>");
@@ -68,18 +76,25 @@ class HomeHandler implements RequestHandler {
       writer.write("Name: " + info.getName() + "<br/>");
       writer.write("Version: " + info.getVersion() + "<br/>");
       writer.write("Operating System: " + info.getOs() + "<br/>");
+      writer.write(browser.inUse() ? "In use.<br/>" : "Not in use.<br/>");
+      writer.write(String.format("RunnerType %s <br/>", browser.getRunnerType()));
       if (browser.getCommandRunning() != null) {
         writer.write("Currently running " + browser.getCommandRunning() + "<br/>");
       } else {
         writer.write("Currently waiting...<br/>");
       }
-      writer.write("<ul style='display:none'>");
+      writer.write("<input type='button' value='List Files' onclick=\"toggle('f" + browser.getId() + "')\"/>");
+      writer.write("<ul style='display:none' id='f" + browser.getId() + "'>");
       for (FileInfo fileInfo : browser.getFileSet()) {
         writer.write("<li>");
         writer.write(fileInfo.getDisplayPath());
         writer.write("</li>");
       }
       writer.write("</ul>");
+      writer.write("<input type='button' value='Show Responses' onclick=\"toggle('r" + browser.getId() + "')\"/>");
+      writer.write("<pre id='r" + browser.getId() + "' style='display:none'>");
+      writer.write(browser.viewResponses());
+      writer.write("</pre>");
       writer.write("</div>");
       writer.flush();
     }
