@@ -21,18 +21,6 @@ import static com.google.jstestdriver.runner.RunnerType.STANDALONE;
 import static com.google.jstestdriver.server.handlers.CaptureHandler.RUNNER_TYPE;
 import static java.lang.String.format;
 
-import com.google.common.base.Objects;
-import com.google.jstestdriver.Response.ResponseType;
-import com.google.jstestdriver.commands.NoopCommand;
-import com.google.jstestdriver.model.HandlerPathPrefix;
-import com.google.jstestdriver.runner.RunnerType;
-import com.google.jstestdriver.server.handlers.pages.PageType;
-import com.google.jstestdriver.server.handlers.pages.SlavePageRequest;
-
-import org.joda.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -42,6 +30,18 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Objects;
+import com.google.jstestdriver.Response.ResponseType;
+import com.google.jstestdriver.commands.NoopCommand;
+import com.google.jstestdriver.model.HandlerPathPrefix;
+import com.google.jstestdriver.runner.RunnerType;
+import com.google.jstestdriver.server.handlers.pages.PageType;
+import com.google.jstestdriver.server.handlers.pages.SlavePageRequest;
 
 /**
  * Represents a captured browser, and brokers the interaction between the client
@@ -350,5 +350,13 @@ public class SlaveBrowser {
       }
     }
     return false;
+  }
+  
+  public RunnerType getRunnerType() {
+    return type;
+  }
+  
+  public String viewResponses() {
+    return responses.toString();
   }
 }

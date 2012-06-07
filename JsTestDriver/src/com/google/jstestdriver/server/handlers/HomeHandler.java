@@ -77,6 +77,7 @@ class HomeHandler implements RequestHandler {
       writer.write("Version: " + info.getVersion() + "<br/>");
       writer.write("Operating System: " + info.getOs() + "<br/>");
       writer.write(browser.inUse() ? "In use.<br/>" : "Not in use.<br/>");
+      writer.write(String.format("RunnerType %s <br/>", browser.getRunnerType()));
       if (browser.getCommandRunning() != null) {
         writer.write("Currently running " + browser.getCommandRunning() + "<br/>");
       } else {
@@ -90,6 +91,10 @@ class HomeHandler implements RequestHandler {
         writer.write("</li>");
       }
       writer.write("</ul>");
+      writer.write("<input type='button' value='Show Responses' onclick=\"toggle('r" + browser.getId() + "')\"/>");
+      writer.write("<pre id='r" + browser.getId() + "' style='display:none'>");
+      writer.write(browser.viewResponses());
+      writer.write("</pre>");
       writer.write("</div>");
       writer.flush();
     }
