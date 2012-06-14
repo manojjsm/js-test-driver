@@ -152,11 +152,14 @@ jstestdriver.plugins.async.AsyncTestRunnerPlugin.prototype.execute_ = function(
     onStageComplete, invokeMethod) {
   var runner = this;
   var onError = function(error) {runner.errors_.push(error);};
+  var arguments = this.testRunConfiguration_.getArguments();
+  var argument = arguments ? arguments[this.testName_] : null;
   var stage = new jstestdriver.plugins.async.TestStage.Builder().
       setOnError(onError).
       setOnStageComplete(onStageComplete).
       setTestCase(this.testCase_).
       setTestMethod(invokeMethod).
+      setArgument(argument).
       setPauseForHuman(this.pauseForHuman_).
       setQueueDelegateConstructor(this.queueDelegateConstructor_).
       setQueueConstructor(this.queueConstructor_).
@@ -258,7 +261,9 @@ jstestdriver.plugins.async.AsyncTestRunnerPlugin.prototype.buildResult = functio
         jstestdriver.assertCount +
         "' encountered.")]);
   }
+  var arguments = this.testRunConfiguration_.getArguments();
+  var argument = arguments ? arguments[this.testName_] : null;
   return new jstestdriver.TestResult(
       this.testCaseInfo_.getTestCaseName(), this.testName_, result, message,
-      jstestdriver.console.getAndResetLog(), end - this.start_);
+      jstestdriver.console.getAndResetLog(), end - this.start_, null, argument);
 };

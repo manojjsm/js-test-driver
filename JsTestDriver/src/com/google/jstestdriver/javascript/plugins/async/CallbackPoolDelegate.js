@@ -80,11 +80,12 @@ jstestdriver.plugins.async.CallbackPoolDelegate.prototype.addErrback = function(
 
 /**
  * Adds a callback to the pool.
- * @param {Function} callback The callback to wrap.
- * @param {Number} opt_n An optional number of times to wait for the callback to
+ * @param {Object|Function} callback The callback to wrap.
+ * @param {number=} opt_n An optional number of times to wait for the callback to
  *     be called.
+ * @param {number=} opt_timeout The timeout in milliseconds.
+ * @param {string=} opt_description The callback description.
  * @return {Function} The wrapped callback.
- * @deprecated Use CallbackPoolDelegate#addCallback().
  * @export
  */
 jstestdriver.plugins.async.CallbackPoolDelegate.prototype.add =

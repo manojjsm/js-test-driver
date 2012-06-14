@@ -34,6 +34,7 @@ asyncTestRunnerPluginTest.prototype.
       'testCase0', testCase0, jstestdriver.TestCaseInfo.ASYNC_TYPE);
 
   var config0 = {
+    getArguments: function() {},
     getTestCaseInfo: function() {return info0;},
     getTests: function() {return ['test0'];}
   };
@@ -58,6 +59,7 @@ asyncTestRunnerPluginTest.prototype.
       'testCase1', testCase1, jstestdriver.TestCaseInfo.ASYNC_TYPE);
 
   var config1 = {
+    getArguments: function() {},
     getTestCaseInfo: function() {return info1;},
     getTests: function() {return ['test1'];}
   };
@@ -105,6 +107,7 @@ asyncTestRunnerPluginTest.prototype.
       'testCase', testCase, jstestdriver.TestCaseInfo.ASYNC_TYPE);
 
   var config = {
+    getArguments: function() {},
     getTestCaseInfo: function() {return info;},
     getTests: function() {return ['testWithExpectAsserts'];}
   };
@@ -154,6 +157,7 @@ asyncTestRunnerPluginTest.prototype.
       'testCase', testCase, jstestdriver.TestCaseInfo.ASYNC_TYPE);
 
   var config = {
+    getArguments: function() {},
     getTestCaseInfo: function() {return info;},
     getTests: function() {return ['testWithExpectAsserts'];}
   };
@@ -199,6 +203,7 @@ asyncTestRunnerPluginTest.prototype.testScopeIsNotWindow = function() {
       'testCase', testCase, jstestdriver.TestCaseInfo.ASYNC_TYPE);
 
   var testRunConfiguration = {};
+  testRunConfiguration.getArguments = function() {};
   testRunConfiguration.getTestCaseInfo = function() {return testCaseInfo;};
   testRunConfiguration.getTests = function() {return ['testMethod'];};
 
@@ -271,6 +276,7 @@ asyncTestRunnerPluginTest.prototype.testTestCaseWithoutSteps = function() {
   };
 
   var testRunConfiguration = {};
+  testRunConfiguration.getArguments = function() {};
   testRunConfiguration.getTestCaseInfo = function() {return testCaseInfo;};
   testRunConfiguration.getTests = function() {return ['testMethod'];};
 
@@ -318,6 +324,7 @@ asyncTestRunnerPluginTest.prototype.
   };
 
   var testRunConfiguration = {};
+  testRunConfiguration.getArguments = function() {};
   testRunConfiguration.getTestCaseInfo = function() {return testCaseInfo;};
   testRunConfiguration.getTests = function() {return ['testMethod'];};
 
@@ -376,6 +383,7 @@ asyncTestRunnerPluginTest.prototype.testTestCaseWithSteps = function() {
   };
 
   var testRunConfiguration = {};
+  testRunConfiguration.getArguments = function() {};
   testRunConfiguration.getTestCaseInfo = function() {return testCaseInfo;};
   testRunConfiguration.getTests = function() {return ['testMethod'];};
 
@@ -428,6 +436,7 @@ asyncTestRunnerPluginTest.prototype.testTestCaseWithErrback = function() {
   };
 
   var testRunConfiguration = {};
+  testRunConfiguration.getArguments = function() {};
   testRunConfiguration.getTestCaseInfo = function() {return testCaseInfo;};
   testRunConfiguration.getTests = function() {return ['testMethod'];};
 
@@ -486,6 +495,7 @@ asyncTestRunnerPluginTest.prototype.
   };
 
   var testRunConfiguration = {};
+  testRunConfiguration.getArguments = function() {};
   testRunConfiguration.getTestCaseInfo = function() {return testCaseInfo;};
   testRunConfiguration.getTests = function() {return ['testMethod'];};
 

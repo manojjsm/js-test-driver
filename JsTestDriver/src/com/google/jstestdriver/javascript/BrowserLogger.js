@@ -19,7 +19,7 @@
  * Will most likely be expanded later.
  * @param {Function} sendToServer Function to send information to the server,
  *     of signature function(logs):void
- * @param {int} 
+ * @param {number} 
  */
 jstestdriver.BrowserLogger = function(sendToServer, id) {
   this.sendToServer_ = sendToServer;
@@ -83,9 +83,9 @@ jstestdriver.BrowserLogger.prototype.log = function(source, level, message) {
           new jstestdriver.BrowserLog(
               source,
               level,
-              message,
+              encodeURI(message),
               {"id": this.id_},
-              smallStack.toString(),
+              encodeURI(smallStack.toString()),
               new Date())
         ]);
   }

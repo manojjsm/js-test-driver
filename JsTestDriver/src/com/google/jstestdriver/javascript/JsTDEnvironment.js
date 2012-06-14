@@ -103,11 +103,12 @@ var noop = jstestdriver.EMPTY_FUNC = function() {};
  * A log message.
  * Corresponds with the com.google.jstestdriver.protocol.BrowserLog.
  * @param {String} source
- * @param {int} level
+ * @param {number} level
  * @param {String} message
  * @param {Object} browser The browser info object.
  * @param {String} stack Stack of where this was logged.
  * @param {String} timestamp
+ * @constructor
  */
 jstestdriver.BrowserLog = function(source, level, message, browser, stack, timestamp) {
   this.source = source;

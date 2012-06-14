@@ -26,10 +26,13 @@ goog.require('jstestdriver');
  * @param {string} message
  * @param {Array.<string>} log
  * @param {number} time
- * @param {Object.<string, Object>} opt_data A map of arbitrary value pairs representing test meta data.
+ * @param {Object.<string, Object>} opt_data A map of arbitrary value pairs
+ *     representing test meta data.
+ * @param {*} opt_argument An optional argument for a test fragment.
  * @constructor
  */
-jstestdriver.TestResult = function(testCaseName, testName, result, message, log, time, opt_data) {
+jstestdriver.TestResult = function(testCaseName,
+    testName, result, message, log, time, opt_data, opt_argument) {
   this.testCaseName = testCaseName;
   this.testName = testName;
   this.result = result;
@@ -37,6 +40,7 @@ jstestdriver.TestResult = function(testCaseName, testName, result, message, log,
   this.log = log;
   this.time = time;
   this.data = opt_data || {};
+  this.argument = opt_argument;
 };
 
 

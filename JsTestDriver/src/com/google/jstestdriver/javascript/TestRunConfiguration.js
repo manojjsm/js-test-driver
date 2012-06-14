@@ -22,12 +22,26 @@ goog.require('jstestdriver.TestCaseInfo');
 /**
  * Represents all of the necessary information to run a test case.
  * @param {jstestdriver.TestCaseInfo} testCaseInfo The test case information, containing
- * @param {Array.<String>} tests The names of all the tests to run.
+ * @param {Array.<string>} tests The names of all the tests to run.
+ * @param {Object.<string, *>=} opt_args The arguments for the tests.
  * @constructor
  */
-jstestdriver.TestRunConfiguration = function(testCaseInfo, tests) {
+jstestdriver.TestRunConfiguration = function(testCaseInfo, tests, opt_args) {
+  /**
+   * @type {jstestdriver.TestCaseInfo}
+   * @private
+   */
   this.testCaseInfo_ = testCaseInfo;
+  /**
+   * @type {Array.<string>}
+   * @private
+   */
   this.tests_ = tests;
+  /**
+   * @type {Object.<string, *>}
+   * @private
+   */
+  this.arguments_ = opt_args ? opt_args : null;
 };
 
 
@@ -38,4 +52,12 @@ jstestdriver.TestRunConfiguration.prototype.getTestCaseInfo = function() {
 
 jstestdriver.TestRunConfiguration.prototype.getTests = function() {
   return this.tests_;
+};
+
+
+/**
+ * @return {Object.<string, *>} the arguments.
+ */
+jstestdriver.TestRunConfiguration.prototype.getArguments = function() {
+  return this.arguments_;
 };
