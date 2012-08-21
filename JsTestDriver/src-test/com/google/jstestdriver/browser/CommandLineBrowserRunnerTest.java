@@ -19,7 +19,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
 
     FakeProcessFactory processFactory = new FakeProcessFactory();
     CommandLineBrowserRunner runner =
-        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory, "not os x");
+        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory);
 
     runner.startBrowser(url);
     assertEquals(1, processFactory.processStubs.size());
@@ -36,7 +36,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
 
     FakeProcessFactory processFactory = new FakeProcessFactory();
     CommandLineBrowserRunner runner =
-        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory, "not os x");
+        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory);
 
     runner.startBrowser(url);
     assertEquals(1, processFactory.processStubs.size());
@@ -53,7 +53,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
 
     FakeProcessFactory processFactory = new FakeProcessFactory();
     CommandLineBrowserRunner runner =
-        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory, "not os x");
+        new CommandLineBrowserRunner(browserPath, browserArgs, processFactory);
 
     runner.startBrowser(url);
     assertEquals(1, processFactory.processStubs.size());
@@ -66,6 +66,7 @@ public class CommandLineBrowserRunnerTest extends TestCase {
   private final class FakeProcessFactory implements ProcessFactory {
     public List<ProcessStub> processStubs = Lists.newLinkedList();
 
+    @Override
     @SuppressWarnings("unused")
     public Process start(String... commands) throws IOException {
       ProcessStub processStub = new ProcessStub(commands);
