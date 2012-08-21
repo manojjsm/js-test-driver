@@ -1,12 +1,12 @@
 /*
  * Copyright 2009 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -28,6 +28,25 @@ jstestdriver.plugins.TestRunnerPlugin = function(dateObj, clearBody, opt_runTest
 };
 
 
+jstestdriver.plugins.timedProcessArray = function(interval, array, process, finish, now, setTimeout)
+{
+	var items = array.concat(); //clone the array
+	setTimeout(function nestedFunction(){
+		var start = now();
+		do{
+			process(items.shift());
+		}while(items.length > 0 && (now() - start < interval));
+
+		if (items.length > 0){
+			setTimeout(nestedFunction, 25);
+		}else{
+			finish();
+		}
+	}, 25);
+};
+
+
+
 jstestdriver.plugins.createPausingRunTestLoop =
     function (interval, now, setTimeout) {
   var lastPause;
@@ -37,25 +56,10 @@ jstestdriver.plugins.createPausingRunTestLoop =
                               runTest,
                               onTest,
                               onComplete) {
-    var i = 0;
-    lastPause = now();
-    function nextTest() {
-      if (tests[i]) {
-        var test = tests[i++];
-        jstestdriver.log("running " + testCaseName + '.' + test);
-        onTest(runTest(testCaseName, template, test));
-        if (now() - lastPause >= interval) {
-          jstestdriver.log("pausing after " + testCaseName + '.' + test);
-          lastPause = now();
-          setTimeout(nextTest, 1);
-        } else {
-          nextTest();
-        }
-      } else {
-        onComplete();
-      }
-    }
-    nextTest();
+    jstestdriver.plugins.timedProcessArray(interval, tests, function(oItem){
+		jstestdriver.console.log("running " + testCaseName + '.' + oItem);
+		onTest(runTest(testCaseName, template, oItem));
+	}, onComplete, now, setTimeout);
   }
   return pausingRunTestLoop;
 };
@@ -63,7 +67,7 @@ jstestdriver.plugins.createPausingRunTestLoop =
 
 jstestdriver.plugins.pausingRunTestLoop =
     jstestdriver.plugins.createPausingRunTestLoop(
-        0,
+        50,
         jstestdriver.now,
         jstestdriver.setTimeout);
 
@@ -125,7 +129,7 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
           0);
     }
     var start = new this.dateObj_().getTime();
-  
+
     jstestdriver.expectedAssertCount = -1;
     jstestdriver.assertCount = 0;
     var res = jstestdriver.TestResult.RESULT.PASSED;
@@ -146,7 +150,7 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
             "' asserts but '" +
             jstestdriver.assertCount +
             "' encountered.");
-  
+
         err.name = 'AssertError';
         throw err;
       }
