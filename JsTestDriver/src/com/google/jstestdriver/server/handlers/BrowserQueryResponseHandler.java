@@ -200,7 +200,7 @@ class BrowserQueryResponseHandler implements RequestHandler {
       writer.flush();
       return;
     } else {
-      streamedResponses.clear();
+      streamedResponses.get(browser).clear();
     }
     if(command == null) {
      command = browser.dequeueCommand();
@@ -230,13 +230,13 @@ class BrowserQueryResponseHandler implements RequestHandler {
     if (!streamedResponses.containsKey(browser)) {
       streamedResponses.put(browser, new CopyOnWriteArrayList<String>());
     }
-    if (isResponseIdValid(responseId)) {
+    if (!isResponseIdValid(responseId)) {
       return;
     }
     streamedResponses.get(browser).add(responseId);
   }
 
   private boolean isResponseIdValid(String responseId) {
-    return responseId == null || "".equals(responseId);
+    return !(responseId == null || "".equals(responseId));
   }
 }

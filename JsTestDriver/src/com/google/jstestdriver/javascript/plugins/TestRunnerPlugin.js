@@ -30,36 +30,34 @@ jstestdriver.plugins.TestRunnerPlugin = function(dateObj, clearBody, opt_runTest
 
 jstestdriver.plugins.timedProcessArray = function(interval, array, process, finish, now, setTimeout)
 {
-	var items = array.concat(); //clone the array
-	setTimeout(function nestedFunction(){
-		var start = now();
-		do{
-			process(items.shift());
-		}while(items.length > 0 && (now() - start < interval));
+  var items = array.concat(); //clone the array
+  setTimeout(function nestedFunction(){
+    var start = now();
+    do{
+      process(items.shift());
+    }while(items.length > 0 && (now() - start < interval));
 
-		if (items.length > 0){
-			setTimeout(nestedFunction, 25);
-		}else{
-			finish();
-		}
-	}, 25);
+    if (items.length > 0){
+      setTimeout(nestedFunction, 25);
+    }else{
+      finish();
+    }
+  }, 25);
 };
-
 
 
 jstestdriver.plugins.createPausingRunTestLoop =
     function (interval, now, setTimeout) {
   var lastPause;
   function pausingRunTestLoop(testCaseName,
-                              template,
-                              tests,
-                              runTest,
-                              onTest,
-                              onComplete) {
-    jstestdriver.plugins.timedProcessArray(interval, tests, function(oItem){
-		jstestdriver.console.log("running " + testCaseName + '.' + oItem);
-		onTest(runTest(testCaseName, template, oItem));
-	}, onComplete, now, setTimeout);
+                                template,
+                                tests,
+                                runTest,
+                                onTest,
+                                onComplete) {
+      jstestdriver.plugins.timedProcessArray(interval, tests, function(oItem){
+      onTest(runTest(testCaseName, template, oItem));
+    }, onComplete, now, setTimeout);
   }
   return pausingRunTestLoop;
 };

@@ -21,16 +21,21 @@ StreamingServiceTest.prototype.setUp = function() {
   var posts = this.posts = [];
   this.now = 1;
   var testCase = this;
-  this.streamingService = new jstestdriver.StreamingService("/Q/1",
-          function(){ return testCase.now++; },
-          function (url, data, callback, type){
-    posts.push({
-      url : url,
-      data : data,
-      callback : callback,
-      type : type
+  this.streamingService = new jstestdriver.StreamingService(
+    "/Q/1",
+    function(){ return testCase.now++; },
+    function (url, data, callback, type){
+      posts.push({
+        url : url,
+        data : data,
+        callback : callback,
+        type : type
+      });
+    },
+    null,
+    function(func, timeout) {
+      func();
     });
-  });
 };
 
 
@@ -42,6 +47,7 @@ StreamingServiceTest.prototype.testStreamAndClose = function() {
   this.streamingService.stream(response, callback);
 
   var streamPost = this.posts.pop();
+  assertNotNull(streamPost);
   assertEquals(callback, streamPost.callback);
   assertFalse("Streaming should not be a final reponse.", streamPost.data.done);
   assertEquals(response, streamPost.data.response);

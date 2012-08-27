@@ -31,6 +31,8 @@ CommandExecutorTest.prototype.setUp = function() {
       callback : callback,
       type : type
     });
+  }, null, function(func, timeout) {
+    func();
   });
 };
 

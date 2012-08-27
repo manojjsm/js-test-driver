@@ -138,7 +138,8 @@ jstestdriver.config = (function(module) {
             url,
             now,
             jstestdriver.convertToJson(jstestdriver.jQuery.post),
-            jstestdriver.createSynchPost(jstestdriver.jQuery));
+            jstestdriver.createSynchPost(jstestdriver.jQuery),
+            jstestdriver.setTimeout);
 
     var executor = new jstestdriver.CommandExecutor(streamingService,
                                                     testCaseManager,
@@ -310,7 +311,8 @@ jstestdriver.config = (function(module) {
     var streamingService = new jstestdriver.StreamingService(
             url,
             now,
-            jstestdriver.convertToJson(jstestdriver.jQuery.post));
+            jstestdriver.convertToJson(jstestdriver.jQuery.post),
+            jstestdriver.setTimeout);
 
     window.top.G_testRunner = reporter;
     jstestdriver.reporter = reporter;

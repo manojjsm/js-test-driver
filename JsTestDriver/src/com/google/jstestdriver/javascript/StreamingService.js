@@ -20,16 +20,19 @@
  * @param {function():Number} now Returns the current time in ms.
  * @param {function(String, Object, function():null)} post Posts to the server.
  * @param {function(String, Object)} synchPost Posts synchronously to the server.
+ * @param {function(Function, Number)} The setTimeout for asynch xhrs.
  * @constructor
  */
 // TODO(corysmith): Separate the state from the service.
-jstestdriver.StreamingService = function(url, now, post, synchPost) {
+jstestdriver.StreamingService = function(url, now, post, synchPost, setTimeout) {
   this.url_ = url;
   this.now_ = now;
   this.post_ = post;
   this.activeResponses_ = {};
+  this.finishedResponses_ = {};
   this.completeFinalResponse = null;
   this.synchPost_ = synchPost;
+  this.setTimeout_ = setTimeout;
 };
 
 
@@ -53,7 +56,10 @@ jstestdriver.StreamingService.prototype.streamResponse = function(response,
     // no ack expected after the final response, and no ack expected on no response
     this.activeResponses_[data.responseId] = data;
   }
-  this.post_(this.url_, data, callback, 'text/plain');
+  var context = this;
+  this.setTimeout_(function() {
+    context.post_(context.url_, data, callback, 'text/plain');
+  }, 1);
 };
 
 
@@ -67,6 +73,7 @@ jstestdriver.StreamingService.prototype.streamAcknowledged = function(received) 
       // cut down on memory goof ups....
       this.activeResponses_[received[i]] = null;
       delete this.activeResponses_[received[i]];
+      this.finishedResponses_[received[i]] = true;
     }
   }
 
@@ -95,6 +102,7 @@ jstestdriver.StreamingService.prototype.close =
     } else {
       context.completeFinalResponse = null;
       context.activeResponses_ = {};
+      context.finishedResponses_ = {};
       context.streamResponse(finalResponse, true, callback);
     }
   };
