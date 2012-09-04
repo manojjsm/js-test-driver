@@ -238,22 +238,23 @@ jstestdriver.config = (function(module) {
       location,
       getBrowserInfo,
       id) {
-    return config.createStandAloneExecutorWithReporter(testCaseManager,
-      testRunner,
-      pluginRegistrar,
-      now,
-      location,
-      new jstestdriver.VisualTestReporter(
-          function(tagName) {
-            return document.createElement(tagName);
-          },
-          function(node) {
-            return document.body.appendChild(node);
-          },
-          jstestdriver.jQuery,
-          JSON.parse),
-      getBrowserInfo,
-      id);
+    return config.createStandAloneExecutorWithReporter(
+        testCaseManager,
+        testRunner,
+        pluginRegistrar,
+        now,
+        location,
+        new jstestdriver.VisualTestReporter(
+            function(tagName) {
+              return document.createElement(tagName);
+            },
+            function(node) {
+              return document.body.appendChild(node);
+            },
+            jstestdriver.jQuery,
+            JSON.parse),
+        getBrowserInfo,
+        id);
   };
 
   /**
@@ -267,7 +268,8 @@ jstestdriver.config = (function(module) {
    * 
    * @return {jstestdriver.CommandExecutor}
    */
-  config.createStandAloneExecutor =  function(testCaseManager,
+  config.createStandAloneExecutor =  function(
+      testCaseManager,
       testRunner,
       pluginRegistrar,
       now,
@@ -297,14 +299,15 @@ jstestdriver.config = (function(module) {
    * 
    * @return {jstestdriver.CommandExecutor}
    */
-  config.createStandAloneExecutorWithReporter = function(testCaseManager,
-          testRunner,
-          pluginRegistrar,
-          now,
-          location,
-          reporter,
-          getBrowserInfo,
-          id) {
+  config.createStandAloneExecutorWithReporter = function(
+      testCaseManager,
+      testRunner,
+      pluginRegistrar,
+      now,
+      location,
+      reporter,
+      getBrowserInfo,
+      id) {
     var url =jstestdriver.createPath(top.location.toString(),
         jstestdriver.SERVER_URL + id);
 
@@ -312,13 +315,14 @@ jstestdriver.config = (function(module) {
             url,
             now,
             jstestdriver.convertToJson(jstestdriver.jQuery.post),
+            jstestdriver.createSynchPost(jstestdriver.jQuery),
             jstestdriver.setTimeout);
 
     window.top.G_testRunner = reporter;
     jstestdriver.reporter = reporter;
 
     var currentActionSignal = new jstestdriver.Signal(null);
-    
+
     var executor = new jstestdriver.CommandExecutor(streamingService,
             testCaseManager,
             testRunner,
@@ -327,7 +331,8 @@ jstestdriver.config = (function(module) {
             getBrowserInfo,
             currentActionSignal);
 
-    var boundExecuteCommand = jstestdriver.bind(executor, executor.executeCommand);
+    var boundExecuteCommand = jstestdriver.bind(executor,
+                                                executor.executeCommand);
 
     function streamStop(response) {
       streamingService.close(response, boundExecuteCommand)
@@ -337,23 +342,25 @@ jstestdriver.config = (function(module) {
       streamingService.stream(response, boundExecuteCommand);
     }
 
-    var loadTestsCommand = new jstestdriver.StandAloneLoadTestsCommand(jsonParse,
+    var loadTestsCommand = new jstestdriver.StandAloneLoadTestsCommand(
+        jsonParse,
+        pluginRegistrar,
+        getBrowserInfo,
+        streamStop,
+        reporter,
+        jstestdriver.now);
+
+    var runTestsCommand =
+        new jstestdriver.StandAloneRunTestsCommand(
+            testCaseManager,
+            testRunner,
             pluginRegistrar,
             getBrowserInfo,
-            streamStop,
             reporter,
-            jstestdriver.now);
-    
-    var runTestsCommand =
-        new jstestdriver.StandAloneRunTestsCommand(testCaseManager,
-                testRunner,
-                pluginRegistrar,
-                getBrowserInfo,
-                reporter,
-                now,
-                jsonParse,
-                streamContinue,
-                streamStop);
+            now,
+            jsonParse,
+            streamContinue,
+            streamStop);
 
     executor.registerTracedCommand('execute', executor, executor.execute);
     executor.registerTracedCommand('noop', null, streamStop);
