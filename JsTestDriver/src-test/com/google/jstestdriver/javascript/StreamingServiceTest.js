@@ -21,6 +21,7 @@ StreamingServiceTest.prototype.setUp = function() {
   var posts = this.posts = [];
   this.now = 1;
   var testCase = this;
+  this.unloadSignal = new jstestdriver.Signal(false);
   this.streamingService = new jstestdriver.StreamingService(
     "/Q/1",
     function(){ return testCase.now++; },
@@ -35,7 +36,7 @@ StreamingServiceTest.prototype.setUp = function() {
     null,
     function(func, timeout) {
       func();
-    });
+    }, this.unloadSignal);
 };
 
 

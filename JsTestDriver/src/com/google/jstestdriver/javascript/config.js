@@ -134,21 +134,26 @@ jstestdriver.config = (function(module) {
     var url = jstestdriver.createPath(top.location.toString(),
                                       jstestdriver.SERVER_URL + id);
 
+    var unloadSignal = new jstestdriver.Signal(false);
+
     var streamingService = new jstestdriver.StreamingService(
             url,
             now,
             jstestdriver.convertToJson(jstestdriver.jQuery.post),
             jstestdriver.createSynchPost(jstestdriver.jQuery),
-            jstestdriver.setTimeout);
+            jstestdriver.setTimeout,
+            unloadSignal);
+
+    var currentActionSignal = new jstestdriver.Signal(null);
 
     var executor = new jstestdriver.CommandExecutor(streamingService,
                                                     testCaseManager,
                                                     testRunner,
                                                     pluginRegistrar,
                                                     now,
-                                                    getBrowserInfo);
-
-    var currentActionSignal = new jstestdriver.Signal(null);
+                                                    getBrowserInfo,
+                                                    currentActionSignal,
+                                                    unloadSignal);
 
     var boundExecuteCommand = jstestdriver.bind(executor, executor.executeCommand);
 
@@ -174,7 +179,6 @@ jstestdriver.config = (function(module) {
         jsonParse,
         streamContinue,
         streamStop);
-    var unloadSignal = new jstestdriver.Signal(false);
     var resetCommand = new jstestdriver.ResetCommand(
         window.location,
         unloadSignal,
@@ -311,12 +315,15 @@ jstestdriver.config = (function(module) {
     var url =jstestdriver.createPath(top.location.toString(),
         jstestdriver.SERVER_URL + id);
 
+    var unloadSignal = new jstestdriver.Signal(false);
+
     var streamingService = new jstestdriver.StreamingService(
             url,
             now,
             jstestdriver.convertToJson(jstestdriver.jQuery.post),
             jstestdriver.createSynchPost(jstestdriver.jQuery),
-            jstestdriver.setTimeout);
+            jstestdriver.setTimeout,
+            unloadSignal);
 
     window.top.G_testRunner = reporter;
     jstestdriver.reporter = reporter;
@@ -329,7 +336,8 @@ jstestdriver.config = (function(module) {
             pluginRegistrar,
             now,
             getBrowserInfo,
-            currentActionSignal);
+            currentActionSignal,
+            unloadSignal);
 
     var boundExecuteCommand = jstestdriver.bind(executor,
                                                 executor.executeCommand);

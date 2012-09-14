@@ -53,6 +53,10 @@ jstestdriver.NOOP_COMMAND = {
  * @param {jstestdriver.TestRunner} testRunner Runs the tests...
  * @param {jstestdriver.PluginRegistrar} pluginRegistrar The plugin service,
  *     for post processing test results.
+ * @param {jstestdriver.now} now
+ * @param {function():number} getBrowserInfo
+ * @param {jstestdriver.Signal} currentActionSignal
+ * @param {jstestdriver.Signal} unloadSignal
  * @constructor
  */
 jstestdriver.CommandExecutor = function(streamingService,
@@ -61,7 +65,8 @@ jstestdriver.CommandExecutor = function(streamingService,
                                         pluginRegistrar,
                                         now,
                                         getBrowserInfo,
-                                        currentActionSignal) {
+                                        currentActionSignal,
+                                        unloadSignal) {
   this.streamingService_ = streamingService;
   this.__testCaseManager = testCaseManager;
   this.__testRunner = testRunner;
@@ -69,14 +74,8 @@ jstestdriver.CommandExecutor = function(streamingService,
   this.__boundExecuteCommand = jstestdriver.bind(this, this.executeCommand);
   this.__boundExecute = jstestdriver.bind(this, this.execute);
   this.__boundEvaluateCommand = jstestdriver.bind(this, this.evaluateCommand);
-  this.boundCleanTestManager = jstestdriver.bind(this, this.cleanTestManager);
   this.boundOnFileLoaded_ = jstestdriver.bind(this, this.onFileLoaded);
   this.boundOnFileLoadedRunnerMode_ = jstestdriver.bind(this, this.onFileLoadedRunnerMode);
-  this.boundOnTestDone = jstestdriver.bind(this, this.onTestDone_);
-  this.boundOnComplete = jstestdriver.bind(this, this.onComplete_);
-  this.boundOnTestDoneRunnerMode = jstestdriver.bind(this, this.onTestDoneRunnerMode_);
-  this.boundOnCompleteRunnerMode = jstestdriver.bind(this, this.onCompleteRunnerMode_);
-  this.boundSendTestResults = jstestdriver.bind(this, this.sendTestResults);
   this.commandMap_ = {};
   this.testsDone_ = [];
   this.debug_ = false;
@@ -85,6 +84,7 @@ jstestdriver.CommandExecutor = function(streamingService,
   this.getBrowserInfo = getBrowserInfo;
   this.currentActionSignal_ = currentActionSignal;
   this.currentCommand = null;
+  this.unloadSignal_ = unloadSignal;
 };
 
 
@@ -102,6 +102,7 @@ jstestdriver.CommandExecutor.prototype.executeCommand = function(jsonCommand) {
   this.currentCommand = command.command;
   jstestdriver.log('current command ' + command.command);
   try {
+    this.unloadSignal_.set(false); // if the page unloads during a command, issue an error.
     this.commandMap_[command.command](command.parameters);
   } catch (e) {
     var message =  'Exception ' + e.name + ': ' + e.message +
@@ -118,6 +119,7 @@ jstestdriver.CommandExecutor.prototype.executeCommand = function(jsonCommand) {
       top.console.log(message);
     }
     this.streamingService_.close(response, this.__boundExecuteCommand);
+    this.unloadSignal_.set(true); // reloads are possible between actions.
     // Propagate the exception.
     throw e;
   }

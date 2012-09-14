@@ -34,6 +34,8 @@ CommandExecutorTest.prototype.setUp = function() {
   }, null, function(func, timeout) {
     func();
   });
+  
+  this.unloadSignal = new jstestdriver.Signal();
 };
 
 
@@ -43,7 +45,7 @@ CommandExecutorTest.prototype.testFetchCommandNoLibsSendResponseLoop = function(
   }
 
   var executor = new jstestdriver.CommandExecutor(this.streamingService,
-          null, null, null, jstestdriver.now, getBrowserInfo);
+          null, null, null, jstestdriver.now, getBrowserInfo, null, this.unloadSignal);
   executor.registerCommand('execute', executor, executor.execute);
 
   executor.listen();
@@ -89,7 +91,9 @@ CommandExecutorTest.prototype.testHandleDisconnectionByServer = function() {
                                                   null,
                                                   null,
                                                   jstestdriver.now,
-                                                  getBrowserInfo);
+                                                  getBrowserInfo,
+                                                  null,
+                                                  this.unloadSignal);
   executor.registerCommand('noop', this.streamingService, this.streamingService.close);
   executor.listen();
   var listenPost = this.posts.pop();
@@ -132,7 +136,8 @@ CommandExecutorTest.prototype.testEvaluateGoodAndBadCommand = function() {
                                                   null,
                                                   null,
                                                   jstestdriver.now,
-                                                  getBrowserInfo);
+                                                  getBrowserInfo,
+                                                  this.unloadSignal);
   var res = executor.evaluateCommand('1+2');
 
   assertEquals(res, 3);
@@ -201,7 +206,9 @@ CommandExecutorTest.prototype.testParseJsonAndRunTheRightMethod = function() {
           null,
           null,
           jstestdriver.now,
-          getBrowserInfo);
+          getBrowserInfo,
+          null,
+          this.unloadSignal);
 
   var command = {
     fooRang : false,
@@ -213,5 +220,3 @@ CommandExecutorTest.prototype.testParseJsonAndRunTheRightMethod = function() {
   executor.executeCommand(JSON.stringify({ 'command': 'foo', 'parameters': ['bar'] }));
   assertEquals('bar', command.fooRang[0]);
 };
-
-

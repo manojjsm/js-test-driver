@@ -21,10 +21,11 @@
  * @param {function(String, Object, function():null)} post Posts to the server.
  * @param {function(String, Object)} synchPost Posts synchronously to the server.
  * @param {function(Function, Number)} The setTimeout for asynch xhrs.
+ * @param {jstestdriver.Signal} unloadSignal
  * @constructor
  */
 // TODO(corysmith): Separate the state from the service.
-jstestdriver.StreamingService = function(url, now, post, synchPost, setTimeout) {
+jstestdriver.StreamingService = function(url, now, post, synchPost, setTimeout, unloadSignal) {
   this.url_ = url;
   this.now_ = now;
   this.post_ = post;
@@ -33,12 +34,14 @@ jstestdriver.StreamingService = function(url, now, post, synchPost, setTimeout) 
   this.completeFinalResponse = null;
   this.synchPost_ = synchPost;
   this.setTimeout_ = setTimeout;
+  this.unloadSignal_ = unloadSignal;
 };
 
 
 jstestdriver.StreamingService.prototype.synchClose = function(response) {
   var data = new jstestdriver.CommandResponse(true, response);
   this.synchPost_(this.url_, data);
+  this.unloadSignal_.set(true);
 };
 
 
@@ -104,6 +107,7 @@ jstestdriver.StreamingService.prototype.close =
       context.activeResponses_ = {};
       context.finishedResponses_ = {};
       context.streamResponse(finalResponse, true, callback);
+      this.unloadSignal_.set(true);
     }
   };
 
