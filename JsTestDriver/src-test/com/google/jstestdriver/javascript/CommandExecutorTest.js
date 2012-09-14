@@ -22,6 +22,7 @@ CommandExecutorTest.prototype.testExtractIdFromUrl =  function() {
 
 CommandExecutorTest.prototype.setUp = function() {
   var posts = this.posts = [];
+  this.unloadSignal = new jstestdriver.Signal(false);
   this.streamingService = new jstestdriver.StreamingService("/Q1",
           function(){ return 1; },
           function (url, data, callback, type){
@@ -33,9 +34,8 @@ CommandExecutorTest.prototype.setUp = function() {
     });
   }, null, function(func, timeout) {
     func();
-  });
-  
-  this.unloadSignal = new jstestdriver.Signal();
+  },
+  this.unloadSignal);
 };
 
 
@@ -44,8 +44,15 @@ CommandExecutorTest.prototype.testFetchCommandNoLibsSendResponseLoop = function(
     return new jstestdriver.BrowserInfo(1);
   }
 
-  var executor = new jstestdriver.CommandExecutor(this.streamingService,
-          null, null, null, jstestdriver.now, getBrowserInfo, null, this.unloadSignal);
+  var executor = new jstestdriver.CommandExecutor(
+      this.streamingService,
+      null,
+      null,
+      null,
+      jstestdriver.now,
+      getBrowserInfo,
+      null,
+      this.unloadSignal);
   executor.registerCommand('execute', executor, executor.execute);
 
   executor.listen();
