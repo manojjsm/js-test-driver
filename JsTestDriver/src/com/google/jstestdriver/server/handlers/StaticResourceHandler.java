@@ -33,12 +33,31 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class StaticResourceHandler implements RequestHandler {
   public static final Map<String, String> MIME_TYPE_MAP = ImmutableMap.<String, String>builder()
-    .put("css", "text/css")
-    .put("js", "text/javascript")
-    .put("xml", "text/xml")
-    .put("html", "text/html")
-    .put("rdf", "application/rdf+xml")
-    .build();
+      .put("appcache", "text/cache-manifest")
+      .put("bmp", "image/bmp")
+      .put("css", "text/css")
+      .put("csv", "text/csv")
+      .put("gif", "image/gif")
+      .put("htm", "text/html")
+      .put("html", "text/html")
+      .put("ico", "image/ico")
+      .put("jpe", "image/jpeg")
+      .put("jpeg", "image/jpeg")
+      .put("jpg", "image/jpeg")
+      .put("js", "text/javascript")
+      .put("json", "application/json")
+      .put("kml", "application/vnd.google-earth.kml+xml")
+      .put("kmz", "application/vnd.google-earth.kmz")
+      .put("pdf", "application/pdf")
+      .put("png", "text/png")
+      .put("rdf", "application/rdf+xml")
+      .put("tif", "image/tiff")
+      .put("tiff", "image/tiff")
+      .put("txt", "text/plain")
+      .put("wav", "audio/x-wav")
+      .put("webp", "image/webp")
+      .put("xml", "text/xml")
+      .build();
 
   private final SlaveResourceService service;
   private final HttpServletRequest request;
