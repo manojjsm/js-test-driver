@@ -13,6 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+ 
+ goog.require('jstestdriver');
+ 
+ goog.provide('jstestdriver.PluginRegistrar');
+ 
 /**
  * The PluginRegistrar allows developers to load their own plugins to perform certain actions.
  * A plugin must define methods with specific names in order for it to be used.

@@ -13,6 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+ 
+ goog.require('jstestdriver');
+ goog.provide('jstestdriver.TestCaseManager');
 
 /**
  * Handles the TestCases

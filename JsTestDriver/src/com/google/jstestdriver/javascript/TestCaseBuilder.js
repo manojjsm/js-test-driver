@@ -19,8 +19,11 @@
  * @author corysmith@google.com (Cory Smith)
  * @author rdionne@google.com (Robert Dionne)
  */
-
-
+ 
+ goog.require('jstestdriver');
+ goog.require('jstestdriver.TestCaseInfo');
+ 
+ goog.provide('jstestdriver.TestCaseBuilder');
 
 /**
  * Constructs a TestCaseBuilder.
@@ -39,6 +42,7 @@ jstestdriver.TestCaseBuilder = function(testCaseManager) {
  * @param {Object} opt_proto An optional prototype.
  * @param {Object} opt_type Either DEFAULT_TYPE or ASYNC_TYPE.
  * @return {Function} Base function that represents the test case class.
+ * @export
  */
 jstestdriver.TestCaseBuilder.prototype.TestCase =
     function(testCaseName, opt_proto, opt_type) {
@@ -89,6 +93,7 @@ jstestdriver.TestCaseBuilder.prototype.checkNotContains_= function(
  * @param {Object} opt_proto An optional prototype.
  * @return {Function} Base function that represents the asyncronous test case
  *     class.
+ * @export
  */
 jstestdriver.TestCaseBuilder.prototype.AsyncTestCase =
     function(testCaseName, opt_proto) {
@@ -105,6 +110,7 @@ jstestdriver.TestCaseBuilder.prototype.AsyncTestCase =
  * @param {Object} opt_proto An optional prototype for the test case class.
  * @param {Object} opt_type Either DEFAULT_TYPE or ASYNC_TYPE.
  * @return {Function} Base function that represents the TestCase class.
+ * @export
  */
 jstestdriver.TestCaseBuilder.prototype.ConditionalTestCase =
     function(testCaseName, condition, opt_proto, opt_type) {
@@ -127,6 +133,7 @@ jstestdriver.TestCaseBuilder.prototype.ConditionalTestCase =
  *     run.
  * @param {Object} opt_proto An optional prototype for the test case class.
  * @return {Function} Base function that represents the TestCase class.
+ * @export
  */
 jstestdriver.TestCaseBuilder.prototype.ConditionalAsyncTestCase =
     function(testCaseName, condition, opt_proto) {
@@ -138,6 +145,7 @@ jstestdriver.TestCaseBuilder.prototype.ConditionalAsyncTestCase =
 /**
  * Constructs a place holder test case.
  * @constructor
+ * @export
  */
 jstestdriver.TestCaseBuilder.PlaceHolderCase = function() {};
 

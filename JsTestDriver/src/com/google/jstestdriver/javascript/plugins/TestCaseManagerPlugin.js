@@ -19,7 +19,9 @@
  * Plugin that handles the default behavior for the TestCaseManager.
  * @author corysmith@google.com (Cory Smith)
  */
-jstestdriver.plugins.TestCaseManagerPlugin = function() {};
+jstestdriver.plugins.TestCaseManagerPlugin = function() {
+  this.name = 'TestCaseManagerPlugin';
+};
 
 
 /**

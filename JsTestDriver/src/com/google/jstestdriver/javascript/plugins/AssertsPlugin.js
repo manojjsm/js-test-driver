@@ -13,10 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+ 
+goog.provide('jstestdriver.plugins.AssertsPlugin');
+ 
 jstestdriver.plugins.AssertsPlugin = function() {
+  this.name = 'AssertPlugin';
 };
 
-
+/**
+ * @param {Error}
+ * @return
+ */
 jstestdriver.plugins.AssertsPlugin.prototype.isFailure = function(e) {
   return e.name == 'AssertError';
 };

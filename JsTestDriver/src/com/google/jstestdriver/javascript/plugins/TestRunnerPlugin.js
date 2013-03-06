@@ -13,18 +13,33 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+goog.require('jstestdriver');
+goog.require('jstestdriver.TestResult');
+goog.require('jstestdriver.TestCaseInfo');
+
+
+goog.provide('jstestdriver.plugins.TestRunnerPlugin');
 
 /**
- * @param dateObj
- * @param clearBody
- * @param opt_runTestLoop
+ * @param {Date} dateObj
+ * @param {Function} clearBody
+ * @param {jstestdriver.PluginRegistrar} pluginRegistrar
+ * @param {Function} serializeErrors
+ * @param {Function} opt_runTestLoop
  * @constructor
  */
-jstestdriver.plugins.TestRunnerPlugin = function(dateObj, clearBody, opt_runTestLoop) {
+jstestdriver.plugins.TestRunnerPlugin = function(dateObj,
+												 clearBody,
+												 pluginRegistrar,
+												 serializeErrors,
+												 opt_runTestLoop) {
   this.dateObj_ = dateObj;
   this.clearBody_ = clearBody;
   this.boundRunTest_ = jstestdriver.bind(this, this.runTest);
   this.runTestLoop_ = opt_runTestLoop || jstestdriver.plugins.defaultRunTestLoop;
+  this.pluginRegistrar_ = pluginRegistrar;
+  this.serializeErrors_ = serializeErrors;
+  this.name = 'TestRunnerPlugin';
 };
 
 
@@ -50,11 +65,11 @@ jstestdriver.plugins.createPausingRunTestLoop =
     function (interval, now, setTimeout) {
   var lastPause;
   function pausingRunTestLoop(testCaseName,
-                                template,
-                                tests,
-                                runTest,
-                                onTest,
-                                onComplete) {
+                              template,
+                              tests,
+                              runTest,
+                              onTest,
+                              onComplete) {
       jstestdriver.plugins.timedProcessArray(interval, tests, function(oItem){
       onTest(runTest(testCaseName, template, oItem));
     }, onComplete, now, setTimeout);
@@ -79,6 +94,10 @@ jstestdriver.plugins.defaultRunTestLoop =
 };
 
 
+/**
+ * 
+ * @expose
+ */
 jstestdriver.plugins.TestRunnerPlugin.prototype.runTestConfiguration =
     function(testRunConfiguration, onTestDone, onTestRunConfigurationComplete) {
   var testCaseInfo = testRunConfiguration.getTestCaseInfo();
@@ -109,7 +128,11 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTestConfiguration =
                     onTestRunConfigurationComplete)
 };
 
-
+/**
+ * @param {String} testCaseName
+ * @param {Function} testCase
+ * @param {String} testName
+ */
 jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
     function(testCaseName, testCase, testName) {
   var testCaseInstance;
@@ -132,8 +155,8 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
     jstestdriver.assertCount = 0;
     var res = jstestdriver.TestResult.RESULT.PASSED;
     try {
-      if (testCaseInstance.setUp) {
-        testCaseInstance.setUp();
+      if (testCaseInstance['setUp']) {
+        testCaseInstance['setUp']();
       }
       if (!(testName in testCaseInstance)) {
         var err = new Error(testName + ' not found in ' + testCaseName);
@@ -153,16 +176,14 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
         throw err;
       }
     } catch (e) {
-      // We use the global here because of a circular dependency. The isFailure plugin should be
-      // refactored.
-      res = jstestdriver.pluginRegistrar.isFailure(e) ?
+      res = this.pluginRegistrar_.isFailure(e) ?
           jstestdriver.TestResult.RESULT.FAILED :
             jstestdriver.TestResult.RESULT.ERROR;
       errors.push(e);
     }
     try {
-      if (testCaseInstance.tearDown) {
-        testCaseInstance.tearDown();
+      if (testCaseInstance['tearDown']) {
+        testCaseInstance['tearDown']();
       }
       this.clearBody_();
     } catch (e) {
@@ -184,8 +205,9 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
 };
 
 /**
- *@param {Error} e
+ * @param {Error} e
+ * @return {Object}
  */
 jstestdriver.plugins.TestRunnerPlugin.prototype.serializeError = function(e) {
-  return jstestdriver.utils.serializeErrors(e);
+  return this.serializeErrors_(e);
 };

@@ -15,6 +15,17 @@
  */
 var TestRunnerPluginTest = jstestdriver.testCaseManager.TestCase('TestRunnerPluginTest');
 
+TestRunnerPluginTest.prototype.createTestRunnerPlugin = function(fakeDate,
+                                                                 clearBody) {
+  var pluginRegistrar = new jstestdriver.PluginRegistrar();
+  pluginRegistrar.register(new jstestdriver.plugins.AssertsPlugin());
+  var serializeErrors = jstestdriver.utils.serializeErrors;
+  return new jstestdriver.plugins.TestRunnerPlugin(fakeDate,
+                                                   clearBody,
+                                                   pluginRegistrar,
+                                                   serializeErrors);
+}
+
 
 TestRunnerPluginTest.prototype.testRunOneTest = function() {
   var fakeDate = function() {};
@@ -22,7 +33,7 @@ TestRunnerPluginTest.prototype.testRunOneTest = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -71,7 +82,7 @@ TestRunnerPluginTest.prototype.testCheckResultObject = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -101,7 +112,7 @@ TestRunnerPluginTest.prototype.testClearBody = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate,
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate,
       function() { clearBodyCalled = true; });
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
@@ -126,7 +137,7 @@ TestRunnerPluginTest.prototype.testClearBodyError = function() {
   
   var clearBodyError = new Error("body not there");
   
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate,
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate,
           function() { throw clearBodyError; });
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
@@ -155,7 +166,7 @@ TestRunnerPluginTest.prototype.testWrongTest = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -179,7 +190,7 @@ TestRunnerPluginTest.prototype.testWrongTestCase = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -216,7 +227,7 @@ TestRunnerPluginTest.prototype.testWrongTestCase = function() {
     dateCalls.push(callOrder++);
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -253,7 +264,7 @@ TestRunnerPluginTest.prototype.testSetUpError = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -282,7 +293,7 @@ TestRunnerPluginTest.prototype.testTearDownError = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -311,7 +322,7 @@ TestRunnerPluginTest.prototype.testTearDownCalledWhenTestFails = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -346,7 +357,7 @@ TestRunnerPluginTest.prototype.testErrorInTearDownAndTest = function() {
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
@@ -380,7 +391,7 @@ TestRunnerPluginTest.prototype.testSetUpAndTearDownNotCalledWhenNotPresent = fun
   fakeDate.prototype.getTime = function() {
     return 0;
   };
-  var testRunnerPlugin = new jstestdriver.plugins.TestRunnerPlugin(fakeDate, function() {});
+  var testRunnerPlugin = this.createTestRunnerPlugin(fakeDate, function(){});
   var testCaseManager = new jstestdriver.TestCaseManager();
   var testCaseBuilder = new jstestdriver.TestCaseBuilder(testCaseManager);
   var testCaseClass = testCaseBuilder.TestCase('test');
