@@ -66,13 +66,26 @@ public class HomeHandlerTest extends TestCase {
     EasyMock.replay(response);
 
     handler.handleIt();
-    assertEquals("<html><head><title>JsTestDriver</title></head><body>"
+    assertEquals("<html><head><title>JsTestDriver</title><script>"
+        + "function getEl(id){return document.getElementById(id);}"
+        + "function toggle(id) {\n"
+        + "if (getEl(id).style.display=='block') {"
+        + "getEl(id).style.display='none';"
+        + "} else {"
+        + "getEl(id).style.display='block';}"
+        + "}</script>"
+        + "</head><body>"
         + "<a href=\"/capture\">Capture This Browser</a><br/>"
         + "<a href=\"/capture?strict\">Capture This Browser in strict mode</a>"
         + "<br/><p><strong>Captured Browsers: (1)</strong></p>"
         + "<div>Id: 1<br/>Name: browser<br/>Version: 1.0"
-        + "<br/>Operating System: OS<br/>Currently waiting...<br/>"
-        + "<ul style='display:none'></ul></div></body></html>", stream.toString());
+        + "<br/>Operating System: OS<br/>In use.<br/>RunnerType CLIENT <br/>"
+        + "Currently waiting...<br/>"
+        + "<input type='button' value='List Files' onclick=\"toggle('f1')\"/>"
+        + "<ul style='display:none' id='f1'></ul>"
+        + "<input type='button' value='Show Responses' "
+        + "onclick=\"toggle('r1')\"/><pre id='r1' style='display:none'>[]</pre>"
+        + "</div></body></html>", stream.toString());
 
     EasyMock.verify(response);
   }
