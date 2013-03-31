@@ -14,6 +14,7 @@
  * the License.
  */
 
+goog.provide('jstestdriver.utils');
 
 jstestdriver.convertToJson = function(delegate) {
   var serialize = jstestdriver.parameterSerialize
@@ -186,6 +187,9 @@ jstestdriver.utils.isNative = function(instance, nativeType) {
   }
 };
 
+/**
+ * Serializes
+ */
 jstestdriver.utils.serializeErrors = function(errors) {
   var out = [];
   out.push('[');
@@ -203,13 +207,13 @@ jstestdriver.utils.serializeErrorToArray = function(error, out) {
   if (jstestdriver.utils.isNative(error, 'Error')) {
     out.push('{');
     out.push('"message":');
-    this.serializeObjectToArray(error.message, out);
-    this.serializePropertyOnObject('name', error, out);
-    this.serializePropertyOnObject('description', error, out);
-    this.serializePropertyOnObject('fileName', error, out);
-    this.serializePropertyOnObject('lineNumber', error, out);
-    this.serializePropertyOnObject('number', error, out);
-    this.serializePropertyOnObject('stack', error, out);
+    jstestdriver.utils.serializeObjectToArray(error.message, out);
+    jstestdriver.utils.serializePropertyOnObject('name', error, out);
+    jstestdriver.utils.serializePropertyOnObject('description', error, out);
+    jstestdriver.utils.serializePropertyOnObject('fileName', error, out);
+    jstestdriver.utils.serializePropertyOnObject('lineNumber', error, out);
+    jstestdriver.utils.serializePropertyOnObject('number', error, out);
+    jstestdriver.utils.serializePropertyOnObject('stack', error, out);
     out.push('}');
   } else {
     out.push(jstestdriver.utils.serializeObject(error));
@@ -228,7 +232,7 @@ jstestdriver.utils.serializeObjectToArray =
   var out = opt_out || out;
   if (jstestdriver.utils.isNative(obj, 'Array')) {
     out.push('[');
-    var arr = /** @type {Array.<Object>} */ obj;
+    var arr = obj;
     for ( var i = 0; i < arr.length; i++) {
       this.serializeObjectToArray(arr[i], out);
       if (i < arr.length - 1) {
@@ -237,12 +241,7 @@ jstestdriver.utils.serializeObjectToArray =
     }
     out.push(']');
   } else {
-    var serial = jstestdriver.angular.toJson(obj);
-    if (!serial.length) {
-      serial = '["Bad serialization of ' + String(obj) + ':' +
-          Object.prototype.toString.call(obj) + '"]';
-    }
-    out.push(serial);
+    jstestdriver.utils.toJsonArray(out, obj, false, []);
   }
   return out;
 };
@@ -255,3 +254,128 @@ jstestdriver.utils.serializePropertyOnObject = function(name, obj, out) {
     this.serializeObjectToArray(obj[name], out);
   }
 };
+
+jstestdriver.utils.quote = function(str) {
+  return '"' + str.replace(/\\/g, '\\\\').
+                   replace(/"/g, '\\"').
+                   replace(/\n/g, '\\n').
+                   replace(/\f/g, '\\f').
+                   replace(/\r/g, '\\r').
+                   replace(/\t/g, '\\t').
+                   replace(/\v/g, '\\v') + '"';
+};
+
+jstestdriver.utils.quoteUnicode = function(string) {
+  var str = jstestdriver.utils.quote(string);
+  var chars = [];
+  for ( var i = 0; i < str.length; i++) {
+    var ch = str.charCodeAt(i);
+    if (ch < 128) {
+      chars.push(str.charAt(i));
+    } else {
+      var encode = "000" + ch.toString(16);
+      chars.push("\\u" + encode.substring(encode.length - 4));
+    }
+  }
+  return chars.join('');
+}
+
+jstestdriver.utils.includes = function(list, obj) {
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] === obj) {
+      return true;
+    }
+  }
+  return false;
+};
+
+
+jstestdriver.utils.toJsonArray = function (buf, obj, pretty, stack) {
+  if (jstestdriver.utils.isNative(obj, 'object')) {
+    if (obj === window) {
+      buf.push(jstestdriver.utils.quote('WINDOW'));
+      return;
+    }
+
+    if (obj === document) {
+      buf.push(jstestdriver.utils.quote('DOCUMENT'));
+      return;
+    }
+
+    if (jstestdriver.utils.includes(stack, obj)) {
+      buf.push(jstestdriver.utils.quote('RECURSION'));
+      return;
+    }
+    stack.push(obj);
+  }
+  if (obj === null) {
+    buf.push('null');
+  } else if (obj instanceof RegExp) {
+    buf.push(jstestdriver.utils.quoteUnicode(obj.toString()));
+  } else if (jstestdriver.utils.isNative(obj, 'function')) {
+    return;
+  } else if (jstestdriver.utils.isNative(obj, 'boolean')) {
+    buf.push('' + obj);
+  } else if (jstestdriver.utils.isNative(obj, 'number')) {
+    if (isNaN(obj)) {
+      buf.push('null');
+    } else {
+      buf.push('' + obj);
+    }
+  } else if (jstestdriver.utils.isNative(obj, 'string')) {
+    return buf.push(jstestdriver.utils.quoteUnicode(obj));
+  } else if (jstestdriver.utils.isNative(obj, 'object')) {
+    if (jstestdriver.utils.isNative(obj, 'array')) {
+      buf.push("[");
+      var len = obj.length;
+      var sep = false;
+      for(var i=0; i<len; i++) {
+        var item = obj[i];
+        if (sep) {
+          buf.push(",");
+        }
+        if (!(item instanceof RegExp) &&
+            (jstestdriver.utils.isNative(item, 'function') ||
+             jstestdriver.utils.isNative(item, 'undefined'))) {
+          buf.push('null');
+        } else {
+          jstestdriver.utils.toJsonArray(buf, item, pretty, stack);
+        }
+        sep = true;
+      }
+      buf.push("]");
+    } else if (jstestdriver.utils.isNative(obj, 'date')) {
+      buf.push(jstestdriver.utils.quoteUnicode(obj.toString()));
+    } else {
+      buf.push("{");
+      if (pretty) buf.push(pretty);
+      var comma = false;
+      var childPretty = pretty ? pretty + "  " : false;
+      var keys = [];
+      for(var k in obj) {
+        if (obj[k] === undefined)
+          continue;
+        keys.push(k);
+      }
+      keys.sort();
+      for ( var keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+        var key = keys[keyIndex];
+        var value = obj[key];
+        if (typeof value != 'function') {
+          if (comma) {
+            buf.push(",");
+            if (pretty) buf.push(pretty);
+          }
+          buf.push(jstestdriver.utils.quote(key));
+          buf.push(":");
+          jstestdriver.utils.toJsonArray(buf, value, childPretty, stack);
+          comma = true;
+        }
+      }
+      buf.push("}");
+    }
+  }
+  if (jstestdriver.utils.isNative(obj, 'object')) {
+    stack.pop();
+  }
+}

@@ -55,8 +55,6 @@ import com.google.jstestdriver.FileInfo;
 import com.google.jstestdriver.ForwardingServlet;
 import com.google.jstestdriver.SlaveBrowser;
 import com.google.jstestdriver.SlaveResourceService;
-import com.google.jstestdriver.StandaloneRunnerFilesFilter;
-import com.google.jstestdriver.StandaloneRunnerFilesFilterImpl;
 import com.google.jstestdriver.Time;
 import com.google.jstestdriver.TimeImpl;
 import com.google.jstestdriver.annotations.BaseResourceLocation;
@@ -193,7 +191,6 @@ public class JstdHandlersModule extends RequestHandlersModule {
     bind(new Key<ConcurrentMap<SlaveBrowser, Thread>>() {})
         .toInstance(new ConcurrentHashMap<SlaveBrowser, Thread>());
     bind(new Key<Set<FileInfo>>() {}).toInstance(new HashSet<FileInfo>());
-    bind(StandaloneRunnerFilesFilter.class).to(StandaloneRunnerFilesFilterImpl.class);
     bind(HandlerPathPrefix.class).toInstance(handlerPrefix);
     bind(Time.class).to(TimeImpl.class);
     bind(Boolean.class).annotatedWith(Names.named("debug")).toInstance(debug);

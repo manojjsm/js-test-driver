@@ -44,6 +44,7 @@ public class JsonCommand {
     public String getCommand() {
       return command;
     }
+    
   }
 
   private String command;

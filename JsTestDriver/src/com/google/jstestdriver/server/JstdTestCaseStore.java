@@ -46,8 +46,6 @@ public class JstdTestCaseStore {
       new ConcurrentHashMap<String, JstdTestCase>();
   private final FilesCache files = new FilesCache(Maps.<String, FileInfo>newHashMap());
 
-
-
   /**
    * Adds a testcase to the store, returning a delta of files that need to be
    * loaded.

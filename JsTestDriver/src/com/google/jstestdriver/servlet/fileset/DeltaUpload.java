@@ -26,6 +26,8 @@ import com.google.jstestdriver.server.JstdTestCaseStore;
 import java.util.Collection;
 
 /**
+ * Handles the uploading of a {@link JstdTestCaseDelta} to the {@link JstdTestCaseStore}.
+ * 
  * @author corysmith@google.com (Cory Smith)
  *
  */
