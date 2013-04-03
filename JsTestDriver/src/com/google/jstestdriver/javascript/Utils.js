@@ -379,3 +379,16 @@ jstestdriver.utils.toJsonArray = function (buf, obj, pretty, stack) {
     stack.pop();
   }
 }
+
+// needed for compatibility with the Jasmine plugin.
+// TODO(corysmith): Fix that.
+/**
+ * Serializes an object to Json while elegantly handling recursion.
+ * @param {Object} obj Object to serialize.
+ * @return {String} The serealized object.
+ */
+jstestdriver.angular.toJson = function(obj) {
+  var out = [];
+  jstestdriver.utils.toJsonArray(out, obj, false, []);
+  return ' '.join(out);
+}

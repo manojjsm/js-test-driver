@@ -21,7 +21,7 @@
 	<property name="jstests.dir" value="src-test/com/google/jstestdriver/javascript" />
 	<property name="testability-explorer.reports.dir" value="${target.dir}/reports/testability-explorer" />
 	<property name="defaultbrowser" value="/usr/bin/firefox" />
-	<property name="jscorefiles" value="angular-json.js,
+	<property name="jscorefiles" value="
     Signal.js,
     PageUnloadHandler.js,
     ResetCommand.js,
@@ -168,12 +168,6 @@
 	</target>
 
 	<target name="concat-libs" depends="copy-js, compile-js">
-		<concat destfile="${destdir}/${javascript-resources}/angular-json.js">
-			<filelist dir="${destdir}/${javascript-resources}/lib" files="
-        angular-JSON-pre.js,
-        angular-JSON.js,
-        angular-JSON-post.js" />
-		</concat>
 		<concat destfile="${destdir}/${javascript-resources}/lib/jquery-min.js">
 			<filelist dir="${destdir}/${javascript-resources}/lib" files="jquery-1.4.3.min.js,
                           jquery-compat.js" />
