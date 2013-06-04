@@ -67,6 +67,7 @@ class CommandGetHandler implements RequestHandler {
     } else if (request.getParameter("nextBrowserId") != null) {
       response.getWriter().write(capturedBrowsers.getUniqueId());
     } else {
+      response.setCharacterEncoding("UTF-8");
       streamResponse(request.getParameter("id"), response.getWriter());
     }
     response.getWriter().flush();

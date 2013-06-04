@@ -22,10 +22,7 @@ import com.google.jstestdriver.util.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,6 +35,7 @@ import java.util.Map;
  */
 public class HttpServer implements Server {
   private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
+  private static final String UTF8_ENCODING = "UTF-8";
   private final StopWatch stopWatch;
   
   @Inject
@@ -94,12 +92,13 @@ public class HttpServer implements Server {
 
   private String toString(InputStream inputStream) throws IOException {
     StringBuilder sb = new StringBuilder();
+    Reader reader = new InputStreamReader(inputStream, UTF8_ENCODING);
     int ch;
 
-    while ((ch = inputStream.read()) != -1) {
+    while ((ch = reader.read()) != -1) {
       sb.append((char) ch);
     }
-    inputStream.close();
+    reader.close();
     return sb.toString();
   }
 
@@ -116,9 +115,9 @@ public class HttpServer implements Server {
       connection.setRequestMethod("POST");
       connection.setDoOutput(true);
       connection.setDoInput(true);
-      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + UTF8_ENCODING);
       connection.setRequestProperty("Content-Length", Integer
-          .toString(paramsString.getBytes().length));
+          .toString(paramsString.getBytes(UTF8_ENCODING).length));
       OutputStreamWriter oWriter = new OutputStreamWriter(connection.getOutputStream());
 
       oWriter.write(paramsString);

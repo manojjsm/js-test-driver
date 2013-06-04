@@ -144,7 +144,7 @@ jstestdriver.config = (function(module) {
     var streamingService = new jstestdriver.StreamingService(
             url,
             now,
-            jstestdriver.convertToJson(jstestdriver.jQuery.post),
+            jstestdriver.createAsynchPost(jstestdriver.jQuery),
             jstestdriver.createSynchPost(jstestdriver.jQuery),
             jstestdriver.setTimeout,
             unloadSignal);
