@@ -29,10 +29,10 @@ goog.provide('jstestdriver.plugins.TestRunnerPlugin');
  * @constructor
  */
 jstestdriver.plugins.TestRunnerPlugin = function(dateObj,
-												 clearBody,
-												 pluginRegistrar,
-												 serializeErrors,
-												 opt_runTestLoop) {
+    clearBody,
+    pluginRegistrar,
+    serializeErrors,
+    opt_runTestLoop) {
   this.dateObj_ = dateObj;
   this.clearBody_ = clearBody;
   this.boundRunTest_ = jstestdriver.bind(this, this.runTest);

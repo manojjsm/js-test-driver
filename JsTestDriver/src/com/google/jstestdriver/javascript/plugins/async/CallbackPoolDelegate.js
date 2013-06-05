@@ -87,6 +87,7 @@ jstestdriver.plugins.async.CallbackPoolDelegate.prototype.addErrback = function(
  * @param {string=} opt_description The callback description.
  * @return {Function} The wrapped callback.
  * @export
+ * @deprecated Use addCallback().
  */
 jstestdriver.plugins.async.CallbackPoolDelegate.prototype.add =
     jstestdriver.plugins.async.CallbackPoolDelegate.prototype.addCallback;
@@ -101,6 +102,7 @@ jstestdriver.plugins.async.CallbackPoolDelegate.prototype.add =
  * @param {string=} opt_description The description.
  * @return {Function} A noop callback.
  * @export
+ * @deprecated Use wait().
  */
 jstestdriver.plugins.async.CallbackPoolDelegate.prototype.noop = function(
     opt_n, opt_timeout, opt_description) {
@@ -113,3 +115,12 @@ jstestdriver.plugins.async.CallbackPoolDelegate.prototype.noop = function(
   return this.pool_.addCallback(
       jstestdriver.EMPTY_FUNC, opt_n, opt_timeout, opt_description);
 };
+
+
+/**
+ * Adds an empty callback to the queue.
+ * @return {Function} The callback.
+ * @export
+ */
+jstestdriver.plugins.async.CallbackPoolDelegate.prototype.wait =
+    jstestdriver.plugins.async.CallbackPoolDelegate.prototype.noop;

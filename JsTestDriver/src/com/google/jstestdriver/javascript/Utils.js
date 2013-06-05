@@ -246,7 +246,7 @@ jstestdriver.utils.serializeObjectToArray =
   var out = opt_out || out;
   if (jstestdriver.utils.isNative(obj, 'Array')) {
     out.push('[');
-    var arr = obj;
+    var arr = /** @type {Array.<Object>} */ (obj);
     for ( var i = 0; i < arr.length; i++) {
       this.serializeObjectToArray(arr[i], out);
       if (i < arr.length - 1) {
