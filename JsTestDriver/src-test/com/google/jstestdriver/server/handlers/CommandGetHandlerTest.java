@@ -97,6 +97,7 @@ public class CommandGetHandlerTest extends TestCase {
     IMocksControl control = EasyMock.createControl();
 
     HttpServletResponse response = control.createMock(HttpServletResponse.class);
+    response.setCharacterEncoding("UTF-8");
     expect(response.getWriter()).andReturn(writer).anyTimes();
     HttpServletRequest request = control.createMock(HttpServletRequest.class);
     expect(request.getParameter("listBrowsers")).andReturn(null);

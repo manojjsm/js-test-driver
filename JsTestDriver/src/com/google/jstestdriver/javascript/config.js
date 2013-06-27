@@ -61,17 +61,17 @@ jstestdriver.config = (function(module) {
             stylesheetLoader,
             jstestdriver.now);
     var testRunnerPlugin =
-          new jstestdriver.plugins.TestRunnerPlugin(
-		      Date,
-		      function() {
-		          jstestdriver.log(jstestdriver.jQuery('body')[0].innerHTML);
-		          jstestdriver.jQuery('body').children().remove();
-		          jstestdriver.jQuery(document).unbind();
-		          jstestdriver.jQuery(document).die();
-		      },
-		      jstestdriver.pluginRegistrar,
-		      jstestdriver.utils.serializeErrors,
-		      runTestLoop);
+        new jstestdriver.plugins.TestRunnerPlugin(
+            Date,
+            function() {
+              jstestdriver.log(jstestdriver.jQuery('body')[0].innerHTML);
+              jstestdriver.jQuery('body').children().remove();
+              jstestdriver.jQuery(document).unbind();
+              jstestdriver.jQuery(document).die();
+            },
+            jstestdriver.pluginRegistrar,
+            jstestdriver.utils.serializeErrors,
+            runTestLoop);
 
     jstestdriver.pluginRegistrar.register(
         new jstestdriver.plugins.DefaultPlugin(
@@ -144,7 +144,7 @@ jstestdriver.config = (function(module) {
     var streamingService = new jstestdriver.StreamingService(
             url,
             now,
-            jstestdriver.convertToJson(jstestdriver.jQuery.post),
+            jstestdriver.createAsynchPost(jstestdriver.jQuery),
             jstestdriver.createSynchPost(jstestdriver.jQuery),
             jstestdriver.setTimeout,
             unloadSignal);

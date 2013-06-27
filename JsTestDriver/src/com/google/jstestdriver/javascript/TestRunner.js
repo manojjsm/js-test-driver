@@ -82,19 +82,22 @@ jstestdriver.TestRunner.prototype.runNextConfiguration_ = function() {
 jstestdriver.TestRunner.prototype.runConfiguration = function(config,
                                                               onTestDone,
                                                               onComplete) {
-  if (this.captureConsole_) {
-    this.overrideConsole_();
+  var self = this;
+  if (self.captureConsole_) {
+    self.overrideConsole_();
   }
 
   jstestdriver.log("running configuration " + config);
   this.pluginRegistrar_.runTestConfiguration(
       config,
       onTestDone,
-      onComplete);
-
-  if (this.captureConsole_) {
-    this.resetConsole_();
-  }
+      function() {
+        if (self.captureConsole_) {
+          self.resetConsole_();
+        }
+        onComplete.apply(this, arguments);
+      }
+  );
 };
 
 

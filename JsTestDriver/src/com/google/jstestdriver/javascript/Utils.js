@@ -165,7 +165,21 @@ jstestdriver.createSynchPost = function(jQuery) {
       'async' : false,
       'data' : data,
       'type' : 'POST',
-      'url' : url
+      'url' : url,
+      'contentType': 'application/x-www-form-urlencoded; charset=UTF-8'
+    });
+  });
+};
+
+jstestdriver.createAsynchPost = function(jQuery) {
+  return jstestdriver.convertToJson(function(url, data, callback, type) {
+    return jQuery.ajax({
+      'data' : data,
+      'type' : 'POST',
+      'url' : url,
+      'success' : callback,
+      'dataType' : type,
+      'contentType': 'application/x-www-form-urlencoded; charset=UTF-8'
     });
   });
 };
@@ -232,7 +246,7 @@ jstestdriver.utils.serializeObjectToArray =
   var out = opt_out || out;
   if (jstestdriver.utils.isNative(obj, 'Array')) {
     out.push('[');
-    var arr = obj;
+    var arr = /** @type {Array.<Object>} */ (obj);
     for ( var i = 0; i < arr.length; i++) {
       jstestdriver.utils.serializeObjectToArray(arr[i], out);
       if (i < arr.length - 1) {
@@ -382,6 +396,7 @@ jstestdriver.utils.toJsonArray = function (buf, obj, pretty, stack) {
 
 // needed for compatibility with the Jasmine plugin.
 // TODO(corysmith): Fix that.
+jstestdriver.angular = {};
 /**
  * Serializes an object to Json while elegantly handling recursion.
  * @param {Object} obj Object to serialize.
