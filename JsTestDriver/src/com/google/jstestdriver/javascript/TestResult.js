@@ -20,10 +20,10 @@ goog.require('jstestdriver');
 
 
 /**
- * @param {string} testCaseName
- * @param {string} testName
+ * @param {String} testCaseName
+ * @param {String} testName
  * @param {jstestdriver.TestResult.RESULT} result
- * @param {string} message
+ * @param {String} message
  * @param {Array.<string>} log
  * @param {number} time
  * @param {Object.<string, Object>} opt_data A map of arbitrary value pairs

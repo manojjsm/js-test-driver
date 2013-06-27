@@ -152,8 +152,8 @@ jstestdriver.plugins.async.AsyncTestRunnerPlugin.prototype.execute_ = function(
     onStageComplete, invokeMethod) {
   var runner = this;
   var onError = function(error) {runner.errors_.push(error);};
-  var arguments = this.testRunConfiguration_.getArguments();
-  var argument = arguments ? arguments[this.testName_] : null;
+  var args = this.testRunConfiguration_.getArguments();
+  var argument = args ? args[this.testName_] : null;
   var stage = new jstestdriver.plugins.async.TestStage.Builder().
       setOnError(onError).
       setOnStageComplete(onStageComplete).
@@ -261,8 +261,8 @@ jstestdriver.plugins.async.AsyncTestRunnerPlugin.prototype.buildResult = functio
         jstestdriver.assertCount +
         "' encountered.")]);
   }
-  var arguments = this.testRunConfiguration_.getArguments();
-  var argument = arguments ? arguments[this.testName_] : null;
+  var args = this.testRunConfiguration_.getArguments();
+  var argument = args ? args[this.testName_] : null;
   return new jstestdriver.TestResult(
       this.testCaseInfo_.getTestCaseName(), this.testName_, result, message,
       jstestdriver.console.getAndResetLog(), end - this.start_, null, argument);

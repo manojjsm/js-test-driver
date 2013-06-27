@@ -15,7 +15,8 @@
  */
  
 goog.provide('jstestdriver.plugins.AssertsPlugin');
- 
+
+/** @constructor */ 
 jstestdriver.plugins.AssertsPlugin = function() {
   this.name = 'AssertPlugin';
 };

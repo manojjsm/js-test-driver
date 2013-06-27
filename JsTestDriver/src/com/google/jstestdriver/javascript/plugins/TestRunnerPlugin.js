@@ -29,10 +29,10 @@ goog.provide('jstestdriver.plugins.TestRunnerPlugin');
  * @constructor
  */
 jstestdriver.plugins.TestRunnerPlugin = function(dateObj,
-												 clearBody,
-												 pluginRegistrar,
-												 serializeErrors,
-												 opt_runTestLoop) {
+                                                 clearBody,
+                                                 pluginRegistrar,
+                                                 serializeErrors,
+                                                 opt_runTestLoop) {
   this.dateObj_ = dateObj;
   this.clearBody_ = clearBody;
   this.boundRunTest_ = jstestdriver.bind(this, this.runTest);
@@ -198,9 +198,13 @@ jstestdriver.plugins.TestRunnerPlugin.prototype.runTest =
             jstestdriver.console.getAndResetLog(), end - start);
   } catch (e) {
     errors.push(e);
-    return new jstestdriver.TestResult(testCaseName, testName,
-            'error', 'Unexpected runner error: ' + this.serializeError(errors),
-            jstestdriver.console.getAndResetLog(), 0);
+    return new jstestdriver.TestResult(
+         testCaseName,
+         testName,
+         jstestdriver.TestResult.RESULT.ERROR,
+         'Unexpected runner error: ' + this.serializeError(errors),
+         jstestdriver.console.getAndResetLog(),
+         0);
   }
 };
 

@@ -234,7 +234,7 @@ jstestdriver.utils.serializeObjectToArray =
     out.push('[');
     var arr = obj;
     for ( var i = 0; i < arr.length; i++) {
-      this.serializeObjectToArray(arr[i], out);
+      jstestdriver.utils.serializeObjectToArray(arr[i], out);
       if (i < arr.length - 1) {
         out.push(',');
       }
@@ -251,7 +251,7 @@ jstestdriver.utils.serializePropertyOnObject = function(name, obj, out) {
   if (name in obj) {
     out.push(',');
     out.push('"' + name + '":');
-    this.serializeObjectToArray(obj[name], out);
+    jstestdriver.utils.serializeObjectToArray(obj[name], out);
   }
 };
 

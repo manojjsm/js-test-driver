@@ -13,6 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+goog.provide('jstestdriver.plugins.DefaultPlugin');
+/**
+ * @constructor
+ * @param {jstestdriver.plugins.FileLoaderPlugin} fileLoaderPlugin
+ * @param {jstestdriver.plugins.TestRunnerPlugin} testRunnerPlugin
+ * @param {jstestdriver.plugins.AssertsPlugin} assertsPlugin
+ * @param {jstestdriver.plugins.TestCaseManagerPlugin} testCaseManagerPlugin
+ */
 jstestdriver.plugins.DefaultPlugin = function(fileLoaderPlugin,
                                               testRunnerPlugin,
                                               assertsPlugin,
@@ -57,4 +65,4 @@ jstestdriver.plugins.DefaultPlugin.prototype.onTestsStart =
 
 
 jstestdriver.plugins.DefaultPlugin.prototype.onTestsFinish =
-  jstestdriver.EMPTY_FUNC;
+    jstestdriver.EMPTY_FUNC;

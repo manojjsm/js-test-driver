@@ -14,6 +14,9 @@
  * the License.
  */
 
+goog.provide('jstestdriver.TestRunner.TestCaseMap');
+goog.provide('jstestdriver.TestRunner');
+
 /**
  * @param pluginRegistrar
  * @constructor
@@ -37,7 +40,6 @@ jstestdriver.TestRunner.prototype.runTests = function(testRunsConfiguration,
                                                       onTestDone,
                                                       onComplete,
                                                       captureConsole) {
-
   this.pluginRegistrar_.onTestsStart();
   this.testRunsConfiguration_ = testRunsConfiguration;
   this.onTestDone_ = onTestDone;
@@ -97,25 +99,25 @@ jstestdriver.TestRunner.prototype.runConfiguration = function(config,
 
 
 jstestdriver.TestRunner.prototype.overrideConsole_ = function() {
-  this.logMethod_ = console.log;
-  this.logDebug_ = console.debug;
-  this.logInfo_ = console.info;
-  this.logWarn_ = console.warn;
-  this.logError_ = console.error;
-  console.log = function() { jstestdriver.console.log.apply(jstestdriver.console, arguments); };
-  console.debug = function() { jstestdriver.console.debug.apply(jstestdriver.console, arguments); };
-  console.info = function() { jstestdriver.console.info.apply(jstestdriver.console, arguments); };
-  console.warn = function() { jstestdriver.console.warn.apply(jstestdriver.console, arguments); };
-  console.error = function() { jstestdriver.console.error.apply(jstestdriver.console, arguments); };
+  this.logMethod_ = window.console.log;
+  this.logDebug_ = window.console.debug;
+  this.logInfo_ = window.console.info;
+  this.logWarn_ =  window.console.warn;
+  this.logError_ =  window.console.error;
+  window.console.log = function() { jstestdriver.console.log.apply(jstestdriver.console, arguments); };
+  window.console.debug = function() { jstestdriver.console.debug.apply(jstestdriver.console, arguments); };
+  window.console.info = function() { jstestdriver.console.info.apply(jstestdriver.console, arguments); };
+  window.console.warn = function() { jstestdriver.console.warn.apply(jstestdriver.console, arguments); };
+  window.console.error = function() { jstestdriver.console.error.apply(jstestdriver.console, arguments); };
 };
 
 
 jstestdriver.TestRunner.prototype.resetConsole_ = function() {
-  console.log = this.logMethod_;
-  console.debug = this.logDebug_;
-  console.info = this.logInfo_;
-  console.warn = this.logWarn_;
-  console.error = this.logError_;  
+  window.console.log = this.logMethod_;
+  window.console.debug = this.logDebug_;
+  window.console.info = this.logInfo_;
+  window.console.warn = this.logWarn_;
+  window.console.error = this.logError_;
 };
 
 

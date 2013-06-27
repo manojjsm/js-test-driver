@@ -15,8 +15,9 @@
  */
 
 goog.provide('jstestdriver.Console');
+goog.provide('jstestdriver.JSON');
 
-
+/** @const {Object} */
 jstestdriver.JSON = window['JSON'] || {};
 jstestdriver.JSON.stringify = window['JSON'] ? window['JSON']['stringify'] :
     function(msg, opt_args) {};

@@ -14,6 +14,7 @@
  * the License.
  */
 
+goog.provide('jstestdriver.plugins.TestCaseManagerPlugin');
 
 /**
  * Plugin that handles the default behavior for the TestCaseManager.
